@@ -69,33 +69,34 @@
                 </button>
             </div>
 
-            <!-- CONTAINER CHỨA CARDS THEO ĐÚNG MẪU ẢNH ẤN TƯỢNG -->
+            <!-- CONTAINER CHỨA CARDS LỚP -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="leaderboard-list"></div>
         </section>
 
-        <!-- TAB 2: AI ĐIỂM DANH & QUETS -->
+        <!-- TAB 2: AI ĐIỂM DANH & QUESTS -->
         <section id="tab-quests" class="hidden space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- ĐIỂM DANH NỤ CƯỜI -->
+                <!-- ĐIỂM DANH NỤ CƯỜI (Đã đồng bộ ID video-container và nút bấm type="button") -->
                 <div class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-xl">
                     <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">📸 AI Điểm Danh Nụ Cười</h2>
                     <p class="text-xs text-slate-400 mb-4">Quét nụ cười năng lượng đầu ngày để cộng +10 CCS về cho Hành tinh lớp!</p>
                     
-                    <div class="relative bg-slate-950 rounded-2xl h-60 flex flex-col items-center justify-center border border-dashed border-slate-800 overflow-hidden" id="camera-box">
-                        <div class="text-center p-4">
-                            <i class="fa-solid fa-camera-retro text-5xl text-indigo-400 mb-3 animate-bounce"></i>
-                            <p class="text-xs text-slate-400">Nhấn nút bên dưới để bắt đầu quét nụ cười</p>
-                        </div>
-                    </div>
+                    <<div class="relative bg-slate-950 rounded-2xl h-60 flex flex-col items-center justify-center border border-dashed border-slate-800 overflow-hidden" id="video-container">
+                <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover rounded-2xl hidden"></video>
+                <div class="text-center p-4 absolute inset-0 flex flex-col items-center justify-center bg-slate-950" id="cam-placeholder">
+                    <i class="fa-solid fa-camera-retro text-5xl text-indigo-400 mb-3 animate-bounce"></i>
+                    <p class="text-xs text-slate-400">Nhấn nút bên dưới để bắt đầu quét nụ cười</p>
+                </div>
+            </div>
 
-                    <button onclick="simulateSmileCheckin()" class="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-indigo-600/30 text-sm cursor-pointer">
+                    <button type="button" id="btn-diemdanh" class="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-indigo-600/30 text-sm cursor-pointer">
                         ✨ Bắt Đầu Check-in (+10 CCS)
                     </button>
-                    <div id="checkin-result" class="mt-3 text-center text-sm font-semibold text-emerald-400 hidden"></div>
+                    <div id="checkin-result" class="mt-3 text-center text-sm font-semibold"></div>
                 </div>
 
                 <!-- THỬ THÁCH VĂN MINH MẠNG -->
-            <div id="scenario-container"></div>
+                <div id="scenario-container"></div>
             </div>
         </section>
 
@@ -132,23 +133,24 @@
         </button>
         <audio id="bg-audio" loop src="https://stream.zeno.fm/f3wvbbqmdg8uv"></audio>
     </div>
-<!-- MODAL HIỂN THỊ CHI TIẾT LỚP HỌC -->
+
+    <!-- MODAL HIỂN THỊ CHI TIẾT LỚP HỌC -->
     <div id="class-detail-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 relative shadow-2xl animate-in fade-in zoom-in duration-200">
             <!-- NÚT ĐÓNG -->
             <button onclick="closeClassModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-
             <!-- NỘI DUNG POPUP -->
             <div id="modal-content"></div>
         </div>
     </div>
+
     <!-- SCRIPTS -->
-    <!-- SCRIPTS -->
-<script src="js/questionBank.js"></script>
-<script src="js/checkin.js"></script>
-<script src="js/quests.js"></script>
-<script src="js/wall.js"></script>
-<script src="js/app.js"></script>
+    <script src="js/questionBank.js"></script>
+    <script src="js/checkin.js"></script>
+    <script src="js/quests.js"></script>
+    <script src="js/wall.js"></script>
+    <script src="js/app.js"></script>
+</body>
 </html>
