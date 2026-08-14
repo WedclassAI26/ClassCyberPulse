@@ -19,3 +19,63 @@
 .planet-glow-indigo {
     box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
 }
+/* --- HIỆU ỨNG CYBER NEON & HÀNH TINH --- */
+
+@keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+    animation: spinSlow 12s linear infinite;
+}
+
+/* Hiệu ứng Glow lộng lẫy và rực rỡ hơn cho Hành tinh */
+.planet-glow-amber {
+    box-shadow: 0 0 35px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.4);
+    border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.planet-glow-emerald {
+    box-shadow: 0 0 35px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(16, 185, 129, 0.4);
+    border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.planet-glow-indigo {
+    box-shadow: 0 0 35px rgba(99, 102, 241, 0.6), inset 0 0 15px rgba(99, 102, 241, 0.4);
+    border: 1px solid rgba(99, 102, 241, 0.5);
+}
+
+/* Nâng cấp tổng thể nền sáng sủa, nổi bật chất Cyberpunk Gen Z */
+:root {
+    --bg-main: #070913;
+    --bg-card: rgba(18, 24, 48, 0.85);
+    --accent-cyan: #00f0ff;
+    --accent-pink: #ff007f;
+}
+
+body {
+    background: radial-gradient(circle at 50% 20%, #111b38 0%, var(--bg-main) 100%);
+    color: #f8fafc;
+}
+
+/* Khung thẻ kính mờ phát sáng nhẹ */
+.card, .chat-container, header {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+/* Tùy chỉnh icon chat bot */
+.chat-bot-icon {
+    width: 50px;      /* Kích thước to hơn cho dễ bấm */
+    height: 50px;
+    filter: drop-shadow(0 0 10px var(--accent-cyan)); /* Hiệu ứng bóng neon */
+    transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.chat-bot-icon-wrapper:hover .chat-bot-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px var(--accent-pink));
+}
