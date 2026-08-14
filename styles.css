@@ -1,0 +1,21 @@
+@keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+    animation: spinSlow 12s linear infinite;
+}
+
+/* Hiệu ứng Glow lộng lẫy cho Hành tinh */
+.planet-glow-amber {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
+}
+
+.planet-glow-emerald {
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+}
+
+.planet-glow-indigo {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
+}
