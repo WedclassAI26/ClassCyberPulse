@@ -8,8 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Thư viện Confetti Pháo hoa -->
+   <!-- Thư viện Confetti Pháo hoa -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- 👉 DÁN THƯ VIỆN FACE-API VÀO ĐÂY -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen relative pb-24 font-sans">
@@ -73,33 +75,44 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="leaderboard-list"></div>
         </section>
 
-        <!-- TAB 2: AI ĐIỂM DANH & QUESTS -->
-        <section id="tab-quests" class="hidden space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- ĐIỂM DANH NỤ CƯỜI (Đã đồng bộ ID video-container và nút bấm type="button") -->
-                <div class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-xl">
-                    <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">📸 AI Điểm Danh Nụ Cười</h2>
-                    <p class="text-xs text-slate-400 mb-4">Quét nụ cười năng lượng đầu ngày để cộng +10 CCS về cho Hành tinh lớp!</p>
-                    
-                    <<div class="relative bg-slate-950 rounded-2xl h-60 flex flex-col items-center justify-center border border-dashed border-slate-800 overflow-hidden" id="video-container">
-                <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover rounded-2xl hidden"></video>
-                <div class="text-center p-4 absolute inset-0 flex flex-col items-center justify-center bg-slate-950" id="cam-placeholder">
-                    <i class="fa-solid fa-camera-retro text-5xl text-indigo-400 mb-3 animate-bounce"></i>
-                    <p class="text-xs text-slate-400">Nhấn nút bên dưới để bắt đầu quét nụ cười</p>
+  <!-- TAB 2: AI ĐIỂM DANH & QUESTS -->
+<section id="tab-quests" class="hidden space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        
+        <!-- CỘT TRÁI: AI Điểm Danh Nụ Cười -->
+        <div class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">📸 AI Điểm Danh Nụ Cười</h2>
+            <p class="text-xs text-slate-400 mb-4">Quét nụ cười năng lượng đầu ngày để cộng +10 CCS về cho Hành tinh lớp!</p>
+            
+            <div class="relative bg-slate-950 rounded-2xl h-60 flex flex-col items-center justify-center border border-dashed border-slate-800 overflow-hidden" id="video-container">
+                <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover rounded-2xl" style="display:none;"></video>
+<div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/90" id="cam-overlay">
+    <i class="fa-solid fa-camera-retro text-5xl text-indigo-400 mb-3 animate-bounce"></i>
+    <p class="text-xs text-slate-400">Nhấn nút bên dưới để bắt đầu quét nụ cười</p>
+</div>
+            </div>
+
+            <!-- Thanh tiến trình độ mở nụ cười -->
+            <div class="my-4">
+                <div class="text-xs text-slate-300 mb-1 flex justify-between">
+                    <span>Độ mở nụ cười:</span>
+                    <span id="smile-score" class="font-bold text-cyan-400">0%</span>
+                </div>
+                <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-cyan-500/30">
+                    <div id="smile-progress" class="bg-cyan-400 h-full w-0 transition-all duration-200"></div>
                 </div>
             </div>
 
-                    <button type="button" id="btn-diemdanh" class="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-indigo-600/30 text-sm cursor-pointer">
-                        ✨ Bắt Đầu Check-in (+10 CCS)
-                    </button>
-                    <div id="checkin-result" class="mt-3 text-center text-sm font-semibold"></div>
-                </div>
+            <button type="button" id="btn-diemdanh" class="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-indigo-600/30 text-sm cursor-pointer">
+                ✨ Bắt Đầu Check-in (+10 CCS)
+            </button>
+            <div id="checkin-result" class="mt-3 text-center text-sm font-semibold"></div>
+        </div>
 
-                <!-- THỬ THÁCH VĂN MINH MẠNG -->
-                <div id="scenario-container"></div>
-            </div>
-        </section>
-
+       <!-- CỘT PHẢI: Mỗi Ngày Thử Thách Tình Huống Văn Minh (Đọc từ Ngân hàng câu hỏi JS) -->
+        <div class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <div id="scenario-container"></div>
+        </div>
         <!-- TAB 3: TRẠM TỬ TẾ -->
         <section id="tab-wall" class="hidden space-y-8">
             <div class="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-xl">
@@ -175,15 +188,18 @@
         </div>
         
         <!-- Ô nhập tin nhắn -->
+       <!-- Ô nhập tin nhắn -->
         <div class="p-2 bg-slate-900 border-t border-amber-500/40 flex gap-2">
             <input type="text" id="ai-chat-input" placeholder="Nhắn gì đó cho AI..." class="flex-1 bg-slate-950 border border-amber-500/40 text-slate-100 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-amber-400">
             <button onclick="sendMsgToAI()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition shadow-[0_0_10px_rgba(245,158,11,0.5)]">Gửi</button>
         </div>
     </div>
 </div>
-        <button onclick="sendMsgToAI()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition">Gửi</button>
-    </div>
-</div>
-    </div>
+
+<!-- Thư viện MediaPipe Face Mesh & Confetti -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </body>
+</html>
 </html>
