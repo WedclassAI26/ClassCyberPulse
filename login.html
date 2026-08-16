@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,161 +7,269 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Header -->
-    <div class="w-full max-w-sm mx-auto text-center mb-6">
-        <div class="text-5xl text-cyan-400 mb-3 animate-pulse">
+    <!-- TIÊU ĐỀ -->
+    <div class="w-full max-w-sm text-center mb-6">
+        <div class="text-5xl text-cyan-400 mb-3">
             <i class="fa-solid fa-user-astronaut"></i>
         </div>
-        <h1 class="text-2xl font-normal text-white">Đăng nhập vào ClassCyberPulse</h1>
+        <h1 class="text-2xl font-bold text-white">ClassCyberPulse</h1>
+        <p class="text-xs text-slate-500 mt-2">Đăng nhập để lưu điểm CCS của bạn</p>
     </div>
 
-    <!-- Khung đăng nhập -->
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
-        
-        <!-- Form nhập thủ công -->
-        <div class="space-y-4 text-left">
-            <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-2">Tên người dùng hoặc địa chỉ email</label>
-                <input type="text" id="login-identifier" placeholder="Nhập email hoặc tên của bạn..." class="w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
-            </div>
+    <!-- BẢNG LỰA CHỌN (Mặc định hiển thị khi vào trang login.html) -->
+    <div id="choice-box" class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <h2 class="text-lg font-bold text-white text-center">Đăng nhập</h2>
+        <p class="text-xs text-slate-400 text-center mt-1 mb-6">Chọn cách bạn muốn tiếp tục</p>
 
-            <button onclick="handleEmailLogin()" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-bold text-sm transition cursor-pointer shadow-md">
-                Đăng nhập
-            </button>
-        </div>
+        <!-- ĐĂNG NHẬP GMAIL -->
+        <button type="button" onclick="showGmailLogin()" class="w-full py-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-sm transition cursor-pointer">
+            <i class="fa-solid fa-envelope text-red-400 mr-2"></i> Đăng nhập bằng Gmail
+        </button>
 
-        <!-- Đường kẻ HOẶC -->
-        <div class="flex items-center my-6">
+        <!-- ĐĂNG KÝ -->
+        <button type="button" onclick="showRegister()" class="w-full mt-3 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 font-bold text-sm transition cursor-pointer">
+            <i class="fa-solid fa-user-plus mr-2"></i> Đăng ký
+        </button>
+
+        <!-- HOẶC -->
+        <div class="flex items-center my-5">
             <div class="flex-grow border-t border-slate-800"></div>
-            <span class="flex-shrink mx-4 text-slate-500 text-xs uppercase">hoặc</span>
+            <span class="mx-3 text-xs text-slate-500">HOẶC</span>
             <div class="flex-grow border-t border-slate-800"></div>
         </div>
 
-        <!-- Nút Tiếp tục với Google tự động 1 chạm -->
-        <div class="space-y-3">
-            <button onclick="handleGoogleOneTap()" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-md font-semibold text-sm text-white transition cursor-pointer flex items-center justify-center gap-2 shadow-sm">
-                <i class="fa-brands fa-google text-red-400"></i> Tiếp tục với Google
-            </button>
-        </div>
+        <!-- TIẾP TỤC VỚI GOOGLE -->
+        <button type="button" onclick="continueAsGoogleGuest()" class="w-full py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-lg font-bold text-sm transition cursor-pointer">
+            <i class="fa-brands fa-google text-red-500 mr-2"></i> Tiếp tục với Google
+        </button>
 
+        <p class="text-[10px] text-slate-500 text-center mt-5">Bạn vẫn có thể sử dụng website mà không cần đăng nhập.</p>
     </div>
 
-    <!-- Modal cập nhật lớp nếu email chưa có trong danh sách Admin -->
-    <div id="custom-register-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-bold text-white mb-2">Cập nhật thông tin học sinh</h3>
-            <p class="text-xs text-slate-400 mb-4">Tài khoản Google này chưa có trong danh sách lớp của Admin. Vui lòng bổ sung thông tin:</p>
-            
-            <div class="space-y-3 mb-4 text-left">
-                <div>
-                    <label class="text-[11px] text-slate-400 block mb-1">Họ và tên:</label>
-                    <input type="text" id="modal-name" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-                </div>
-                <div>
-                    <label class="text-[11px] text-slate-400 block mb-1">Lớp (Ví dụ: 11A1):</label>
-                    <input type="text" id="modal-class" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-                </div>
-                <div>
-                    <label class="text-[11px] text-slate-400 block mb-1">Trường:</label>
-                    <input type="text" id="modal-school" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-                </div>
-            </div>
+    <!-- BẢNG ĐĂNG NHẬP GMAIL (Mặc định ẩn) -->
+    <div id="gmail-box" class="hidden w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <button type="button" onclick="backToChoice()" class="text-xs text-slate-400 hover:text-cyan-400 mb-5 cursor-pointer">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại
+        </button>
 
-            <div class="flex gap-2">
-                <button onclick="closeModal()" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-bold transition">Hủy</button>
-                <button onclick="saveCustomUser()" class="w-1/2 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-xs font-bold transition">Xác nhận</button>
-            </div>
-        </div>
+        <h2 class="text-lg font-bold text-white">Đăng nhập bằng Gmail</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-5">Nhập Gmail đã được đăng ký với Admin.</p>
+
+        <label for="gmail-input" class="block text-xs text-slate-300 mb-2">Địa chỉ Gmail</label>
+        <input type="email" id="gmail-input" placeholder="example@gmail.com" autocomplete="email" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-3 text-sm text-white focus:outline-none focus:border-cyan-500">
+
+        <button type="button" onclick="loginWithGmail()" class="w-full mt-4 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 font-bold text-sm transition cursor-pointer">
+            <i class="fa-solid fa-right-to-bracket mr-2"></i> Đăng nhập
+        </button>
+
+        <p id="gmail-error" class="hidden text-xs text-red-400 mt-3"></p>
     </div>
 
-    <!-- Quay lại -->
+    <!-- BẢNG ĐĂNG KÝ (Mặc định ẩn) -->
+    <div id="register-box" class="hidden w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <button type="button" onclick="backToChoice()" class="text-xs text-slate-400 hover:text-cyan-400 mb-5 cursor-pointer">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại
+        </button>
+
+        <h2 class="text-lg font-bold text-white">Đăng ký học sinh</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-5">Nhập thông tin để tạo tài khoản và lưu điểm.</p>
+
+        <label class="block text-xs text-slate-400 mb-1">Họ và tên</label>
+        <input id="register-name" type="text" placeholder="Nguyễn Văn An" class="w-full mb-3 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+
+        <label class="block text-xs text-slate-400 mb-1">Lớp</label>
+        <input id="register-class" type="text" placeholder="11A1" class="w-full mb-3 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+
+        <label class="block text-xs text-slate-400 mb-1">Trường</label>
+        <input id="register-school" type="text" placeholder="THPT ..." class="w-full mb-3 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+
+        <label class="block text-xs text-slate-400 mb-1">Tỉnh / Thành phố</label>
+        <input id="register-province" type="text" placeholder="Hà Nội" class="w-full mb-3 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+
+        <label class="block text-xs text-slate-400 mb-1">Gmail</label>
+        <input id="register-email" type="email" placeholder="example@gmail.com" class="w-full mb-4 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+
+        <button type="button" onclick="registerUser()" class="w-full py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 font-bold text-sm transition cursor-pointer">
+            <i class="fa-solid fa-check mr-2"></i> Hoàn tất đăng ký
+        </button>
+
+        <p id="register-error" class="hidden text-xs text-red-400 mt-3"></p>
+    </div>
+
+    <!-- QUAY VỀ TRANG CHỦ -->
     <div class="mt-8 text-center">
-        <a href="index.html" class="text-xs text-slate-400 hover:text-cyan-400 transition">
+        <a href="index.html" class="text-xs text-slate-500 hover:text-cyan-400 transition">
             <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại trang chủ
         </a>
     </div>
 
-    <script>
-        // Danh sách lớp mẫu do Admin quản lý
-        const adminClassDatabase = {
-            "admin.11a1@school.edu.vn": "11A1 - THPT Chuyên",
-            "nguyenvanan@gmail.com": "12C3 - THPT Lê Quý Đôn",
-            "buinhim239@gmail.com": "12A1 - THPT Chuyên" // Đã thêm email của bạn vào đây để test thử
-        };
+<script>
+const adminClassDatabase = {
+    "admin.11a1@school.edu.vn": {
+        name: "Admin 11A1",
+        classRoom: "11A1",
+        school: "THPT Chuyên",
+        province: "Hà Nội"
+    },
+    "nguyenvanan@gmail.com": {
+        name: "Nguyễn Văn An",
+        classRoom: "12C3",
+        school: "THPT Lê Quý Đôn",
+        province: "Hà Nội"
+    }
+};
 
-        let pendingEmail = "";
+function hideAllBoxes() {
+    document.getElementById("choice-box").classList.add("hidden");
+    document.getElementById("gmail-box").classList.add("hidden");
+    document.getElementById("register-box").classList.add("hidden");
+}
 
-        function processLogin(identifier) {
-            if (!identifier) return;
-            identifier = identifier.trim().toLowerCase();
-            let assignedClass = adminClassDatabase[identifier];
-            let rawName = identifier.includes('@') ? identifier.split('@')[0] : identifier;
-            let formattedName = rawName.split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+function showGmailLogin() {
+    hideAllBoxes();
+    document.getElementById("gmail-box").classList.remove("hidden");
+    setTimeout(() => {
+        document.getElementById("gmail-input").focus();
+    }, 100);
+}
 
-            if (!assignedClass) {
-                pendingEmail = identifier;
-                document.getElementById("modal-name").value = formattedName;
-                document.getElementById("custom-register-modal").classList.remove("hidden");
-                return;
-            }
+function showRegister() {
+    hideAllBoxes();
+    document.getElementById("register-box").classList.remove("hidden");
+}
 
-            let userData = {
-                name: formattedName,
-                classRoom: assignedClass,
-                score: 0,
-                isGoogleGuest: true,
-                email: identifier
-            };
+function backToChoice() {
+    hideAllBoxes();
+    document.getElementById("choice-box").classList.remove("hidden");
+}
 
-            localStorage.setItem("cyberUser", JSON.stringify(userData));
-            window.location.href = "index.html";
-        }
+function isValidGmail(email) {
+    return /^[^\s@]+@gmail\.com$/i.test(email);
+}
 
-        function handleEmailLogin() {
-            let inputVal = document.getElementById("login-identifier").value;
-            processLogin(inputVal);
-        }
+function loginWithGmail() {
+    const input = document.getElementById("gmail-input");
+    const error = document.getElementById("gmail-error");
+    const email = input.value.trim().toLowerCase();
 
-        // Tự động nhận diện tài khoản Google nhanh 1 chạm (Lấy thẳng email mẫu đang thao tác trên máy hoặc gợi ý siêu tốc)
-        function handleGoogleOneTap() {
-            // Giả lập lấy nhanh email đang mở trên trình duyệt của bạn (Ví dụ: buinhim239@gmail.com từ ảnh chụp màn hình của bạn)
-            let detectedEmail = "buinhim239@gmail.com"; 
-            
-            let confirmUse = confirm(`Xác nhận tiếp tục nhanh bằng tài khoản Google:\n👉 ${detectedEmail}`);
-            if (confirmUse) {
-                processLogin(detectedEmail);
-            }
-        }
+    error.classList.add("hidden");
+    error.textContent = "";
 
-        function closeModal() {
-            document.getElementById("custom-register-modal").classList.add("hidden");
-        }
+    if (!email) {
+        error.textContent = "Vui lòng nhập Gmail.";
+        error.classList.remove("hidden");
+        return;
+    }
 
-        function saveCustomUser() {
-            let name = document.getElementById("modal-name").value.trim();
-            let className = document.getElementById("modal-class").value.trim();
-            let school = document.getElementById("modal-school").value.trim();
+    if (!isValidGmail(email)) {
+        error.textContent = "Vui lòng nhập đúng địa chỉ Gmail.";
+        error.classList.remove("hidden");
+        return;
+    }
 
-            if (!name) {
-                alert("Vui lòng nhập tên của bạn!");
-                return;
-            }
+    const registeredUsers = JSON.parse(localStorage.getItem("cyberRegisteredUsers") || "{}");
+    let account = registeredUsers[email] || adminClassDatabase[email];
 
-            let fullClass = (className ? className : "Chưa rõ lớp") + (school ? " - " + school : "");
+    if (!account) {
+        error.textContent = "Gmail này chưa được đăng ký. Vui lòng chọn Đăng ký hoặc liên hệ Admin.";
+        error.classList.remove("hidden");
+        return;
+    }
 
-            let userData = {
-                name: name,
-                classRoom: fullClass,
-                score: 0,
-                isGoogleGuest: false,
-                email: pendingEmail
-            };
+    const savedScore = Number(localStorage.getItem("cyberScore_" + email) || 0);
 
-            localStorage.setItem("cyberUser", JSON.stringify(userData));
-            window.location.href = "index.html";
-        }
-    </script>
+    const userData = {
+        loggedIn: true,
+        loginMethod: "gmail",
+        email: email,
+        name: account.name || "Học sinh",
+        classRoom: account.classRoom || "Chưa cập nhật",
+        school: account.school || "Chưa cập nhật",
+        province: account.province || "Chưa cập nhật",
+        score: savedScore
+    };
+
+    localStorage.setItem("cyberUser", JSON.stringify(userData));
+    window.location.href = "index.html";
+}
+
+function registerUser() {
+    const name = document.getElementById("register-name").value.trim();
+    const classRoom = document.getElementById("register-class").value.trim();
+    const school = document.getElementById("register-school").value.trim();
+    const province = document.getElementById("register-province").value.trim();
+    const email = document.getElementById("register-email").value.trim().toLowerCase();
+    const error = document.getElementById("register-error");
+
+    error.classList.add("hidden");
+    error.textContent = "";
+
+    if (!name || !classRoom || !school || !province || !email) {
+        error.textContent = "Vui lòng điền đầy đủ tất cả các trường thông tin.";
+        error.classList.remove("hidden");
+        return;
+    }
+
+    if (!isValidGmail(email)) {
+        error.textContent = "Vui lòng nhập đúng địa chỉ Gmail.";
+        error.classList.remove("hidden");
+        return;
+    }
+
+    const registeredUsers = JSON.parse(localStorage.getItem("cyberRegisteredUsers") || "{}");
+    registeredUsers[email] = { name, classRoom, school, province, email };
+    localStorage.setItem("cyberRegisteredUsers", JSON.stringify(registeredUsers));
+    localStorage.setItem("cyberScore_" + email, "0");
+
+    const userData = {
+        loggedIn: true,
+        loginMethod: "register",
+        email: email,
+        name: name,
+        classRoom: classRoom,
+        school: school,
+        province: province,
+        score: 0
+    };
+
+    localStorage.setItem("cyberUser", JSON.stringify(userData));
+    window.location.href = "index.html";
+}
+
+function continueAsGoogleGuest() {
+    const googleGuest = {
+        loggedIn: true,  // ĐỔI 'false' THÀNH 'true' Ở DÒNG NÀY
+        loginMethod: "google-guest",
+        email: "",
+        name: "Khách Google",
+        classRoom: "Chưa cập nhật",
+        school: "Chưa cập nhật",
+        province: "Chưa cập nhật",
+        score: 0
+    };
+
+    localStorage.setItem("cyberUser", JSON.stringify(googleGuest));
+    sessionStorage.removeItem("guestScore");
+    window.location.href = "index.html";
+}
+
+document.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter") return;
+    const gmailBox = document.getElementById("gmail-box");
+    const registerBox = document.getElementById("register-box");
+
+    if (!gmailBox.classList.contains("hidden")) {
+        loginWithGmail();
+        return;
+    }
+    if (!registerBox.classList.contains("hidden")) {
+        registerUser();
+    }
+});
+</script>
+
 </body>
 </html>
