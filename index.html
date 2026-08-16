@@ -28,10 +28,14 @@
                 <button onclick="switchTab('quests')" id="nav-quests" class="px-5 py-2 rounded-full text-sm font-semibold transition-all text-slate-400 hover:text-white">📸 Pulse Check & Quests</button>
                 <button onclick="switchTab('wall')" id="nav-wall" class="px-5 py-2 rounded-full text-sm font-semibold transition-all text-slate-400 hover:text-white">💌 Kindness Station</button>
             </div>
+            
+            <<!-- GÓC PHẢI: TRẠNG THÁI TÀI KHOẢN -->
             <div class="flex items-center space-x-3">
-                <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-full font-medium flex items-center gap-2 shadow-sm shadow-emerald-500/20">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Lớp 11A1 ( <span id="user-score-badge">1,460</span> CCS )
-                </span>
+        <div id="auth-container">
+    <button onclick="openLoginOptions()" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer flex items-center gap-2">
+        <i class="fa-solid fa-user-astronaut"></i> Đăng nhập
+    </button>
+</div>
             </div>
         </div>
     </nav>
