@@ -1776,5 +1776,9 @@ function triggerSuccessAndSavePoints() {
     console.log(
         '🎉 ĐIỂM DANH THÀNH CÔNG +10 CCS'
     );
+    // Gọi hàm cộng điểm tích lũy cá nhân
+if (typeof addScore === 'function') {
+    addScore(10);
+}
 
 }

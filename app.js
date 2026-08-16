@@ -1,4 +1,76 @@
-// DỮ LIỆU CÁC LỚP HỌC (CHUẨN 100% THEO HÌNH 1)
+// ==========================================
+// 1. QUẢN LÝ TÀI KHOẢN VÀ HIỂN THỊ GÓC PHẢI
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    updateAuthDisplay();
+    renderLeaderboard();
+});
+
+function updateAuthDisplay() {
+    const savedUser = localStorage.getItem("cyberUser");
+    const authContainer = document.getElementById("auth-container");
+
+    if (!authContainer) return;
+
+    if (savedUser) {
+        const user = JSON.parse(savedUser);
+        let displayName = user.name || "Thành viên";
+        let displayClass = user.classRoom || "Google";
+        let iconClass = user.isGoogleGuest ? "fa-brands fa-google" : "fa-circle-user";
+
+        authContainer.innerHTML = `
+            <div class="flex items-center gap-3 bg-slate-800/90 border border-emerald-500/40 px-3.5 py-2 rounded-2xl shadow-lg">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid ${iconClass} text-emerald-400 text-base"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">${displayName}</div>
+                        <div class="text-[10px] text-slate-400">Lớp: <span class="text-cyan-400 font-semibold">${displayClass}</span></div>
+                    </div>
+                </div>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-bold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ${user.score || 0} CCS
+                </span>
+                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 text-xs cursor-pointer ml-1" title="Đăng xuất">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        `;
+    } else {
+        authContainer.innerHTML = `
+            <a href="login.html" class="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                <i class="fa-solid fa-user-astronaut"></i> Đăng Nhập
+            </a>
+        `;
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem("cyberUser");
+    updateAuthDisplay();
+}
+
+// ==========================================
+// 2. HÀM CỘNG DỒN ĐIỂM SỐ CCS TỪ 0
+// ==========================================
+function addScore(pointsToAdd) {
+    let savedUser = localStorage.getItem("cyberUser");
+    
+    if (!savedUser) {
+        alert("Vui lòng đăng nhập trước khi thực hiện thử thách để được tích điểm!");
+        window.location.href = "login.html";
+        return;
+    }
+
+    let user = JSON.parse(savedUser);
+    user.score = (user.score || 0) + pointsToAdd;
+    localStorage.setItem("cyberUser", JSON.stringify(user));
+    
+    updateAuthDisplay();
+}
+
+// ==========================================
+// 3. DỮ LIỆU & BẢNG XẾP HẠNG LỚP HỌC
+// ==========================================
 let classesData = [
     {
         id: '11a1',
@@ -41,15 +113,12 @@ let classesData = [
     }
 ];
 
-// VẼ BẢNG HÀNH TINH SỐ CHUẨN GIAO DIỆN HÌNH 1 (ĐÃ PHÓNG TO ICON + HIỆU ỨNG NĂNG LƯỢNG)
 function renderLeaderboard() {
     const container = document.getElementById('leaderboard-list');
     if (!container) return;
 
-    // Sắp xếp lớp điểm cao lên trước
     classesData.sort((a, b) => b.score - a.score);
 
-    // Cập nhật lại nhãn Hạng
     classesData.forEach((cls, idx) => {
         if (idx === 0) {
             cls.rankText = '🥇 HẠNG 1';
@@ -68,36 +137,25 @@ function renderLeaderboard() {
         return `
            <div onclick="showClassDetails('${cls.id}')" class="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col justify-between hover:border-cyan-500/50 hover:scale-[1.02] cursor-pointer transition-all duration-300 min-h-[240px] group">
                 <div>
-                    <!-- DÒNG HẠNG VÀ ICON HÀNH TINH PHÓNG TO + PHÁT QUANG VŨ TRỤ -->
                     <div class="flex items-center justify-between mb-4">
                         <span class="px-3.5 py-1 rounded-full text-xs font-black border ${cls.rankClass} uppercase tracking-wider">
                             ${cls.rankText}
                         </span>
-                        
-                        <!-- ICON BIỂU TƯỢNG TO GẤP ĐÔI, PHÁT SÁNG CYBER & BỔ SUNG CHUYỂN ĐỘNG NỔI -->
                         <div class="relative flex items-center justify-center">
-                            <!-- Quầng sáng Cyber phía sau -->
                             <div class="absolute w-12 h-12 bg-cyan-500/20 rounded-full blur-xl animate-pulse group-hover:bg-cyan-400/40 transition-all"></div>
-                            
-                            <!-- Icon chính phóng to 6xl (60px) + hiệu ứng lơ lửng -->
                             <div class="text-6xl relative z-10 animate-bounce [animation-duration:3s] filter drop-shadow-[0_0_18px_rgba(34,211,238,0.7)] group-hover:scale-125 transition-transform duration-300">
                                 ${cls.icon}
                             </div>
                         </div>
                     </div>
-
-                    <!-- TÊN LỚP VÀ CẤP ĐỘ HÀNH TINH -->
                     <h3 class="text-2xl font-black text-white tracking-wide">${cls.name}</h3>
                     <p class="text-xs text-indigo-400 font-medium mt-1 mb-6">${cls.title}</p>
                 </div>
-
-                <!-- ĐIỂM SỐ VÀ THANH PROGRESS NĂNG LƯỢNG MÀU XANH NGỌC -->
                 <div>
                     <div class="flex justify-between items-center text-xs font-semibold mb-2">
                         <span class="text-slate-400">Điểm Năng Lượng CCS:</span>
                         <span class="text-emerald-400 font-bold text-sm tracking-wide">${cls.score.toLocaleString()} CCS</span>
                     </div>
-
                     <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
                         <div class="h-full bg-gradient-to-r from-teal-400 to-cyan-400 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(45,212,191,0.5)]" style="width: ${percent}%"></div>
                     </div>
@@ -107,29 +165,9 @@ function renderLeaderboard() {
     }).join('');
 }
 
-// HÀM CỘNG VÀ LƯU ĐIỂM
-function addScoreToUserClass(points) {
-    let currentScore = parseInt(localStorage.getItem('cyber_score_11a1')) || 1460;
-    currentScore += points;
-
-    // 1. Lưu vào máy
-    localStorage.setItem('cyber_score_11a1', currentScore);
-
-    // 2. Cập nhật góc trên màn hình
-    const badge = document.getElementById('user-score-badge');
-    if (badge) {
-        badge.innerText = currentScore.toLocaleString();
-    }
-
-    // 3. Cập nhật vào mảng & vẽ lại ngay
-    const myClass = classesData.find(c => c.id === '11a1');
-    if (myClass) {
-        myClass.score = currentScore;
-        renderLeaderboard();
-    }
-}
-
-// CHUYỂN TAB GIAO DIỆN
+// ==========================================
+// 4. CÁC HÀM TIỆN ÍCH (TAB, MODAL, MOOD, MUSIC)
+// ==========================================
 function switchTab(tabId) {
     const tabs = ['dashboard', 'quests', 'wall'];
     tabs.forEach(id => {
@@ -151,7 +189,6 @@ function switchTab(tabId) {
     }
 }
 
-// TRẠM SẠC CẢM XÚC
 function selectMood(mood) {
     const quotes = {
         happy: "🔥 Năng lượng cực cao! Kích hoạt chế độ bứt phá ngày mới!",
@@ -180,32 +217,6 @@ function toggleMusic() {
     }
 }
 
-// NÚT LÀM MỚI DỮ LIỆU
-function resetData() {
-    localStorage.removeItem('cyber_score_11a1');
-    const myClass = classesData.find(c => c.id === '11a1');
-    if (myClass) myClass.score = 1460;
-
-    const badge = document.getElementById('user-score-badge');
-    if (badge) badge.innerText = "1,460";
-
-    renderLeaderboard();
-    alert("Đã làm mới điểm về ban đầu (1,460 CCS)!");
-}
-
-// KHỞI CHẠY TRANG
-document.addEventListener('DOMContentLoaded', () => {
-    const savedScore = parseInt(localStorage.getItem('cyber_score_11a1')) || 1460;
-    const badge = document.getElementById('user-score-badge');
-    if (badge) badge.innerText = savedScore.toLocaleString();
-
-    const myClass = classesData.find(c => c.id === '11a1');
-    if (myClass) myClass.score = savedScore;
-
-    renderLeaderboard();
-});
-
-// HÀM HIỂN THỊ CHI TIẾT POPUP LỚP HỌC (MODAL)
 function showClassDetails(classId) {
     const cls = classesData.find(c => c.id === classId);
     if (!cls) return;
@@ -224,7 +235,6 @@ function showClassDetails(classId) {
             <p class="text-xs text-indigo-400 font-semibold mt-0.5">${cls.title}</p>
             <p class="text-xs text-slate-400 italic mt-3 bg-slate-950/80 p-3 rounded-xl border border-slate-800">${cls.slogan || 'Sẵn sàng bứt phá!'}</p>
         </div>
-
         <div class="grid grid-cols-3 gap-3 mb-6 text-center">
             <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
                 <div class="text-[10px] text-slate-400 uppercase font-semibold">Tổng Điểm</div>
@@ -239,12 +249,10 @@ function showClassDetails(classId) {
                 <div class="text-base font-black text-cyan-400 mt-1">👥 ${cls.members || 40} Học sinh</div>
             </div>
         </div>
-
         <button onclick="closeClassModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-indigo-600/30">
             Đóng Cửa Sổ
         </button>
     `;
-
     modal.classList.remove('hidden');
 }
 
