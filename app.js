@@ -1,71 +1,369 @@
 // ==========================================
-// 1. QUẢN LÝ TÀI KHOẢN VÀ HIỂN THỊ GÓC PHẢI
+// 1. QUẢN LÝ HIỂN THỊ GÓC PHẢI
+// HỖ TRỢ KHÁCH & THÀNH VIÊN
 // ==========================================
+
 document.addEventListener("DOMContentLoaded", () => {
     updateAuthDisplay();
     renderLeaderboard();
 });
 
+
+// ==========================================
+// HIỂN THỊ TÀI KHOẢN
+// ==========================================
+
 function updateAuthDisplay() {
-    const savedUser = localStorage.getItem("cyberUser");
-    const authContainer = document.getElementById("auth-container");
+
+    const authContainer =
+        document.getElementById("auth-container");
 
     if (!authContainer) return;
 
+
+    const savedUser =
+        localStorage.getItem("cyberUser");
+
+
+    let user = null;
+
+
     if (savedUser) {
-        const user = JSON.parse(savedUser);
-        let displayName = user.name || "Thành viên";
-        let displayClass = user.classRoom || "Google";
-        let iconClass = user.isGoogleGuest ? "fa-brands fa-google" : "fa-circle-user";
+        try {
+            user = JSON.parse(savedUser);
+        } catch (error) {
+            localStorage.removeItem("cyberUser");
+            user = null;
+        }
+    }
+
+
+    // ==========================================
+    // ĐÃ ĐĂNG NHẬP THẬT
+    // ==========================================
+
+    if (user && user.loggedIn === true) {
+
+        const displayName =
+            user.name || "Thành viên";
+
+        const displayClass =
+            user.classRoom || "Hệ thống";
+
+        const score =
+            Number(user.score) || 0;
+
 
         authContainer.innerHTML = `
             <div class="flex items-center gap-3 bg-slate-800/90 border border-emerald-500/40 px-3.5 py-2 rounded-2xl shadow-lg">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid ${iconClass} text-emerald-400 text-base"></i>
-                    <div>
-                        <div class="text-xs font-bold text-white">${displayName}</div>
-                        <div class="text-[10px] text-slate-400">Lớp: <span class="text-cyan-400 font-semibold">${displayClass}</span></div>
+
+                <div>
+                    <div class="text-xs font-bold text-white">
+                        ${escapeHTML(displayName)}
+                    </div>
+
+                    <div class="text-[10px] text-slate-400">
+                        Lớp:
+                        <span class="text-cyan-400 font-semibold">
+                            ${escapeHTML(displayClass)}
+                        </span>
                     </div>
                 </div>
-                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-bold flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> ${user.score || 0} CCS
+
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-bold">
+                    ${score} CCS
                 </span>
-                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 text-xs cursor-pointer ml-1" title="Đăng xuất">
+
+                <button
+                    onclick="handleLogout()"
+                    class="text-slate-400 hover:text-red-400 text-xs cursor-pointer ml-1"
+                    title="Đăng xuất"
+                >
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
+
             </div>
         `;
-    } else {
-        authContainer.innerHTML = `
-            <a href="login.html" class="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
-                <i class="fa-solid fa-user-astronaut"></i> Đăng Nhập
-            </a>
-        `;
-    }
-}
 
-function handleLogout() {
-    localStorage.removeItem("cyberUser");
-    updateAuthDisplay();
-}
-
-// ==========================================
-// 2. HÀM CỘNG DỒN ĐIỂM SỐ CCS TỪ 0
-// ==========================================
-function addScore(pointsToAdd) {
-    let savedUser = localStorage.getItem("cyberUser");
-    
-    if (!savedUser) {
-        alert("Vui lòng đăng nhập trước khi thực hiện thử thách để được tích điểm!");
-        window.location.href = "login.html";
         return;
     }
 
-    let user = JSON.parse(savedUser);
-    user.score = (user.score || 0) + pointsToAdd;
-    localStorage.setItem("cyberUser", JSON.stringify(user));
-    
+
+    // ==========================================
+    // KHÁCH / CHƯA ĐĂNG NHẬP
+    // ==========================================
+
+    const guestScore =
+        Number(
+            sessionStorage.getItem("guestScore") || 0
+        );
+
+
+    authContainer.innerHTML = `
+        <div class="flex items-center gap-2">
+
+            ${
+                guestScore > 0
+                ? `
+                    <span class="text-[10px] text-slate-500 hidden sm:block">
+                        ${guestScore} CCS phiên này
+                    </span>
+                  `
+                : ""
+            }
+
+            <a
+                href="login.html"
+                class="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2"
+            >
+                <i class="fa-solid fa-user-astronaut"></i>
+                Đăng Nhập
+            </a>
+
+        </div>
+    `;
+}
+
+
+// ==========================================
+// ĐĂNG XUẤT
+// ==========================================
+
+function handleLogout() {
+
+    localStorage.removeItem("cyberUser");
+
+    // Xóa điểm khách của phiên hiện tại
+    sessionStorage.removeItem("guestScore");
+
     updateAuthDisplay();
+
+    refreshScoreDisplay(0);
+}
+
+
+// ==========================================
+// HÀM CỘNG ĐIỂM
+// KHÔNG ÉP BUỘC ĐĂNG NHẬP
+// ==========================================
+
+function addScore(pointsToAdd) {
+
+    const points =
+        Number(pointsToAdd) || 0;
+
+    if (points <= 0) return;
+
+
+    const savedUser =
+        localStorage.getItem("cyberUser");
+
+
+    let user = null;
+
+
+    if (savedUser) {
+
+        try {
+            user = JSON.parse(savedUser);
+        } catch (error) {
+            localStorage.removeItem("cyberUser");
+            user = null;
+        }
+    }
+
+
+    // ==========================================
+    // ĐÃ ĐĂNG NHẬP THẬT
+    // ==========================================
+
+    if (user && user.loggedIn === true) {
+
+        user.score =
+            (Number(user.score) || 0) + points;
+
+
+        // Lưu tài khoản hiện tại
+        localStorage.setItem(
+            "cyberUser",
+            JSON.stringify(user)
+        );
+
+
+        // Lưu điểm riêng theo Gmail
+        if (user.email) {
+
+            localStorage.setItem(
+                "cyberScore_" +
+                user.email.toLowerCase(),
+
+                String(user.score)
+            );
+        }
+
+
+        updateAuthDisplay();
+
+        refreshScoreDisplay(user.score);
+
+        return;
+    }
+
+
+    // ==========================================
+    // KHÁCH / KHÁCH GOOGLE
+    // ==========================================
+
+    let guestScore =
+        Number(
+            sessionStorage.getItem("guestScore") || 0
+        );
+
+
+    guestScore += points;
+
+
+    // Chỉ lưu trong phiên hiện tại
+    sessionStorage.setItem(
+        "guestScore",
+        String(guestScore)
+    );
+
+
+    // Vẫn cộng điểm bình thường
+    refreshScoreDisplay(guestScore);
+
+
+    // Không chặn hoạt động
+    showLoginReminder();
+
+
+    updateAuthDisplay();
+}
+
+
+// ==========================================
+// THÔNG BÁO NHẸ
+// ==========================================
+
+function showLoginReminder() {
+
+    let notice =
+        document.getElementById("login-reminder");
+
+
+    if (!notice) {
+
+        notice =
+            document.createElement("div");
+
+        notice.id =
+            "login-reminder";
+
+        notice.className = `
+            fixed
+            top-20
+            left-1/2
+            -translate-x-1/2
+            z-[9999]
+            bg-slate-900/95
+            border
+            border-amber-400/40
+            text-slate-200
+            px-4
+            py-3
+            rounded-xl
+            shadow-2xl
+            text-xs
+            backdrop-blur-md
+            transition-all
+            duration-300
+        `;
+
+        document.body.appendChild(notice);
+    }
+
+
+    notice.innerHTML = `
+        <div class="flex items-center gap-2">
+            <span class="text-amber-400">⚠️</span>
+
+            <span>
+                Bạn cần đăng nhập để lưu điểm
+                cho lần sau nhé.
+            </span>
+        </div>
+    `;
+
+
+    notice.classList.remove("hidden");
+
+
+    clearTimeout(
+        window.loginReminderTimer
+    );
+
+
+    window.loginReminderTimer =
+        setTimeout(() => {
+
+            notice.classList.add("hidden");
+
+        }, 3500);
+}
+
+
+// ==========================================
+// CẬP NHẬT Ô ĐIỂM NẾU INDEX CÓ
+// ==========================================
+
+function refreshScoreDisplay(score) {
+
+    score =
+        Number(score) || 0;
+
+
+    const ids = [
+        "user-score",
+        "score",
+        "current-score",
+        "ccs-score",
+        "profile-score"
+    ];
+
+
+    ids.forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+            element.textContent = score;
+        }
+
+    });
+
+
+    document
+        .querySelectorAll("[data-user-score]")
+        .forEach(element => {
+            element.textContent = score;
+        });
+}
+
+
+// ==========================================
+// BẢO VỆ TÊN HIỂN THỊ
+// ==========================================
+
+function escapeHTML(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 // ==========================================
