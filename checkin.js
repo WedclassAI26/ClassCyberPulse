@@ -8,7 +8,7 @@
  * - MediaPipe FaceMesh
  * - Giao diện
  * - Hiệu ứng
- * - +10 CCS
+ * - +1 CCS
  * - LocalStorage
  * - Thông báo thành công
  *
@@ -1575,7 +1575,7 @@ function triggerSuccessAndSavePoints() {
                         font-mono
                     "
                 >
-                    +10 CCS đã được chuyển về Hành tinh lớp!
+                    +1 CCS đã được chuyển về Hành tinh lớp!
                 </p>
 
             </div>
@@ -1685,7 +1685,7 @@ function triggerSuccessAndSavePoints() {
                         tracking-wide
                     "
                 >
-                    ✨ Đã cộng thành công +10 CCS vào Hành tinh lớp!
+                    ✨ Đã cộng thành công +1 CCS vào Hành tinh lớp!
                 </p>
 
             </div>
@@ -1696,7 +1696,7 @@ function triggerSuccessAndSavePoints() {
 
     /**
      * ======================================
-     * LƯU +10 CCS
+     * LƯU +1 CCS
      * ======================================
      */
 
@@ -1718,7 +1718,7 @@ function triggerSuccessAndSavePoints() {
 
 
     currentPoints +=
-        10;
+        1;
 
 
     localStorage.setItem(
@@ -1774,11 +1774,11 @@ function triggerSuccessAndSavePoints() {
 
 
     console.log(
-        '🎉 ĐIỂM DANH THÀNH CÔNG +10 CCS'
+        '🎉 ĐIỂM DANH THÀNH CÔNG +1 CCS'
     );
     // Gọi hàm cộng điểm tích lũy cá nhân
 if (typeof addScore === 'function') {
-    addScore(10);
+    addScore(1);
 }
 
 }
