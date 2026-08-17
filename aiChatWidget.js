@@ -10,8 +10,16 @@ function toggleAIChat() {
 
     box.classList.toggle("hidden");
 }
-// Bắt sự kiện nhấn phím Enter để gửi tin nhắn nhanh
+/// Bắt sự kiện click và chạm (mobile) để mở chat, kèm theo phím Enter
 document.addEventListener("DOMContentLoaded", () => {
+    const chatToggleBtn = document.getElementById("ai-chat-toggle");
+    if (chatToggleBtn) {
+        chatToggleBtn.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            toggleAIChat();
+        }, { passive: false });
+    }
+
     const aiChatInput = document.getElementById("ai-chat-input");
     if (aiChatInput) {
         aiChatInput.addEventListener("keydown", function(event) {
