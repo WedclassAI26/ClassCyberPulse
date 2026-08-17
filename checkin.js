@@ -1774,7 +1774,7 @@ function triggerSuccessAndSavePoints() {
 
 
     console.log(
-        '🎉 ĐIỂM DANH THÀNH CÔNG +1 CCS'
+        '🎉 ĐIỂM DSANH THÀNH CÔNG +1 CCS'
     );
     // Gọi hàm cộng điểm tích lũy cá nhân
 if (typeof addScore === 'function') {
