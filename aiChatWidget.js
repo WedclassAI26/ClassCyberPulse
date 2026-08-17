@@ -1,133 +1,109 @@
-// js/aiChatWidget.js
-
-function toggleAIChat() {
-    const box = document.getElementById("ai-chat-box");
-
-    if (!box) {
-        console.error("Không tìm thấy #ai-chat-box");
-        return;
-    }
-
-    box.classList.toggle("hidden");
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const chatToggleBtn = document.getElementById("ai-chat-toggle");
-
-    if (chatToggleBtn) {
-        chatToggleBtn.addEventListener("touchend", (e) => {
-            e.preventDefault();
-            toggleAIChat();
-        }, { passive: false });
-    }
-
-    const aiChatInput = document.getElementById("ai-chat-input");
-
-    if (aiChatInput) {
-        aiChatInput.addEventListener("keydown", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendMsgToAI();
-            }
-        });
-    }
-});
-
-
 async function sendMsgToAI() {
-
     const input = document.getElementById("ai-chat-input");
     const container = document.getElementById("ai-chat-messages");
 
-    if (!input || !container) {
-        console.error("Không tìm thấy ô chat");
-        return;
-    }
+    if (!input || !container) return;
 
     const text = input.value.trim();
-
     if (!text) return;
 
     // Hiển thị tin nhắn người dùng
-    const userMessage = document.createElement("div");
-    userMessage.className =
-        "bg-indigo-900/60 p-2 rounded-xl text-white text-right ml-6";
-    userMessage.textContent = text;
-
-    container.appendChild(userMessage);
+    container.innerHTML += `
+        <div class="bg-indigo-900/60 p-2 rounded-xl text-white text-right ml-6">
+            ${text}
+        </div>
+    `;
 
     input.value = "";
     container.scrollTop = container.scrollHeight;
 
-
-    // Chờ AIService.js nếu điện thoại tải chậm
-    let attempts = 0;
-
-    while (typeof window.askClassAI !== "function" && attempts < 30) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        attempts++;
-    }
-
-
-    // Kiểm tra AIService
+    // Nếu AIService.js chưa được tải, tải lại trực tiếp
     if (typeof window.askClassAI !== "function") {
 
-        console.error("AIService.js chưa được tải trên thiết bị này.");
+        try {
+            await new Promise((resolve, reject) => {
 
-        const errorMessage = document.createElement("div");
-        errorMessage.className =
-            "bg-slate-800 p-2 rounded-xl text-slate-200 mr-6";
+                const oldScript = document.querySelector(
+                    'script[src*="AIService.js"]'
+                );
 
-        errorMessage.textContent =
-            "Không tải được Trạm AI. Vui lòng tải lại trang rồi thử lại.";
+                // Nếu script đã tồn tại nhưng chưa tạo hàm,
+                // tải lại một bản mới, tránh cache điện thoại
+                const script = document.createElement("script");
 
-        container.appendChild(errorMessage);
+                script.src = "js/AIService.js?v=" + Date.now();
+
+                script.onload = resolve;
+
+                script.onerror = () => {
+                    reject(new Error("Không tải được AIService.js"));
+                };
+
+                document.head.appendChild(script);
+            });
+
+        } catch (error) {
+
+            console.error("Không tải được AIService.js:", error);
+
+            container.innerHTML += `
+                <div class="bg-slate-800 p-2 rounded-xl text-slate-200 mr-6">
+                    Không tải được Trạm AI trên thiết bị này.
+                </div>
+            `;
+
+            container.scrollTop = container.scrollHeight;
+            return;
+        }
+    }
+
+    // Kiểm tra lại sau khi tải
+    if (typeof window.askClassAI !== "function") {
+
+        console.error("AIService.js đã tải nhưng askClassAI không tồn tại.");
+
+        container.innerHTML += `
+            <div class="bg-slate-800 p-2 rounded-xl text-slate-200 mr-6">
+                Trạm AI chưa sẵn sàng, bạn thử tải lại trang nhé.
+            </div>
+        `;
+
         container.scrollTop = container.scrollHeight;
-
         return;
     }
 
-
-    // Hiển thị trạng thái đang xử lý
-    const loadingMessage = document.createElement("div");
-    loadingMessage.className =
+    // Đang xử lý
+    const loading = document.createElement("div");
+    loading.className =
         "bg-slate-800 p-2 rounded-xl text-slate-400 mr-6";
-    loadingMessage.textContent = "AI đang suy nghĩ...";
+    loading.textContent = "AI đang suy nghĩ...";
 
-    container.appendChild(loadingMessage);
+    container.appendChild(loading);
     container.scrollTop = container.scrollHeight;
-
 
     try {
 
         const reply = await window.askClassAI(text);
 
-        loadingMessage.remove();
+        loading.remove();
 
-        const aiMessage = document.createElement("div");
-        aiMessage.className =
-            "bg-slate-800 p-2 rounded-xl text-slate-200 mr-6";
-
-        aiMessage.textContent =
-            reply || "AI chưa có câu trả lời.";
-
-        container.appendChild(aiMessage);
+        container.innerHTML += `
+            <div class="bg-slate-800 p-2 rounded-xl text-slate-200 mr-6">
+                ${reply}
+            </div>
+        `;
 
     } catch (error) {
 
-        console.error("Lỗi sendMsgToAI:", error);
+        console.error("Lỗi AI:", error);
 
-        loadingMessage.remove();
+        loading.remove();
 
-        const errorMessage = document.createElement("div");
-        errorMessage.className =
-            "bg-slate-800 p-2 rounded-xl text-slate-200 mr-6";
-
-        errorMessage.textContent =
-            "Không thể kết nối Trạm AI lúc này. Bạn thử lại nhé.";
-
-        container.appendChild(errorMessage);
+        container.innerHTML += `
+            <div class="bg-slate-800 p-2 rounded-xl text-slate-200 mr-6">
+                Không thể kết nối Trạm AI lúc này.
+            </div>
+        `;
     }
 
     container.scrollTop = container.scrollHeight;
