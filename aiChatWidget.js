@@ -2,7 +2,13 @@
 
 function toggleAIChat() {
     const box = document.getElementById("ai-chat-box");
-    if (box) box.classList.toggle("hidden");
+
+    if (!box) {
+        console.error("Không tìm thấy #ai-chat-box");
+        return;
+    }
+
+    box.classList.toggle("hidden");
 }
 // Bắt sự kiện nhấn phím Enter để gửi tin nhắn nhanh
 document.addEventListener("DOMContentLoaded", () => {
