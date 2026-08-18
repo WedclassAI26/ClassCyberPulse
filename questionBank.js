@@ -2,7 +2,7 @@
 // KHO NGÂN HÀNG CÂU HỎI HOÀN TOÀN NGẪU NHIÊN - VĂN PHONG GEN Z CỰC CHẤT
 // ==========================================
 
-const scenarioBank = [
+window.scenarioBank = [
     {
         id: 1,
         title: "TÌNH HUỐNG",

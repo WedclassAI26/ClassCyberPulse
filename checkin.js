@@ -1,1784 +1,458 @@
-/**
- * ==========================================
- * HỆ THỐNG ĐIỂM DANH BẰNG NỤ CƯỜI
- * ==========================================
- *
- * GIỮ NGUYÊN:
- * - Camera
- * - MediaPipe FaceMesh
- * - Giao diện
- * - Hiệu ứng
- * - +1 CCS
- * - LocalStorage
- * - Thông báo thành công
- *
- * ĐÃ SỬA:
- * - Nút bấm hoạt động ổn định
- * - Thuật toán quét miệng dễ nhận diện hơn
- * - Chỉ cần miệng hở/cười là bắt đầu tăng %
- * - Không cười / miệng đóng -> không tăng
- * - Không thấy miệng -> không tăng
- */
-
-
-/**
- * ==========================================
- * KHỐI 1: BIẾN HỆ THỐNG
- * ==========================================
- */
+// ==========================================
+// HỆ THỐNG CHECK-IN NỤ CƯỜI CYBERPULSE (KÈM NÚT DẤU X TẮT LỜI CHÚC)
+// ==========================================
 
 let cameraMediaStream = null;
-
 let isCheckinRunning = false;
-
 let currentSmilePercent = 0;
-
 let faceMeshDetector = null;
-
 let animationFrameId = null;
-
 let checkinButtonInitialized = false;
 
-
-/**
- * ==========================================
- * KHỐI 2: KHỞI TẠO NÚT ĐIỂM DANH
- *
- * PHIÊN BẢN ỔN ĐỊNH
- *
- * Không phụ thuộc việc script chạy
- * trước hay sau DOMContentLoaded.
- * ==========================================
- */
-
+// Khởi tạo nút bấm Check-in
 function initSmileCheckinButton() {
+    if (checkinButtonInitialized) return;
 
-    if (checkinButtonInitialized) {
-        return;
-    }
-
-
-    const btnDiemDanh =
-        document.getElementById('btn-diemdanh');
-
-
-    if (!btnDiemDanh) {
-
-        console.warn(
-            '⚠️ Không tìm thấy nút #btn-diemdanh'
-        );
-
-        return;
-    }
-
+    const btnDiemDanh = document.getElementById('btn-diemdanh');
+    if (!btnDiemDanh) return;
 
     checkinButtonInitialized = true;
 
-
-    btnDiemDanh.addEventListener(
-        'click',
-        function (event) {
-
-            event.preventDefault();
-
-            console.log(
-                '✅ Đã bấm nút Bắt đầu Check-in'
-            );
-
-
-            startCleanSmileCheckin();
-
-        }
-    );
-
-
-    console.log(
-        '✅ Hệ thống điểm danh nụ cười đã sẵn sàng'
-    );
+    btnDiemDanh.addEventListener('click', function (event) {
+        event.preventDefault();
+        startCleanSmileCheckin();
+    });
 }
 
-
-/**
- * Nếu HTML đang tải -> chờ DOM.
- *
- * Nếu HTML đã tải xong -> chạy ngay.
- */
-
 if (document.readyState === 'loading') {
-
-    document.addEventListener(
-        'DOMContentLoaded',
-        initSmileCheckinButton
-    );
-
+    document.addEventListener('DOMContentLoaded', initSmileCheckinButton);
 } else {
-
     initSmileCheckinButton();
 }
 
+// Hàm đóng/tắt khung kết quả lời chúc
+window.closeCheckinResult = function() {
+    const resultDiv = document.getElementById('checkin-result');
+    if (resultDiv) {
+        resultDiv.innerHTML = '';
+    }
+};
 
-/**
- * ==========================================
- * KHỐI 3: HÀM BẮT ĐẦU QUÉT
- * ==========================================
- */
-
+// Bắt đầu tiến trình Check-in
 async function startCleanSmileCheckin() {
-
-    console.log(
-        '🚀 Bắt đầu hệ thống quét nụ cười...'
-    );
-
-
-    const videoElement =
-        document.getElementById('webcam-video');
-
-    const resultDiv =
-        document.getElementById('checkin-result');
-
-    const camOverlay =
-        document.getElementById('cam-overlay');
-
-    const smileScoreSpan =
-        document.getElementById('smile-score');
-
-    const smileProgressBar =
-        document.getElementById('smile-progress');
-
-
-    /**
-     * ------------------------------------------
-     * KIỂM TRA HTML
-     * ------------------------------------------
-     */
+    const videoElement = document.getElementById('webcam-video');
+    const resultDiv = document.getElementById('checkin-result');
+    const camOverlay = document.getElementById('cam-overlay');
+    const smileScoreSpan = document.getElementById('smile-score');
+    const smileProgressBar = document.getElementById('smile-progress');
 
     if (!videoElement) {
-
-        console.error(
-            '❌ Không tìm thấy #webcam-video'
-        );
-
         if (resultDiv) {
-
-            resultDiv.innerHTML = `
-                <span class="text-rose-500 font-semibold">
-                    ❌ Không tìm thấy khung camera.
-                </span>
-            `;
+            resultDiv.innerHTML = `<div class="p-3 bg-rose-950/80 border border-rose-500/50 rounded-xl text-rose-300 text-xs text-center">❌ Không tìm thấy khung camera.</div>`;
         }
-
         return;
     }
 
-
-    /**
-     * ------------------------------------------
-     * NẾU ĐANG CHẠY THÌ KHÔNG CHẠY LẠI
-     * ------------------------------------------
-     */
-
-    if (isCheckinRunning) {
-
-        console.log(
-            '⚠️ Hệ thống đang quét rồi.'
-        );
-
-        return;
-    }
-
-
-    /**
-     * ------------------------------------------
-     * RESET
-     * ------------------------------------------
-     */
+    if (isCheckinRunning) return;
 
     isCheckinRunning = true;
-
     currentSmilePercent = 0;
-
-
-    /**
-     * ------------------------------------------
-     * DỪNG CAMERA CŨ NẾU CÓ
-     * ------------------------------------------
-     */
 
     stopCamera();
 
-
-    /**
-     * ------------------------------------------
-     * HIỆN HIỆU ỨNG CHỜ
-     * ------------------------------------------
-     */
-
+    // HIỆU ỨNG OVERLAY TRẠM KHỞI ĐỘNG CYBER
     if (camOverlay) {
-
         camOverlay.style.display = 'flex';
-
+        camOverlay.className = "absolute inset-0 z-10 flex flex-col items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md rounded-2xl";
         camOverlay.innerHTML = `
-
-            <div
-                class="
-                    flex
-                    flex-col
-                    items-center
-                    justify-center
-                    space-y-3
-                    p-6
-                    bg-slate-950/95
-                    rounded-2xl
-                    border
-                    border-cyan-500/50
-                    shadow-2xl
-                    animate-fade-in
-                "
-            >
-
-                <div
-                    class="
-                        relative
-                        flex
-                        items-center
-                        justify-center
-                        w-16
-                        h-16
-                        rounded-full
-                        bg-cyan-500/10
-                        border-2
-                        border-cyan-400
-                    "
-                >
-
-                    <i
-                        class="
-                            fa-solid
-                            fa-face-smile
-                            text-3xl
-                            text-cyan-400
-                            animate-bounce
-                        "
-                    ></i>
-
-
-                    <div
-                        class="
-                            absolute
-                            inset-0
-                            rounded-full
-                            border-2
-                            border-emerald-400
-                            animate-ping
-                            opacity-60
-                        "
-                    ></div>
-
+            <div class="flex flex-col items-center justify-center space-y-3 p-5 bg-slate-900/90 rounded-2xl border border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.3)] animate-fade-in text-center max-w-xs">
+                <div class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 border border-cyan-400/50 shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-camera-retro text-2xl text-cyan-400 animate-pulse"></i>
+                    <div class="absolute -inset-1 rounded-2xl border border-cyan-400/60 animate-ping opacity-50"></div>
                 </div>
-
-
-                <p
-                    class="
-                        text-xs
-                        text-cyan-300
-                        font-bold
-                        uppercase
-                        tracking-wider
-                    "
-                >
-                    ✨ Đang khởi chạy hệ thống quét nụ cười...
-                </p>
-
-
-                <p
-                    class="
-                        text-xs
-                        text-slate-300
-                        italic
-                        text-center
-                    "
-                >
-                    "Hãy chuẩn bị tư thế: Ngồi lùi ra để camera thấy trọn vẹn cả khuôn miệng nhé!"
-                </p>
-
-
-                <div
-                    class="
-                        w-48
-                        h-1.5
-                        bg-slate-800
-                        rounded-full
-                        overflow-hidden
-                        relative
-                    "
-                >
-
-                    <div
-                        class="
-                            absolute
-                            inset-0
-                            bg-gradient-to-r
-                            from-cyan-400
-                            to-emerald-400
-                            animate-pulse
-                            w-full
-                        "
-                    ></div>
-
+                <div>
+                    <p class="text-xs text-cyan-300 font-extrabold uppercase tracking-widest">✨ Đang Kích Hoạt AI Camera</p>
+                    <p class="text-[10px] text-slate-400 italic mt-1">Ngồi thẳng lưng, nhìn vào camera và chuẩn bị nụ cười tươi nhé!</p>
                 </div>
-
+                <div class="w-full h-1 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                    <div class="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 animate-pulse w-full"></div>
+                </div>
             </div>
-
         `;
     }
-
-
-    /**
-     * ------------------------------------------
-     * ẨN VIDEO TRONG LÚC KHỞI ĐỘNG
-     * ------------------------------------------
-     */
 
     videoElement.style.display = 'none';
 
+    if (smileScoreSpan) smileScoreSpan.innerText = '0%';
+    if (smileProgressBar) smileProgressBar.style.width = '0%';
 
-    /**
-     * RESET %
-     */
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-    if (smileScoreSpan) {
-
-        smileScoreSpan.innerText = '0%';
-    }
-
-
-    if (smileProgressBar) {
-
-        smileProgressBar.style.width = '0%';
-    }
-
-
-    /**
-     * ------------------------------------------
-     * CHỜ HIỆU ỨNG
-     * ------------------------------------------
-     */
-
-    await new Promise(
-        resolve => setTimeout(resolve, 1200)
-    );
-
-
-    /**
-     * Nếu người dùng đã dừng trong lúc chờ
-     */
-
-    if (!isCheckinRunning) {
-
-        return;
-    }
-
+    if (!isCheckinRunning) return;
 
     try {
-
-        /**
-         * ======================================
-         * KIỂM TRA TRÌNH DUYỆT CÓ CAMERA KHÔNG
-         * ======================================
-         */
-
-        if (
-            !navigator.mediaDevices ||
-            !navigator.mediaDevices.getUserMedia
-        ) {
-
-            throw new Error(
-                'Trình duyệt không hỗ trợ camera.'
-            );
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Trình duyệt không hỗ trợ camera.');
         }
 
+        cameraMediaStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user'
+            },
+            audio: false
+        });
 
-        /**
-         * ======================================
-         * BẬT CAMERA
-         * ======================================
-         */
-
-        cameraMediaStream =
-            await navigator.mediaDevices.getUserMedia({
-
-                video: {
-
-                    width: {
-                        ideal: 640
-                    },
-
-                    height: {
-                        ideal: 480
-                    },
-
-                    facingMode: 'user'
-
-                },
-
-                audio: false
-
-            });
-
-
-        /**
-         * Gắn camera vào video
-         */
-
-        videoElement.srcObject =
-            cameraMediaStream;
-
-
-        /**
-         * Chờ video sẵn sàng
-         */
-
+        videoElement.srcObject = cameraMediaStream;
         await videoElement.play();
 
-
-        /**
-         * --------------------------------------
-         * ẨN OVERLAY
-         * --------------------------------------
-         */
-
+        // HIỆU ỨNG QUÉT TRONG SUỐT - CAMERA RÕ SÁNG 100%
         if (camOverlay) {
+            camOverlay.style.display = 'flex';
+            camOverlay.className = "absolute inset-0 z-10 pointer-events-none rounded-2xl overflow-hidden flex flex-col justify-between p-3 bg-transparent";
+            camOverlay.innerHTML = `
+                <!-- TIA LASER QUÉT CYBERPULSE -->
+                <div class="w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#00f0ff] animate-[scan_2s_infinite_linear]"></div>
+                
+                <!-- TÂM NHẮM MỤC TIÊU TRONG SUỐT -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-dashed border-cyan-400/50 rounded-full flex items-center justify-center animate-spin-slow">
+                    <div class="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_10px_#00f0ff]"></div>
+                </div>
 
-            camOverlay.style.display = 'none';
-
-            camOverlay.innerHTML = '';
+                <!-- BẢNG BÁO TRẠNG THÁI AI TRÊN CÙNG -->
+                <div class="self-center bg-slate-950/70 backdrop-blur-md px-3 py-1 rounded-full border border-cyan-500/40 text-[10px] text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg mt-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>AI Scanning...</span>
+                </div>
+            `;
         }
-
 
         videoElement.style.display = 'block';
 
-
-        /**
-         * --------------------------------------
-         * THÔNG BÁO
-         * --------------------------------------
-         */
-
         if (resultDiv) {
-
             resultDiv.innerHTML = `
-
-                <span
-                    class="
-                        text-cyan-400
-                        animate-pulse
-                        text-xs
-                    "
-                >
-                    ⚡ Đang kết nối AI...
-                    Hãy cười và hé miệng nhé!
-                </span>
-
+                <div class="p-2.5 bg-slate-900/90 border border-cyan-500/40 rounded-xl text-center">
+                    <p class="text-xs font-bold text-cyan-300 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 animate-bounce"></i>
+                        <span>Đã kết nối AI! Hãy hé miệng và trao nụ cười rạng rỡ nào!</span>
+                    </p>
+                </div>
             `;
         }
 
-
-        /**
-         * ======================================
-         * KIỂM TRA MEDIAPIPE FACEMESH
-         * ======================================
-         */
-
-        if (
-            typeof FaceMesh === 'undefined'
-        ) {
-
-            throw new Error(
-                'FaceMesh chưa được tải. Hãy kiểm tra thư viện MediaPipe.'
-            );
+        if (typeof FaceMesh === 'undefined') {
+            throw new Error('FaceMesh chưa được tải. Vui lòng kiểm tra thư viện.');
         }
 
-
-        /**
-         * ======================================
-         * KHỞI TẠO FACEMESH
-         * ======================================
-         */
-
-        faceMeshDetector =
-            new FaceMesh({
-
-                locateFile: function(file) {
-
-                    return (
-                        'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/' +
-                        file
-                    );
-
-                }
-
-            });
-
-
-        /**
-         * ======================================
-         * CẤU HÌNH FACEMESH
-         * ======================================
-         */
+        faceMeshDetector = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
 
         faceMeshDetector.setOptions({
-
             maxNumFaces: 1,
-
             refineLandmarks: true,
-
-            /**
-             * Giảm nhẹ độ khắt khe
-             * để dễ nhận diện hơn.
-             */
-
             minDetectionConfidence: 0.65,
-
             minTrackingConfidence: 0.65
-
         });
 
-
-        /**
-         * ======================================
-         * NHẬN KẾT QUẢ
-         * ======================================
-         */
-
-        faceMeshDetector.onResults(
-            handleCleanSmileResults
-        );
-
-
-        /**
-         * ======================================
-         * XỬ LÝ FRAME CAMERA
-         * ======================================
-         */
+        faceMeshDetector.onResults(handleCleanSmileResults);
 
         let lastTimeProcessed = 0;
+        const processFrames = async (timestamp) => {
+            if (!isCheckinRunning) return;
 
-
-        const processFrames =
-            async function(timestamp) {
-
-                if (!isCheckinRunning) {
-
-                    return;
-                }
-
-
-                /**
-                 * Khoảng 10-12 FPS
-                 * đủ cho việc nhận diện miệng.
-                 */
-
-                if (
-                    timestamp -
-                    lastTimeProcessed >
-                    90
-                ) {
-
-                    if (
-                        videoElement &&
-                        videoElement.readyState >= 2
-                    ) {
-
-                        try {
-
-                            await faceMeshDetector.send({
-
-                                image: videoElement
-
-                            });
-
-                        } catch (meshError) {
-
-                            console.warn(
-                                'FaceMesh error:',
-                                meshError
-                            );
-
-                        }
-
+            if (timestamp - lastTimeProcessed > 90) {
+                if (videoElement && videoElement.readyState >= 2) {
+                    try {
+                        await faceMeshDetector.send({ image: videoElement });
+                    } catch (meshError) {
+                        console.warn('FaceMesh error:', meshError);
                     }
-
-
-                    lastTimeProcessed =
-                        timestamp;
                 }
+                lastTimeProcessed = timestamp;
+            }
 
+            if (isCheckinRunning) {
+                animationFrameId = requestAnimationFrame(processFrames);
+            }
+        };
 
-                if (isCheckinRunning) {
-
-                    animationFrameId =
-                        requestAnimationFrame(
-                            processFrames
-                        );
-                }
-
-            };
-
-
-        animationFrameId =
-            requestAnimationFrame(
-                processFrames
-            );
-
-
-        console.log(
-            '✅ Camera + FaceMesh đã hoạt động'
-        );
-
+        animationFrameId = requestAnimationFrame(processFrames);
 
     } catch (error) {
-
-        console.error(
-            '❌ Lỗi khởi động:',
-            error
-        );
-
-
         isCheckinRunning = false;
-
-
         stopCamera();
 
-
         if (resultDiv) {
-
             resultDiv.innerHTML = `
-
-                <span
-                    class="
-                        text-rose-500
-                        font-semibold
-                        text-xs
-                    "
-                >
+                <div class="p-2.5 bg-rose-950/80 border border-rose-500/50 rounded-xl text-rose-300 text-xs text-center font-semibold">
                     ❌ ${getCameraErrorMessage(error)}
-                </span>
-
+                </div>
             `;
         }
 
-
         if (camOverlay) {
-
-            camOverlay.style.display =
-                'flex';
+            camOverlay.style.display = 'flex';
+            camOverlay.className = "absolute inset-0 z-10 flex items-center justify-center p-4 bg-slate-950/90 rounded-2xl";
+            camOverlay.innerHTML = '';
         }
-
     }
-
 }
 
-
-/**
- * ==========================================
- * KHỐI 4:
- * THUẬT TOÁN QUÉT MIỆNG
- *
- * MỤC TIÊU:
- *
- * 😐 Miệng đóng  -> KHÔNG tăng
- *
- * 🙂 Hơi hé      -> bắt đầu tăng
- *
- * 😄 Cười       -> tăng
- *
- * 😁 Cười to    -> tăng nhanh
- *
- * 100%           -> thành công
- *
- * KHÔNG YÊU CẦU QUÁ KHẮT KHE
- * ==========================================
- */
-
+// THUẬT TOÁN QUÉT NỤ CƯỜI (GIỮ NGUYÊN 100%)
 function handleCleanSmileResults(results) {
+    if (!isCheckinRunning) return;
 
-    const resultDiv =
-        document.getElementById(
-            'checkin-result'
-        );
-
-
-    const smileScoreSpan =
-        document.getElementById(
-            'smile-score'
-        );
-
-
-    const smileProgressBar =
-        document.getElementById(
-            'smile-progress'
-        );
-
-
-    /**
-     * Nếu đã hoàn thành
-     */
-
-    if (!isCheckinRunning) {
-
+    if (!results || !results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+        decreaseSmileProgress(2);
+        showSmileMessage('👀 Chưa thấy khuôn mặt. Hãy nhìn vào giữa khung camera nhé!');
         return;
     }
 
+    const landmarks = results.multiFaceLandmarks[0];
+    const upperLip = landmarks[13];
+    const lowerLip = landmarks[14];
+    const leftCorner = landmarks[61];
+    const rightCorner = landmarks[291];
 
-    /**
-     * ======================================
-     * 1. CÓ KHUÔN MẶT KHÔNG?
-     * ======================================
-     */
-
-    if (
-        !results ||
-        !results.multiFaceLandmarks ||
-        results.multiFaceLandmarks.length === 0
-    ) {
-
-        decreaseSmileProgress(
-            2
-        );
-
-
-        showSmileMessage(
-            '⚠️ Chưa thấy khuôn mặt. Hãy nhìn vào camera.'
-        );
-
-
+    if (!upperLip || !lowerLip || !leftCorner || !rightCorner) {
+        decreaseSmileProgress(2);
+        showSmileMessage('🔍 Đang căn chỉnh... Giữ nguyên vị trí giúp mình nhé!');
         return;
     }
 
+    const mouthWidth = Math.hypot(leftCorner.x - rightCorner.x, leftCorner.y - rightCorner.y);
+    const mouthOpen = Math.hypot(upperLip.x - lowerLip.x, upperLip.y - lowerLip.y);
 
-    /**
-     * Lấy khuôn mặt đầu tiên
-     */
-
-    const landmarks =
-        results.multiFaceLandmarks[0];
-
-
-    /**
-     * ======================================
-     * 2. LẤY ĐIỂM MIỆNG
-     *
-     * 13  = môi trên
-     * 14  = môi dưới
-     * 61  = khóe trái
-     * 291 = khóe phải
-     * ======================================
-     */
-
-    const upperLip =
-        landmarks[13];
-
-    const lowerLip =
-        landmarks[14];
-
-    const leftCorner =
-        landmarks[61];
-
-    const rightCorner =
-        landmarks[291];
-
-
-    /**
-     * ======================================
-     * 3. PHẢI NHẬN DIỆN ĐƯỢC MIỆNG
-     * ======================================
-     */
-
-    if (
-        !upperLip ||
-        !lowerLip ||
-        !leftCorner ||
-        !rightCorner
-    ) {
-
-        decreaseSmileProgress(
-            2
-        );
-
-
-        showSmileMessage(
-            '⚠️ Chưa nhận diện rõ miệng. Hãy nhìn thẳng camera.'
-        );
-
-
+    if (mouthWidth <= 0.035) {
+        decreaseSmileProgress(2);
+        showSmileMessage('📏 Tiến lại gần hơn một chút để camera thấy rõ nụ cười nhé!');
         return;
     }
 
+    const openRatio = mouthOpen / mouthWidth;
 
-    /**
-     * ======================================
-     * 4. KIỂM TRA MIỆNG CÓ TRONG KHUNG
-     *
-     * Không quá khắt khe.
-     * ======================================
-     */
-
-    const mouthVisible =
-
-        upperLip.x >= 0.01 &&
-        upperLip.x <= 0.99 &&
-
-        lowerLip.x >= 0.01 &&
-        lowerLip.x <= 0.99 &&
-
-        leftCorner.x >= 0.01 &&
-        leftCorner.x <= 0.99 &&
-
-        rightCorner.x >= 0.01 &&
-        rightCorner.x <= 0.99 &&
-
-        upperLip.y >= 0.05 &&
-        upperLip.y <= 0.98 &&
-
-        lowerLip.y >= 0.05 &&
-        lowerLip.y <= 0.99;
-
-
-    if (!mouthVisible) {
-
-        decreaseSmileProgress(
-            2
-        );
-
-
-        showSmileMessage(
-            '⚠️ Chưa thấy rõ miệng. Hãy chỉnh camera một chút.'
-        );
-
-
+    if (openRatio < 0.10) {
+        decreaseSmileProgress(1);
+        showSmileMessage('😐 Chưa thấy nụ cười. Mỉm cười hoặc tươi lên một chút nào!');
         return;
     }
-
-
-    /**
-     * ======================================
-     * 5. TÍNH CHIỀU RỘNG MIỆNG
-     * ======================================
-     */
-
-    const mouthWidth =
-        Math.hypot(
-
-            leftCorner.x -
-            rightCorner.x,
-
-            leftCorner.y -
-            rightCorner.y
-
-        );
-
-
-    /**
-     * ======================================
-     * 6. TÍNH ĐỘ HỞ MIỆNG
-     * ======================================
-     */
-
-    const mouthOpen =
-        Math.hypot(
-
-            upperLip.x -
-            lowerLip.x,
-
-            upperLip.y -
-            lowerLip.y
-
-        );
-
-
-    /**
-     * ======================================
-     * 7. MIỆNG QUÁ NHỎ
-     * ======================================
-     */
-
-    if (
-        mouthWidth <= 0.035
-    ) {
-
-        decreaseSmileProgress(
-            2
-        );
-
-
-        showSmileMessage(
-            '⚠️ Miệng hơi nhỏ trong camera. Hãy tiến gần hơn một chút.'
-        );
-
-
-        return;
-    }
-
-
-    /**
-     * ======================================
-     * 8. TỶ LỆ HỞ MIỆNG
-     *
-     * Đây là công thức chính.
-     *
-     * openRatio =
-     * độ mở miệng / chiều rộng miệng
-     *
-     * ======================================
-     */
-
-    const openRatio =
-        mouthOpen /
-        mouthWidth;
-
-
-    console.log(
-        'Smile:',
-        openRatio.toFixed(3),
-        'Progress:',
-        currentSmilePercent
-    );
-
-
-    /**
-     * ======================================
-     * 9. NGƯỠNG RẤT DỄ
-     *
-     * Chỉ cần hở khoảng 10%.
-     * ======================================
-     */
-
-    const MIN_OPEN_RATIO =
-        0.10;
-
-
-    /**
-     * ======================================
-     * 10. MIỆNG ĐÓNG
-     * ======================================
-     */
-
-    if (
-        openRatio <
-        MIN_OPEN_RATIO
-    ) {
-
-        decreaseSmileProgress(
-            1
-        );
-
-
-        showSmileMessage(
-            '😐 Chưa thấy miệng cười. Hãy hé miệng và cười nhé!'
-        );
-
-
-        return;
-    }
-
-
-    /**
-     * ======================================
-     * 11. ĐÃ HỞ MIỆNG
-     *
-     * Càng mở -> tăng càng nhanh.
-     * ======================================
-     */
 
     let smileAdd = 0;
+    let statusText = '';
 
-
-    /**
-     * Hơi hé
-     */
-
-    if (
-        openRatio >= 0.10 &&
-        openRatio < 0.15
-    ) {
-
+    if (openRatio >= 0.10 && openRatio < 0.15) {
         smileAdd = 2;
-
+        statusText = '🙂 Tươi lắm! Mở rộng nụ cười hơn nữa nào...';
+    } else if (openRatio >= 0.15 && openRatio < 0.20) {
+        smileAdd = 4;
+        statusText = '😄 Nụ cười rạng rỡ chuẩn Gen Z! Giữ nguyên nhé!';
+    } else if (openRatio >= 0.20 && openRatio < 0.30) {
+        smileAdd = 6;
+        statusText = '🔥 Tuyệt vời! Năng lượng tỏa sáng bùng nổ!';
+    } else if (openRatio >= 0.30) {
+        smileAdd = 9;
+        statusText = '🌟 Nụ cười Siêu Vũ Trụ! Đang cộng điểm cực nhanh!';
     }
 
+    currentSmilePercent = Math.min(100, currentSmilePercent + smileAdd);
+    updateSmileProgress();
 
-    /**
-     * Hở vừa
-     */
-
-    else if (
-        openRatio >= 0.15 &&
-        openRatio < 0.20
-    ) {
-
-        smileAdd = 3;
-
-    }
-
-
-    /**
-     * Cười rõ
-     */
-
-    else if (
-        openRatio >= 0.20 &&
-        openRatio < 0.30
-    ) {
-
-        smileAdd = 5;
-
-    }
-
-
-    /**
-     * Cười to
-     */
-
-    else if (
-        openRatio >= 0.30
-    ) {
-
-        smileAdd = 8;
-
-    }
-
-
-    /**
-     * ======================================
-     * 12. CỘNG %
-     * ======================================
-     */
-
-    currentSmilePercent +=
-        smileAdd;
-
-
-    /**
-     * Không vượt quá 100
-     */
-
-    if (
-        currentSmilePercent >
-        100
-    ) {
-
-        currentSmilePercent =
-            100;
-    }
-
-
-    /**
-     * ======================================
-     * 13. CẬP NHẬT GIAO DIỆN
-     * ======================================
-     */
-
-    if (smileScoreSpan) {
-
-        smileScoreSpan.innerText =
-            currentSmilePercent +
-            '%';
-    }
-
-
-    if (smileProgressBar) {
-
-        smileProgressBar.style.width =
-            currentSmilePercent +
-            '%';
-    }
-
-
-    /**
-     * ======================================
-     * 14. CHƯA ĐẠT 100%
-     * ======================================
-     */
-
-    if (
-        currentSmilePercent <
-        100
-    ) {
-
-        showSmileMessage(
-
-            `😄 Đang nhận diện nụ cười (${currentSmilePercent}%) — giữ nụ cười nhé!`
-
-        );
-
-
+    if (currentSmilePercent < 100) {
+        showSmileMessage(`${statusText} (${currentSmilePercent}%)`);
         return;
     }
 
+    if (currentSmilePercent >= 100 && isCheckinRunning) {
+        isCheckinRunning = false;
 
-    /**
-     * ======================================
-     * 15. ĐẠT 100%
-     * ======================================
-     */
-
-    if (
-        currentSmilePercent >= 100 &&
-        isCheckinRunning
-    ) {
-
-        /**
-         * Tắt trạng thái quét
-         */
-
-        isCheckinRunning =
-            false;
-
-
-        /**
-         * Dừng animation
-         */
-
-        if (
-            animationFrameId
-        ) {
-
-            cancelAnimationFrame(
-                animationFrameId
-            );
-
-            animationFrameId =
-                null;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
         }
 
-
-        /**
-         * Dừng camera
-         */
-
         stopCamera();
-
-
-        /**
-         * Thông báo thành công
-         */
-
         triggerSuccessAndSavePoints();
-
     }
-
 }
 
-
-/**
- * ==========================================
- * KHỐI 5:
- * GIẢM % KHI KHÔNG ĐẠT
- * ==========================================
- */
-
-function decreaseSmileProgress(
-    amount = 1
-) {
-
-    currentSmilePercent =
-        Math.max(
-            0,
-            currentSmilePercent -
-            amount
-        );
-
-
+function decreaseSmileProgress(amount = 1) {
+    currentSmilePercent = Math.max(0, currentSmilePercent - amount);
     updateSmileProgress();
-
 }
-
-
-/**
- * ==========================================
- * CẬP NHẬT THANH %
- * ==========================================
- */
 
 function updateSmileProgress() {
+    const smileScoreSpan = document.getElementById('smile-score');
+    const smileProgressBar = document.getElementById('smile-progress');
 
-    const smileScoreSpan =
-        document.getElementById(
-            'smile-score'
-        );
-
-
-    const smileProgressBar =
-        document.getElementById(
-            'smile-progress'
-        );
-
-
-    if (smileScoreSpan) {
-
-        smileScoreSpan.innerText =
-            currentSmilePercent +
-            '%';
-    }
-
-
-    if (smileProgressBar) {
-
-        smileProgressBar.style.width =
-            currentSmilePercent +
-            '%';
-    }
-
+    if (smileScoreSpan) smileScoreSpan.innerText = `${currentSmilePercent}%`;
+    if (smileProgressBar) smileProgressBar.style.width = `${currentSmilePercent}%`;
 }
 
-
-/**
- * ==========================================
- * HIỆN THÔNG BÁO QUÉT
- * ==========================================
- */
-
-function showSmileMessage(
-    message
-) {
-
-    const resultDiv =
-        document.getElementById(
-            'checkin-result'
-        );
-
-
+function showSmileMessage(message) {
+    const resultDiv = document.getElementById('checkin-result');
     if (resultDiv) {
-
         resultDiv.innerHTML = `
-
-            <span
-                class="
-                    text-cyan-400
-                    text-xs
-                    animate-pulse
-                "
-            >
-                ${message}
-            </span>
-
+            <div class="p-2.5 bg-slate-900/90 border border-cyan-500/40 rounded-xl text-center">
+                <span class="text-cyan-300 text-xs font-semibold animate-pulse">${message}</span>
+            </div>
         `;
     }
-
 }
-
-
-/**
- * ==========================================
- * KHỐI 6:
- * DỪNG CAMERA
- * ==========================================
- */
 
 function stopCamera() {
-
-    /**
-     * Dừng animation
-     */
-
-    if (
-        animationFrameId
-    ) {
-
-        cancelAnimationFrame(
-            animationFrameId
-        );
-
-        animationFrameId =
-            null;
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
     }
 
-
-    /**
-     * Dừng tất cả camera tracks
-     */
-
-    if (
-        cameraMediaStream
-    ) {
-
-        cameraMediaStream
-            .getTracks()
-            .forEach(
-                track => {
-                    track.stop();
-                }
-            );
-
-
-        cameraMediaStream =
-            null;
+    if (cameraMediaStream) {
+        cameraMediaStream.getTracks().forEach(track => track.stop());
+        cameraMediaStream = null;
     }
 
-
-    /**
-     * Xóa srcObject
-     */
-
-    const videoElement =
-        document.getElementById(
-            'webcam-video'
-        );
-
-
-    if (
-        videoElement &&
-        videoElement.srcObject
-    ) {
-
-        videoElement.srcObject =
-            null;
+    const videoElement = document.getElementById('webcam-video');
+    if (videoElement && videoElement.srcObject) {
+        videoElement.srcObject = null;
     }
-
 }
 
-
-/**
- * ==========================================
- * KHỐI 7:
- * THÔNG BÁO LỖI CAMERA
- * ==========================================
- */
-
-function getCameraErrorMessage(
-    error
-) {
-
-    if (!error) {
-
-        return (
-            'Không thể khởi động camera.'
-        );
-    }
-
-
-    if (
-        error.name ===
-        'NotAllowedError'
-    ) {
-
-        return (
-            'Bạn chưa cấp quyền sử dụng camera. Hãy bấm Cho phép (Allow) trên trình duyệt.'
-        );
-    }
-
-
-    if (
-        error.name ===
-        'PermissionDeniedError'
-    ) {
-
-        return (
-            'Quyền camera đang bị từ chối. Hãy cấp quyền camera cho trang web.'
-        );
-    }
-
-
-    if (
-        error.name ===
-        'NotFoundError'
-    ) {
-
-        return (
-            'Không tìm thấy camera trên thiết bị.'
-        );
-    }
-
-
-    if (
-        error.name ===
-        'NotReadableError'
-    ) {
-
-        return (
-            'Camera đang được ứng dụng khác sử dụng.'
-        );
-    }
-
-
-    if (
-        error.name ===
-        'SecurityError'
-    ) {
-
-        return (
-            'Trình duyệt đang chặn camera vì lý do bảo mật.'
-        );
-    }
-
-
-    if (
-        error.message
-    ) {
-
-        return error.message;
-    }
-
-
-    return (
-        'Không thể khởi động camera. Hãy kiểm tra quyền camera.'
-    );
-
+function getCameraErrorMessage(error) {
+    if (!error) return 'Không thể khởi động camera.';
+    if (error.name === 'NotAllowedError') return 'Bạn chưa cấp quyền sử dụng camera. Hãy nhấn "Cho phép" nhé!';
+    if (error.name === 'NotFoundError') return 'Không tìm thấy camera trên thiết bị.';
+    if (error.name === 'NotReadableError') return 'Camera đang được ứng dụng khác sử dụng.';
+    return error.message || 'Không thể mở camera.';
 }
 
-
-/**
- * ==========================================
- * KHỐI 8:
- * HÀM KHÓA TIẾN TRÌNH
- * ==========================================
- *
- * Giữ tên hàm này để tương thích
- * với code cũ nếu có phần khác gọi tới.
- * ==========================================
- */
-
-function lockProgressAndWarn(
-    warningMessage
-) {
-
-    decreaseSmileProgress(
-        2
-    );
-
-
-    showSmileMessage(
-        warningMessage
-    );
-
+function lockProgressAndWarn(warningMessage) {
+    decreaseSmileProgress(2);
+    showSmileMessage(warningMessage);
 }
 
-
-/**
- * ==========================================
- * KHỐI 9:
- * THÔNG BÁO THÀNH CÔNG + LƯU ĐIỂM
- *
- * GIỮ NGUYÊN LOGIC CODE GỐC
- * ==========================================
- */
-
+// BÙNG NỔ PHÁO HOA & KHUNG THÔNG BÁO VỪA VẶN CÓ DẤU X ĐÓNG
 function triggerSuccessAndSavePoints() {
+    const videoElement = document.getElementById('webcam-video');
+    const camOverlay = document.getElementById('cam-overlay');
+    const resultDiv = document.getElementById('checkin-result');
 
-    const videoElement =
-        document.getElementById(
-            'webcam-video'
-        );
+    if (videoElement) videoElement.style.display = 'none';
 
-
-    const camOverlay =
-        document.getElementById(
-            'cam-overlay'
-        );
-
-
-    const resultDiv =
-        document.getElementById(
-            'checkin-result'
-        );
-
-
-    /**
-     * --------------------------------------
-     * ẨN VIDEO
-     * --------------------------------------
-     */
-
-    if (videoElement) {
-
-        videoElement.style.display =
-            'none';
-    }
-
-
-    /**
-     * --------------------------------------
-     * HIỆN THÔNG BÁO THÀNH CÔNG
-     * --------------------------------------
-     */
-
+    // HIỆU ỨNG TRÊN KHUNG CAMERA
     if (camOverlay) {
-
-        camOverlay.style.display =
-            'flex';
-
-
+        camOverlay.style.display = 'flex';
+        camOverlay.className = "absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center animate-fade-in space-y-2 bg-slate-950/95 rounded-2xl";
         camOverlay.innerHTML = `
-
-            <div
-                class="
-                    absolute
-                    inset-0
-                    bg-slate-950
-                    flex
-                    flex-col
-                    items-center
-                    justify-center
-                    p-6
-                    text-center
-                    animate-fade-in
-                "
-            >
-
-                <div
-                    class="
-                        w-20
-                        h-20
-                        rounded-full
-                        bg-emerald-500/20
-                        border-2
-                        border-emerald-400
-                        flex
-                        items-center
-                        justify-center
-                        mb-3
-                        shadow-[0_0_25px_#34d399]
-                    "
-                >
-
-                    <i
-                        class="
-                            fa-solid
-                            fa-check
-                            text-4xl
-                            text-emerald-400
-                            animate-bounce
-                        "
-                    ></i>
-
-                </div>
-
-
-                <h3
-                    class="
-                        text-emerald-400
-                        font-bold
-                        text-lg
-                        uppercase
-                        tracking-wider
-                        mb-1
-                    "
-                >
-                    ĐIỂM DANH THÀNH CÔNG!
-                </h3>
-
-
-                <p
-                    class="
-                        text-cyan-300
-                        text-xs
-                        font-mono
-                    "
-                >
-                    +1 CCS đã được chuyển về Hành tinh lớp!
-                </p>
-
+            <div class="relative w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center shadow-[0_0_35px_rgba(52,211,153,0.8)] animate-bounce">
+                <i class="fa-solid fa-crown text-3xl text-amber-300"></i>
+                <div class="absolute -inset-1.5 rounded-full border border-emerald-400/60 animate-ping"></div>
             </div>
-
+            <div>
+                <h3 class="text-emerald-400 font-black text-xl uppercase tracking-wider">CHECK-IN HOÀN HẢO!</h3>
+                <p class="text-cyan-300 text-[11px] font-mono mt-0.5">✨ Tỏa sáng năng lượng tích cực!</p>
+            </div>
         `;
     }
-
-
-    /**
-     * --------------------------------------
-     * DANH SÁCH LỜI CHÚC
-     * --------------------------------------
-     */
 
     const politeAndFunComments = [
-
-        "✨ Nụ cười tỏa nắng chuẩn 'hoa hậu thân thiện'! Hành tinh lớp hôm nay chắc chắn ngập tràn năng lượng tích cực!",
-
-        "🔥 Nụ cười triệu đô thế này làm sao mà các áp lực bài vở dám bén mảng lại gần cơ chứ!",
-
-        "🚀 Thần thái rạng rỡ cấp độ vũ trụ! Thầy cô nhìn thấy nụ cười này chắc chắn sẽ cho điểm 10 tuyệt đối!",
-
+        "✨ Nụ cười tỏa nắng chuẩn 'hoa hậu thân thiện'! Hôm nay chắc chắn là một ngày bùng nổ!",
+        "🔥 Nụ cười triệu đô thế này làm sao mà áp lực học tập dám bén mảng lại gần!",
+        "🚀 Thần thái rạng rỡ cấp độ vũ trụ! Thầy cô nhìn thấy nụ cười này chắc chắn cộng ngay 10 điểm!",
         "👑 Nụ cười đẹp như tranh vẽ! Bạn vừa thắp sáng cả không gian lớp học rồi đấy!",
-
-        "🌟 Tươi tắn, văn minh và đầy sức sống! Chúc bạn một ngày học tập bứt phá và gặt hái thật nhiều điểm 10!"
-
+        "🌟 Tươi tắn, văn minh và tràn đầy sức sống! Chúc bạn gặt hái thật nhiều thành công!"
     ];
 
+    const selectedComment = politeAndFunComments[Math.floor(Math.random() * politeAndFunComments.length)];
 
-    /**
-     * Chọn lời chúc ngẫu nhiên
-     */
-
-    const selectedComment =
-        politeAndFunComments[
-            Math.floor(
-                Math.random() *
-                politeAndFunComments.length
-            )
-        ];
-
-
-    /**
-     * --------------------------------------
-     * HIỆN KẾT QUẢ
-     * --------------------------------------
-     */
-
+    // KHUNG THÔNG BÁO CÓ NÚT DẤU X Ở GÓC TRÊN BÊN PHẢI
     if (resultDiv) {
-
         resultDiv.innerHTML = `
+            <div class="animate-fly-down space-y-2 p-3.5 pr-8 bg-gradient-to-r from-emerald-950/95 via-slate-900/95 to-cyan-950/95 rounded-xl border-2 border-emerald-400 shadow-[0_0_35px_rgba(16,185,129,0.4)] backdrop-blur-xl relative overflow-hidden text-center">
+                
+                <!-- NÚT DẤU X TẮT LỜI CHÚC -->
+                <button onclick="window.closeCheckinResult()" class="absolute top-2 right-2 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-700/80 rounded-lg w-6 h-6 flex items-center justify-center transition-all cursor-pointer z-20" title="Tắt lời chúc">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
 
-            <div
-                class="
-                    space-y-2
-                    p-4
-                    bg-slate-900/95
-                    rounded-xl
-                    border
-                    border-emerald-500/60
-                    shadow-2xl
-                    animate-bounce
-                "
-            >
+                <!-- VỆT SÁNG CÔNG NGHỆ -->
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
 
-                <p
-                    class="
-                        font-bold
-                        text-emerald-400
-                        text-sm
-                        flex
-                        items-center
-                        justify-center
-                        gap-1.5
-                    "
-                >
+                <!-- HUY HIỆU CHECK-IN -->
+                <div class="flex items-center justify-center gap-2">
+                    <span class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-[10px] font-black px-3 py-0.5 rounded-full uppercase tracking-widest shadow-md animate-pulse">
+                        ⭐ CHECK-IN THÀNH CÔNG
+                    </span>
+                    <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
+                        ✨ +1 CCS
+                    </span>
+                </div>
 
-                    <i
-                        class="
-                            fa-solid
-                            fa-circle-check
-                        "
-                    ></i>
+                <!-- TIÊU ĐỀ LỜI CHÚC -->
+                <h3 class="font-black text-emerald-300 text-sm flex items-center justify-center gap-1.5 tracking-wide">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-base animate-bounce"></i>
+                    <span>NỤ CƯỜI RẠNG RỠ VŨ TRỤ!</span>
+                </h3>
 
-                    Điểm danh nụ cười thành công xuất sắc!
-
-                </p>
-
-
-                <p
-                    class="
-                        text-amber-300
-                        text-xs
-                        italic
-                        leading-relaxed
-                    "
-                >
+                <!-- LỜI CHÚC TRUYỀN CẢM HƯỚNG GỌN GÀNG -->
+                <div class="text-amber-200 text-xs italic leading-snug font-semibold bg-amber-500/10 p-2 rounded-lg border border-amber-500/20 shadow-inner">
                     "${selectedComment}"
+                </div>
+
+                <!-- THÔNG BÁO CỘNG ĐIỂM -->
+                <p class="text-cyan-300 text-[11px] font-bold tracking-wide">
+                    🚀 Điểm thưởng đã được gửi trực tiếp về Hành tinh lớp!
                 </p>
-
-
-                <p
-                    class="
-                        text-cyan-300
-                        text-xs
-                        font-bold
-                        tracking-wide
-                    "
-                >
-                    ✨ Đã cộng thành công +1 CCS vào Hành tinh lớp!
-                </p>
-
             </div>
-
         `;
+
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-
-    /**
-     * ======================================
-     * LƯU +1 CCS
-     * ======================================
-     */
-
-    let currentPoints =
-        parseInt(
-            localStorage.getItem(
-                'userPoints'
-            )
-        );
-
-
-    if (
-        isNaN(currentPoints)
-    ) {
-
-        currentPoints =
-            1730;
-    }
-
-
-    currentPoints +=
-        1;
-
-
-    localStorage.setItem(
-        'userPoints',
-        currentPoints
-    );
-
-
-    /**
-     * ======================================
-     * CẬP NHẬT ĐIỂM HIỂN THỊ
-     * ======================================
-     */
-
-    const scoreBadge =
-        document.querySelector(
-            "[class*='Lớp']"
-        );
-
-
-    if (scoreBadge) {
-
-        scoreBadge.textContent =
-            `Lớp 11A1 ( ${currentPoints.toLocaleString()} CCS )`;
-
-    }
-
-
-    /**
-     * ======================================
-     * CONFETTI
-     * ======================================
-     */
-
-    if (
-        typeof confetti ===
-        'function'
-    ) {
-
+    // BẮN PHÁO HOA TỎA RỘNG
+    if (typeof confetti === 'function') {
         confetti({
-
-            particleCount: 220,
-
-            spread: 100,
-
-            origin: {
-                y: 0.6
-            }
-
+            particleCount: 180,
+            spread: 140,
+            startVelocity: 55,
+            origin: { y: 0.6 },
+            shapes: ['star', 'circle'],
+            colors: ['#00f0ff', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#fbbf24']
         });
 
+        setTimeout(() => {
+            confetti({
+                particleCount: 90,
+                angle: 60,
+                spread: 90,
+                origin: { x: 0, y: 0.75 },
+                colors: ['#00f0ff', '#10b981', '#fbbf24']
+            });
+        }, 200);
+
+        setTimeout(() => {
+            confetti({
+                particleCount: 90,
+                angle: 120,
+                spread: 90,
+                origin: { x: 1, y: 0.75 },
+                colors: ['#ec4899', '#10b981', '#00f0ff']
+            });
+        }, 400);
     }
 
+    // LƯU ĐIỂM VÀO LOCALSTORAGE
+    let currentPoints = parseInt(localStorage.getItem('userPoints')) || 1730;
+    currentPoints += 1;
+    localStorage.setItem('userPoints', currentPoints);
 
-    console.log(
-        '🎉 ĐIỂM DSANH THÀNH CÔNG +1 CCS'
-    );
-    // Gọi hàm cộng điểm tích lũy cá nhân
-if (typeof addScore === 'function') {
-    addScore(1);
-}
+    const scoreBadge = document.querySelector("[class*='Lớp']");
+    if (scoreBadge) {
+        scoreBadge.textContent = `Lớp 11A1 ( ${currentPoints.toLocaleString()} CCS )`;
+    }
 
+    // TÍCH LŨY VÀO TÀI KHOẢN CÁ NHÂN
+    if (typeof addScore === 'function') {
+        addScore(1);
+    }
 }

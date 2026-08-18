@@ -1,5 +1,5 @@
 // Mã khóa Groq của bạn
-const GROQ_API_KEY = "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"; 
+window.GROQ_API_KEY = "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"; 
 
 async function askClassAI(promptText) {
     const url = "https://api.groq.com/openai/v1/chat/completions";
