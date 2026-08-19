@@ -313,11 +313,12 @@ function closeClassModal() {
 }
 
 // ==========================================
-// HÀM CHUYỂN TAB CHUẨN (HỖ TRỢ ETHICS)
+// HÀM CHUYỂN TAB CHUẨN (HỖ TRỢ TẤT CẢ CÁC TÍNH NĂNG)
 // ==========================================
 window.switchTab = function(tabId) {
     const tabs = ['dashboard', 'quests', 'wall', 'ethics'];
     
+    // 1. Ẩn tất cả các Tab và Reset màu các nút Navigation
     tabs.forEach(id => {
         const sec = document.getElementById('tab-' + id);
         const nav = document.getElementById('nav-' + id);
@@ -329,6 +330,7 @@ window.switchTab = function(tabId) {
         }
     });
 
+    // 2. Hiển thị Tab đang được chọn
     const activeSec = document.getElementById('tab-' + tabId);
     const activeNav = document.getElementById('nav-' + tabId);
 
@@ -339,6 +341,18 @@ window.switchTab = function(tabId) {
         activeNav.classList.remove('text-slate-400');
     }
 
+    // 3. KÍCH HOẠT HÀM RENDER DỮ LIỆU TƯƠNG ỨNG
+
+    // Khi chọn Tab "Trạm Tử Tế" (id: wall) -> Gọi Render Trạm Tử Tế từ kindness.js
+    if (tabId === 'wall') {
+        if (typeof renderKindnessModule === 'function') {
+            renderKindnessModule('kindness-module-container');
+        } else if (typeof window.renderKindnessModule === 'function') {
+            window.renderKindnessModule('kindness-module-container');
+        }
+    }
+
+    // Khi chọn Tab "Nhật Ký Đạo Đức" (id: ethics) -> Gọi Render Nhật Ký từ ethicsLog.js
     if (tabId === 'ethics') {
         if (typeof renderEthicsLogModule === 'function') {
             renderEthicsLogModule('ethics-module-container');
