@@ -4,6 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClassCyberPulse - Cyber School System</title>
+
+    <!-- FIREBASE SDK V8 & KẾT NỐI DATABASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        // Cấu hình Firebase dự án ClassCyberPulse
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2zL2geRa_GkL8GvsESQtpd0dmiZWrk68",
+            authDomain: "classcyberpulse.firebaseapp.com",
+            projectId: "classcyberpulse",
+            storageBucket: "classcyberpulse.firebasestorage.app",
+            messagingSenderId: "525241706352",
+            appId: "1:525241706352:web:0b9ecac4b0ff59bfb051b5",
+            measurementId: "G-RDH1YREJCN"
+        };
+
+        // Khởi tạo và kết nối cơ sở dữ liệu Firestore
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        window.db = firebase.firestore();
+    </script>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -247,7 +270,7 @@
     </script>
 
     <!-- DANH SÁCH SCRIPTS HỆ THỐNG -->
-     <script src="./js/adminConfig.js"></script>
+    <script src="./js/adminConfig.js"></script>
     <script src="./js/AIService.js?v=20260817"></script>
     <script src="./js/questionBank.js"></script>
     <script src="./js/checkin.js"></script>
