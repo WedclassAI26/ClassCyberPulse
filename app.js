@@ -6,6 +6,16 @@
 document.addEventListener("DOMContentLoaded", () => {
     updateAuthDisplay();
     renderLeaderboard();
+
+    // TỰ ĐỘNG KHỞI TẠO TẤT CẢ CÁC MODULE KHI TRANG VỪA LOAD
+    setTimeout(() => {
+        if (typeof renderMoodStation === 'function') {
+            renderMoodStation();
+        }
+        if (typeof renderDailyPlanner === 'function') {
+            renderDailyPlanner();
+        }
+    }, 100);
 });
 
 function updateAuthDisplay() {
@@ -140,7 +150,7 @@ function escapeHTML(value) {
 }
 
 // ==========================================
-// 3. DỮ LIỆU & BẢNG XẾP HẠNG LỚP HỌC
+// 2. DỮ LIỆU & BẢNG XẾP HẠNG LỚP HỌC
 // ==========================================
 let classesData = [
     {
@@ -206,7 +216,7 @@ function renderLeaderboard() {
     container.innerHTML = classesData.map(cls => {
         const percent = Math.min(Math.round((cls.score / cls.maxScore) * 100), 100);
         return `
-           <div onclick="showClassDetails('${cls.id}')" class="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col justify-between hover:border-cyan-500/50 hover:scale-[1.02] cursor-pointer transition-all duration-300 min-h-[240px] group">
+            <div onclick="showClassDetails('${cls.id}')" class="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col justify-between hover:border-cyan-500/50 hover:scale-[1.02] cursor-pointer transition-all duration-300 min-h-[240px] group">
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <span class="px-3.5 py-1 rounded-full text-xs font-black border ${cls.rankClass} uppercase tracking-wider">
@@ -237,7 +247,7 @@ function renderLeaderboard() {
 }
 
 // ==========================================
-// 4. CÁC HÀM TIỆN ÍCH (TAB, MODAL, MOOD, MUSIC)
+// 3. CÁC HÀM TIỆN ÍCH (MODAL, MOOD, MUSIC)
 // ==========================================
 
 function selectMood(mood) {
@@ -300,7 +310,7 @@ function showClassDetails(classId) {
                 <div class="text-base font-black text-cyan-400 mt-1">👥 ${cls.members || 40} Học sinh</div>
             </div>
         </div>
-        <button onclick="closeClassModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-indigo-600/30">
+        <button onclick="closeClassModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-indigo-600/30 cursor-pointer">
             Đóng Cửa Sổ
         </button>
     `;
@@ -313,51 +323,48 @@ function closeClassModal() {
 }
 
 // ==========================================
-// HÀM CHUYỂN TAB CHUẨN (HỖ TRỢ TẤT CẢ CÁC TÍNH NĂNG)
+// 4. HÀM CHUYỂN TAB DÙNG CHUNG CẢ HỆ THỐNG
+// ==========================================
+// ==========================================
+// HÀM CHUYỂN TAB HOÀN CHỈNH
 // ==========================================
 window.switchTab = function(tabId) {
-    const tabs = ['dashboard', 'quests', 'wall', 'ethics'];
-    
-    // 1. Ẩn tất cả các Tab và Reset màu các nút Navigation
-    tabs.forEach(id => {
-        const sec = document.getElementById('tab-' + id);
-        const nav = document.getElementById('nav-' + id);
-        
-        if (sec) sec.classList.add('hidden');
-        if (nav) {
-            nav.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/30');
-            nav.classList.add('text-slate-400');
+    const allTabs = ['dashboard', 'quests', 'wall', 'ethics'];
+
+    allTabs.forEach(id => {
+        const sec = document.getElementById(`tab-${id}`);
+        const nav = document.getElementById(`nav-${id}`);
+
+        if (id === tabId) {
+            // HIỂN THỊ TAB ĐƯỢC CHỌN
+            if (sec) sec.classList.remove('hidden');
+            if (nav) {
+                nav.className = "px-4 py-2 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-md flex items-center space-x-2 cursor-pointer";
+            }
+        } else {
+            // ẨN CÁC TAB CÒN LẠI (ĐẢM BẢO KHÔNG BỊ HIỆN ĐÈ)
+            if (sec) sec.classList.add('hidden');
+            if (nav) {
+                nav.className = "px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2 cursor-pointer";
+            }
         }
     });
 
-    // 2. Hiển thị Tab đang được chọn
-    const activeSec = document.getElementById('tab-' + tabId);
-    const activeNav = document.getElementById('nav-' + tabId);
-
-    if (activeSec) activeSec.classList.remove('hidden');
-    
-    if (activeNav) {
-        activeNav.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/30');
-        activeNav.classList.remove('text-slate-400');
+    // KÍCH HOẠCH DỮ LIỆU KHI CHUYỂN TAB
+    if (tabId === 'quests' && typeof window.renderQuestsModule === 'function') {
+        window.renderQuestsModule('scenario-container');
     }
-
-    // 3. KÍCH HOẠT HÀM RENDER DỮ LIỆU TƯƠNG ỨNG
-
-    // Khi chọn Tab "Trạm Tử Tế" (id: wall) -> Gọi Render Trạm Tử Tế từ kindness.js
-    if (tabId === 'wall') {
-        if (typeof renderKindnessModule === 'function') {
-            renderKindnessModule('kindness-module-container');
-        } else if (typeof window.renderKindnessModule === 'function') {
-            window.renderKindnessModule('kindness-module-container');
-        }
+    if (tabId === 'wall' && typeof window.renderKindnessModule === 'function') {
+        window.renderKindnessModule('kindness-module-container');
     }
-
-    // Khi chọn Tab "Nhật Ký Đạo Đức" (id: ethics) -> Gọi Render Nhật Ký từ ethicsLog.js
-    if (tabId === 'ethics') {
-        if (typeof renderEthicsLogModule === 'function') {
-            renderEthicsLogModule('ethics-module-container');
-        } else if (typeof window.renderEthicsLogModule === 'function') {
-            window.renderEthicsLogModule('ethics-module-container');
-        }
+    if (tabId === 'ethics' && typeof window.renderEthicsLogModule === 'function') {
+        window.renderEthicsLogModule('ethics-module-container');
     }
 };
+
+// TỰ ĐỘNG CHỌN TAB MẶC ĐỊNH KHI MỚI MỞ TRANG
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof window.switchTab === 'function') {
+        window.switchTab('dashboard');
+    }
+});

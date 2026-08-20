@@ -1,39 +1,138 @@
 // ==========================================
-// MÔ-ĐUN: TRẠM TỬ TẾ (ĐỒNG BỘ ĐA TAB & MULTI-WINDOW)
+// MÔ-ĐUN: TRẠM TỬ TẾ (TÍCH HỢP FIREBASE CLOUD REALTIME)
 // ==========================================
 
-// 1. TẢI DỮ LIỆU BAN ĐẦU TỪ BỘ NHỚ TRÌNH DUYỆT
-function getStoredMessages() {
-    try {
-        const saved = localStorage.getItem("kindness_messages_data");
-        if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return [
-        {
-            id: "1",
-            sender: "Từ Lớp 11A1",
-            receiver: "Lớp 10A2",
-            content: "Chào mừng các em 10A2 gia nhập hành trình lan tỏa năng lượng tích cực!",
-            aiComment: "🤖 AI: ★ Chào mừng ấm áp!",
-            likes: ["Bạn Nam (11A1)", "Bạn Chi (12A1)"],
-            reports: [],
-            hashtag: "#ChàoMừng",
-            date: "2026-08-19",
-            time: "08:15",
-            createdAt: 1787130900000
-        }
-    ];
-}
-
-let kindnessMessages = getStoredMessages();
+let kindnessMessages = [];
 let activeReportMsgId = null;
 
-function saveAndBroadcastMessages() {
+// 1. TẢI DỮ LIỆU TỪ FIREBASE (HOẶC LOCALSTORAGE NẾU NGOẠI TUYẾN)
+function initKindnessRealtimeListener() {
+    if (window.db) {
+        // Tải Realtime từ Cloud Firestore
+        window.db.collection("kindness_messages")
+            .orderBy("createdAt", "desc")
+            .onSnapshot((snapshot) => {
+                const cloudMsgs = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    cloudMsgs.push({
+                        id: doc.id,
+                        sender: data.sender || "Khách",
+                        receiver: data.receiver || "Tất cả bạn bè",
+                        content: data.content || "",
+                        aiComment: data.aiComment || "🤖 AI: ✨ Lời chúc tuyệt vời!",
+                        likes: Array.isArray(data.likes) ? data.likes : [],
+                        reports: Array.isArray(data.reports) ? data.reports : [],
+                        hashtag: data.hashtag || "#LanTỏa",
+                        date: data.date || new Date().toISOString().split('T')[0],
+                        time: data.time || new Date().toTimeString().substring(0, 5),
+                        createdAt: data.createdAt || Date.now()
+                    });
+                });
+                kindnessMessages = cloudMsgs;
+                // Sao lưu bản sao về localStorage
+                try {
+                    localStorage.setItem("kindness_messages_data", JSON.stringify(kindnessMessages));
+                } catch(e){}
+                renderZaloFeed();
+            }, (error) => {
+                console.error("Lỗi Firestore Snapshot:", error);
+                loadFromLocalStorage();
+            });
+    } else {
+        loadFromLocalStorage();
+    }
+}
+
+function loadFromLocalStorage() {
+    try {
+        const saved = localStorage.getItem("kindness_messages_data");
+        if (saved) {
+            kindnessMessages = JSON.parse(saved);
+        } else {
+            kindnessMessages = [
+                {
+                    id: "1",
+                    sender: "Từ Lớp 11A1",
+                    receiver: "Lớp 10A2",
+                    content: "Chào mừng các em 10A2 gia nhập hành trình lan tỏa năng lượng tích cực!",
+                    aiComment: "🤖 AI: ★ Chào mừng ấm áp!",
+                    likes: ["Bạn Nam (11A1)", "Bạn Chi (12A1)"],
+                    reports: [],
+                    hashtag: "#ChàoMừng",
+                    date: "2026-08-19",
+                    time: "08:15",
+                    createdAt: 1787130900000
+                }
+            ];
+        }
+    } catch (e) {
+        kindnessMessages = [];
+    }
+    renderZaloFeed();
+}
+
+function saveMessageToCloudOrLocal(newMessage) {
+    if (window.db) {
+        window.db.collection("kindness_messages").add(newMessage)
+            .then(() => {
+                showKindnessStatus("✅ Lời chúc đã được lưu & đồng bộ mây thành công! (+1 CCS)", "text-emerald-400");
+            })
+            .catch((err) => {
+                console.error("Lỗi lưu mây:", err);
+                fallbackSaveLocal(newMessage);
+            });
+    } else {
+        fallbackSaveLocal(newMessage);
+    }
+}
+
+function fallbackSaveLocal(newMessage) {
+    kindnessMessages.unshift(newMessage);
     try {
         localStorage.setItem("kindness_messages_data", JSON.stringify(kindnessMessages));
-        // Phát tín hiệu thông báo cho các Tab / Trình duyệt khác cùng nhận
         localStorage.setItem("kindness_sync_trigger", Date.now().toString());
     } catch (e) {}
+    renderZaloFeed();
+    showKindnessStatus("✅ Lời chúc đã lưu nội bộ! (+1 CCS)", "text-emerald-400");
+}
+
+function updateMessageInCloudOrLocal(msgId, updateData) {
+    if (window.db) {
+        window.db.collection("kindness_messages").doc(String(msgId)).update(updateData)
+            .catch((err) => {
+                console.error("Lỗi cập nhật Firestore:", err);
+                saveAndBroadcastLocal();
+            });
+    } else {
+        saveAndBroadcastLocal();
+    }
+}
+
+function deleteMessageFromCloudOrLocal(msgId) {
+    if (window.db) {
+        window.db.collection("kindness_messages").doc(String(msgId)).delete()
+            .then(() => {
+                showKindnessStatus("🗑️ Đã xoá lời chúc không phù hợp khỏi hệ thống mây!", "text-rose-400");
+            })
+            .catch((err) => {
+                console.error("Lỗi xoá trên Firestore:", err);
+                kindnessMessages = kindnessMessages.filter(msg => String(msg.id) !== String(msgId));
+                saveAndBroadcastLocal();
+            });
+    } else {
+        kindnessMessages = kindnessMessages.filter(msg => String(msg.id) !== String(msgId));
+        saveAndBroadcastLocal();
+        showKindnessStatus("🗑️ Đã xoá lời chúc không phù hợp!", "text-rose-400");
+    }
+}
+
+function saveAndBroadcastLocal() {
+    try {
+        localStorage.setItem("kindness_messages_data", JSON.stringify(kindnessMessages));
+        localStorage.setItem("kindness_sync_trigger", Date.now().toString());
+    } catch (e) {}
+    renderZaloFeed();
 }
 
 function getCurrentUserName() {
@@ -114,7 +213,7 @@ window.renderKindnessModule = function(containerId) {
                         <i class="fa-solid fa-comments text-cyan-400 text-base"></i>
                         <span>DÒNG THỜI GIAN LỜI CHÚC</span>
                     </h4>
-                    <span class="text-xs text-emerald-400 font-bold">● Đồng bộ Realtime</span>
+                    <span class="text-xs text-emerald-400 font-bold">● Đồng bộ Realtime Firebase</span>
                 </div>
 
                 <div class="max-h-[650px] overflow-y-auto space-y-3 pr-2 custom-scroll" id="zalo-feed-container"></div>
@@ -255,7 +354,7 @@ window.toggleLikeMessage = function(id) {
         msg.likes.splice(index, 1);
     }
 
-    saveAndBroadcastMessages();
+    updateMessageInCloudOrLocal(id, { likes: msg.likes });
     renderZaloFeed();
 };
 
@@ -352,7 +451,7 @@ window.submitReportMessage = function() {
     const reporterName = getCurrentUserName();
     msg.reports.push({ reporter: reporterName, reason: finalReason });
 
-    saveAndBroadcastMessages();
+    updateMessageInCloudOrLocal(activeReportMsgId, { reports: msg.reports });
     closeKindnessModal();
     renderZaloFeed();
     showKindnessStatus("🚩 Báo cáo đã được ghi nhận và gửi tới Thầy Cô / Admin!", "text-amber-300");
@@ -457,10 +556,7 @@ function closeKindnessModal() {
 
 window.handleDeleteMessageByAdmin = function(id) {
     if (confirm("⚠️ [ADMIN]: Xác nhận xoá lời chúc này khỏi hệ thống?")) {
-        kindnessMessages = kindnessMessages.filter(msg => String(msg.id) !== String(id));
-        saveAndBroadcastMessages();
-        renderZaloFeed();
-        showKindnessStatus("🗑️ Đã xoá lời chúc không phù hợp!", "text-rose-400");
+        deleteMessageFromCloudOrLocal(id);
     }
 };
 
@@ -504,7 +600,6 @@ window.handleSendKindnessMessage = function() {
     const timeStr = today.toTimeString().substring(0, 5);
 
     const newMessage = {
-        id: "msg_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
         sender: getCurrentUserName(),
         receiver: receiver,
         content: content,
@@ -517,17 +612,13 @@ window.handleSendKindnessMessage = function() {
         createdAt: Date.now()
     };
 
-    // ĐƯA BÀI MỚI VÀO ĐẦU DANH SÁCH VÀ PHÁT SÓNG LƯU TRỮ TỨC THÌ
-    kindnessMessages.unshift(newMessage);
-    saveAndBroadcastMessages();
-    renderZaloFeed();
+    // ĐẨY BÀI NÀY LÊN CLOUD FIRESTORE
+    saveMessageToCloudOrLocal(newMessage);
 
     if (typeof addScore === 'function') addScore(1);
 
     input.value = '';
     if (receiverInput) receiverInput.value = '';
-
-    showKindnessStatus("✅ Lời chúc đã được lưu & đồng bộ thành công! (+1 CCS)", "text-emerald-400");
 };
 
 function showKindnessStatus(msg, textClass) {
@@ -553,19 +644,20 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-// BỘ LẮNG NGHE ĐỒNG BỘ GIỮA CÁC TAB / TRÌNH DUYỆT
+// LẮNG NGHE ĐỒNG BỘ NẾU CHẠY OFFLINE
 window.addEventListener('storage', function(e) {
     if (e.key === 'kindness_sync_trigger' || e.key === 'kindness_messages_data') {
-        kindnessMessages = getStoredMessages();
-        renderZaloFeed();
+        if (!window.db) {
+            loadFromLocalStorage();
+        }
     }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
-        kindnessMessages = getStoredMessages();
+        initKindnessRealtimeListener();
         if (typeof window.renderKindnessModule === 'function') {
             window.renderKindnessModule();
         }
-    }, 200);
+    }, 300);
 });

@@ -79,3 +79,42 @@ body {
     transform: scale(1.1);
     filter: drop-shadow(0 0 20px var(--accent-pink));
 }
+/* --- HIỆU ỨNG CHECK-IN BAY TỪ CAMERA XUỐNG & DÂNG LÊN HẠ XUỐNG --- */
+
+/* 1. Bay nẩy từ vị trí camera xuống ô kết quả */
+@keyframes flyDownBoost {
+    0% {
+        opacity: 0;
+        transform: translateY(-120px) scale(0.5);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(15px) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 2. Dâng lên hạ xuống liên tục (Floating Pulse) */
+@keyframes floatUpDown {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* 3. Hiệu ứng vệt sáng lướt qua */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-fly-down {
+    animation: flyDownBoost 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+               floatUpDown 3s ease-in-out infinite 0.8s;
+}

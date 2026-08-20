@@ -1,3 +1,7 @@
+// ==========================================
+// MÔ-ĐUN: TRẠM TỬ TẾ - WALL.JS GỐC
+// ==========================================
+
 const defaultMessages = [
     {
         sender: "Từ Ẩn danh ➔ Lớp 12C3",
@@ -15,17 +19,44 @@ const defaultMessages = [
 
 // Lấy danh sách tin nhắn từ LocalStorage
 function getMessages() {
-    const saved = localStorage.getItem('class_cyber_pulse_messages');
-    return saved ? JSON.parse(saved) : defaultMessages;
+    try {
+        const saved = localStorage.getItem('class_cyber_pulse_messages');
+        return saved ? JSON.parse(saved) : defaultMessages;
+    } catch (e) {
+        return defaultMessages;
+    }
 }
 
 // Hiển thị danh sách tin nhắn
 function loadKindnessMessages() {
-    const wall = document.getElementById('wall-messages');
+    const wall = document.getElementById('wall-messages') || document.getElementById('kindness-module-container');
     if (!wall) return;
 
     const messages = getMessages();
-    wall.innerHTML = "";
+    
+    // Khung nhập lời chúc chuẩn giao diện Trạm Tử Tế
+    let html = `
+        <div class="bg-slate-900/90 border border-cyan-500/40 p-4 rounded-3xl backdrop-blur-xl shadow-2xl mb-6">
+            <h3 class="text-sm font-black text-white flex items-center gap-2 mb-3">
+                <i class="fa-solid fa-heart-circle-bolt text-rose-400 text-base"></i>
+                <span>Gửi Lời Chúc Tử Tế (Trạm Tử Tế)</span>
+            </h3>
+            <div class="flex gap-3">
+                <input type="text" id="wall-input" placeholder="Nhập lời nhắn gửi tích cực tới bạn bè, thầy cô..." 
+                    class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-xs text-white px-4 py-3 rounded-2xl outline-none">
+                <button type="button" onclick="postKindnessMessage()" 
+                    class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    <span>Gửi (+5 CCS)</span>
+                </button>
+            </div>
+        </div>
+        <div id="messages-list-container" class="space-y-3"></div>
+    `;
+    
+    wall.innerHTML = html;
+    const listContainer = document.getElementById('messages-list-container');
+    if (!listContainer) return;
 
     messages.forEach(msg => {
         const card = document.createElement('div');
@@ -38,19 +69,24 @@ function loadKindnessMessages() {
         card.className = `${colorClass} border p-4 rounded-xl animate-fade-in mb-3 shadow-lg`;
         card.innerHTML = `
             <div class="flex justify-between items-center mb-1">
-                <span class="text-xs font-bold">${msg.sender}</span>
+                <span class="text-xs font-bold">${escapeHTML(msg.sender)}</span>
             </div>
-            <p class="text-sm text-slate-200 mt-1">"${msg.text}"</p>
+            <p class="text-sm text-slate-200 mt-1">"${escapeHTML(msg.text)}"</p>
             ${msg.aiFeedback ? `
                 <div class="mt-3 p-2.5 bg-slate-950/60 rounded-lg border border-cyan-500/20 text-xs text-cyan-300 flex items-start gap-2">
                     <i class="fa-solid fa-robot text-sm text-cyan-400 mt-0.5"></i>
-                    <div><strong>AI Hành Tinh:</strong> ${msg.aiFeedback}</div>
+                    <div><strong>AI Hành Tinh:</strong> ${escapeHTML(msg.aiFeedback)}</div>
                 </div>
             ` : ''}
         `;
-        wall.appendChild(card);
+        listContainer.appendChild(card);
     });
 }
+
+// Hàm hỗ trợ render tương thích với switchTab
+window.renderKindnessModule = function(containerId) {
+    loadKindnessMessages();
+};
 
 // Hàm gửi lời chúc kết hợp AI phân tích thực tế
 async function postKindnessMessage() {
@@ -58,10 +94,12 @@ async function postKindnessMessage() {
     if (!input) return;
     
     const val = input.value.trim();
-    if (!val) return;
+    if (!val) {
+        alert("⚠️ Vui lòng nhập nội dung lời chúc trước khi gửi!");
+        return;
+    }
 
-    // Hiển thị trạng thái đang chờ AI xử lý để tăng trải nghiệm công nghệ
-    const btnSubmit = document.querySelector('button[onclick="postKindnessMessage()"]') || event?.target;
+    const btnSubmit = document.querySelector('button[onclick="postKindnessMessage()"]');
     const oldBtnText = btnSubmit ? btnSubmit.innerHTML : "";
     if (btnSubmit) {
         btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> AI đang kiểm duyệt...`;
@@ -71,7 +109,6 @@ async function postKindnessMessage() {
     let aiFeedback = "";
     let isToxic = false;
 
-    // Gọi AI Gemini kiểm duyệt và nhận xét nội dung thông qua hàm askClassAI đã tích hợp ở AIService.js
     if (typeof askClassAI === 'function') {
         try {
             const prompt = `Phân tích câu nói sau của học sinh: "${val}". 
@@ -80,7 +117,7 @@ async function postKindnessMessage() {
             
             const responseText = await askClassAI(prompt);
             
-            if (responseText.includes("VIOLATION")) {
+            if (responseText && responseText.includes("VIOLATION")) {
                 isToxic = true;
             } else {
                 aiFeedback = responseText;
@@ -93,7 +130,6 @@ async function postKindnessMessage() {
         aiFeedback = "✨ Lời nhắn lan tỏa năng lượng tích cực!";
     }
 
-    // Khôi phục nút bấm
     if (btnSubmit) {
         btnSubmit.innerHTML = oldBtnText;
         btnSubmit.disabled = false;
@@ -104,7 +140,6 @@ async function postKindnessMessage() {
         return;
     }
 
-    // Lưu lời chúc mới vào LocalStorage kèm đánh giá của AI
     const messages = getMessages();
     messages.unshift({
         sender: "Từ Lớp 11A1 ➔ Toàn trường",
@@ -114,20 +149,17 @@ async function postKindnessMessage() {
     });
     localStorage.setItem('class_cyber_pulse_messages', JSON.stringify(messages));
 
-    // Cộng +5 CCS cho lớp 11A1 (nếu có hàm quản lý điểm)
-    if (typeof getClassesData === 'function' && typeof saveClassesData === 'function') {
-        const classes = getClassesData();
-        const myClass = classes.find(c => c.id === "11a1");
-        if (myClass) {
-            myClass.ccs += 5;
-            myClass.messagesCount += 1;
-            saveClassesData(classes);
-        }
+    if (typeof addScore === 'function') {
+        addScore(5);
     }
 
     input.value = "";
     loadKindnessMessages();
-    alert("✨ Lời chúc đã được AI duyệt và đăng thành công! Lớp 11A1 nhận +5 điểm CCS.");
+    alert("✨ Lời chúc đã được AI duyệt và đăng thành công! Lớp nhận +5 điểm CCS.");
+}
+
+function escapeHTML(str) {
+    return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 // Tự động nạp tin nhắn khi tải trang
