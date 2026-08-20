@@ -57,6 +57,7 @@ window.launchMoodParticles = function(moodKey) {
     const config = MOOD_PARTICLE_CONFIGS[moodKey] || MOOD_PARTICLE_CONFIGS.happy;
     particlesArray = [];
 
+    // Tạo các hạt
     for (let i = 0; i < config.count; i++) {
         particlesArray.push({
             x: Math.random() * canvas.width,
@@ -65,7 +66,8 @@ window.launchMoodParticles = function(moodKey) {
             speedY: Math.random() * (config.speedMax - config.speedMin) + config.speedMin,
             speedX: (Math.random() - 0.5) * 1.5,
             icon: config.icons[Math.floor(Math.random() * config.icons.length)],
-            opacity: Math.random() * 0.7 + 0.3
+            opacity: 1, // Bắt đầu với độ mờ 1
+            life: 2 // Đếm số lượt bay (2 lượt)
         });
     }
 
@@ -73,23 +75,36 @@ window.launchMoodParticles = function(moodKey) {
 
     function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let activeParticles = 0;
 
         for (let i = 0; i < particlesArray.length; i++) {
             let p = particlesArray[i];
+            if (p.life <= 0) continue;
+
             p.y -= p.speedY;
             p.x += p.speedX;
 
+            // Khi hạt bay lên khỏi màn hình, giảm lượt (life)
             if (p.y < -30) {
-                p.y = canvas.height + 20;
-                p.x = Math.random() * canvas.width;
+                p.life -= 1;
+                if (p.life > 0) {
+                    p.y = canvas.height + 20;
+                    p.x = Math.random() * canvas.width;
+                }
             }
 
             ctx.globalAlpha = p.opacity;
             ctx.font = `${p.size}px sans-serif`;
             ctx.fillText(p.icon, p.x, p.y);
+            activeParticles++;
         }
 
-        particleAnimationId = requestAnimationFrame(animateParticles);
+        if (activeParticles > 0) {
+            particleAnimationId = requestAnimationFrame(animateParticles);
+        } else {
+            // Tự động dừng hẳn khi hết lượt
+            window.stopMoodParticles();
+        }
     }
 
     animateParticles();
@@ -275,16 +290,24 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
                 </div>
             </div>
 
-            <div class="my-5 p-5 bg-slate-950/80 rounded-2xl border border-slate-800 relative flex items-center justify-center gap-3.5 text-center shadow-lg transition-all duration-300" id="mood-talk-box">
+           <div class="my-5 p-5 bg-slate-950/80 rounded-2xl border border-slate-800 relative flex items-center justify-center gap-3.5 text-center shadow-lg transition-all duration-300" id="mood-talk-box">
                 <div class="text-2xl shrink-0" id="talk-avatar">💡</div>
-                <div class="space-y-1 flex-1">
+                <div class="space-y-3 flex-1">
                     <h4 class="text-xs sm:text-sm font-black text-slate-300 tracking-wide" id="talk-title">
                         Mời bạn chọn trạng thái cảm xúc ở trên để Trạm Sạc gửi lời chúc & kích hoạt trò chơi tương ứng nhé! ✨
                     </h4>
+                    
+                    <div id="welcome-prompt" class="space-y-3">
+                        <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent my-1"></div>
+                        <h2 class="text-sm sm:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 uppercase tracking-widest drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)]">
+                            Sạc năng lượng ngày mới!<br> Tâm trạng của bạn hôm nay như thế nào?
+                        </h2>
+                    </div>
+                    
                     <p class="text-xs text-slate-400 italic hidden" id="mood-talk-text"></p>
                 </div>
             </div>
-
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                 <div class="md:col-span-4 bg-slate-950/80 border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -339,7 +362,8 @@ window.handleMoodSelect = function(moodKey) {
     currentMood = moodKey;
     const moodConfig = MOOD_MESSAGES[moodKey];
     if (!moodConfig) return;
-
+const welcomePrompt = document.getElementById('welcome-prompt');
+    if (welcomePrompt) welcomePrompt.classList.add('hidden');
     window.launchMoodParticles(moodKey);
 
     const randomQuote = getRandomQuote(moodKey);
