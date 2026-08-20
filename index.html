@@ -46,24 +46,37 @@
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-xl font-bold shadow-lg shadow-indigo-500/40 animate-pulse">⚡</div>
                 <span class="text-xl font-extrabold tracking-tight text-white">ClassCyber<span class="text-indigo-400">Pulse</span></span>
             </div>
-            <div class="flex md:flex space-x-1 bg-slate-900/90 p-1.5 rounded-full border border-slate-800">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-md flex items-center space-x-2">
-                    <i class="fa-solid fa-globe text-cyan-300"></i>
-                    <span>Hành Tinh Số</span>
-                </button>
-                <button onclick="switchTab('quests')" id="nav-quests" class="px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2">
-                    <i class="fa-solid fa-bolt text-amber-400"></i>
-                    <span>Check-in & Thử Thách</span>
-                </button>
-                <button onclick="switchTab('wall')" id="nav-wall" class="px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2">
-                    <i class="fa-solid fa-heart text-rose-400"></i>
-                    <span>Trạm Tử Tế</span>
-                </button>
-                <button onclick="switchTab('ethics')" id="nav-ethics" class="px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2">
-                    <i class="fa-solid fa-book-open text-emerald-400"></i>
-                    <span>Nhật Ký Đạo Đức</span>
-                </button>
-            </div>
+            <<div class="flex md:flex space-x-1 bg-slate-900/90 p-1.5 rounded-full border border-slate-800">
+    <!-- 1. Hành Tinh Số -->
+    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-white bg-indigo-600 shadow-md cursor-pointer">
+        <i class="fa-solid fa-globe text-cyan-300"></i>
+        <span>Hành Tinh Số</span>
+    </button>
+
+    <!-- 2. Kế Hoạch Hằng Ngày (Mới) -->
+    <button onclick="switchTab('planner')" id="nav-planner" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-calendar-check text-emerald-400"></i>
+        <span>Kế Hoạch</span>
+    </button>
+
+    <!-- 3. Check-in & Thử Thách -->
+    <button onclick="switchTab('quests')" id="nav-quests" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-bolt text-amber-400"></i>
+        <span>Check-in & Thử Thách</span>
+    </button>
+
+    <!-- 4. Trạm Tử Tế -->
+    <button onclick="switchTab('wall')" id="nav-wall" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-heart text-rose-400"></i>
+        <span>Trạm Tử Tế</span>
+    </button>
+
+    <!-- 5. Nhật Ký Đạo Đức -->
+    <button onclick="switchTab('ethics')" id="nav-ethics" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-book-open text-emerald-400"></i>
+        <span>Nhật Ký Đạo Đức</span>
+    </button>
+</div>
             
             <!-- GÓC PHẢI: TRẠNG THÁI TÀI KHOẢN -->
             <div class="flex items-center space-x-3">
@@ -80,10 +93,11 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- TRẠM SẠC CẢM XÚC (CONTAINER MỚI) -->
-<div id="mood-station-container"></div>
+
 
         <!-- TAB 1: BẢNG HÀNH TINH SỐ -->
         <section id="tab-dashboard" class="space-y-8">
+           <div id="mood-station-container"></div>
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-black text-white flex items-center gap-3">
@@ -152,21 +166,6 @@
             <div id="ethics-module-container"></div>
         </section>
     </main>
-
-    <!-- MP3 PLAYER -->
-    <div class="fixed bottom-4 left-4 z-50 bg-slate-900/90 backdrop-blur-md border border-slate-800 p-3 rounded-2xl shadow-2xl flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white text-base animate-spin-slow" id="music-disc">
-            🎵
-        </div>
-        <div>
-            <div class="text-xs font-bold text-white" id="song-title">Pulse Lofi Chill</div>
-            <div class="text-[10px] text-slate-400" id="song-artist">ClassCyberPulse Radio</div>
-        </div>
-        <button onclick="toggleMusic()" id="play-btn" class="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs flex items-center justify-center transition-all ml-2">
-            <i class="fa-solid fa-play"></i>
-        </button>
-        <audio id="bg-audio" loop src="https://stream.zeno.fm/f3wvbbqmdg8uv"></audio>
-    </div>
 
     <!-- MODAL HIỂN THỊ CHI TIẾT LỚP HỌC -->
     <div id="class-detail-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
