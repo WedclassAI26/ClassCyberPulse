@@ -329,7 +329,7 @@ function closeClassModal() {
 // HÀM CHUYỂN TAB HOÀN CHỈNH
 // ==========================================
 window.switchTab = function(tabId) {
-    const allTabs = ['dashboard', 'quests', 'wall', 'ethics'];
+   const allTabs = ['dashboard', 'planner', 'quests', 'wall', 'ethics'];
 
     allTabs.forEach(id => {
         const sec = document.getElementById(`tab-${id}`);
@@ -359,6 +359,9 @@ window.switchTab = function(tabId) {
     }
     if (tabId === 'ethics' && typeof window.renderEthicsLogModule === 'function') {
         window.renderEthicsLogModule('ethics-module-container');
+    }
+    if (tabId === 'planner' && typeof window.renderDailyPlanner === 'function') {
+        window.renderDailyPlanner('planner-content');
     }
 };
 

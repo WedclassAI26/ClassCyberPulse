@@ -1,4 +1,61 @@
 // ==========================================
+// CẤU HÌNH DANH SÁCH NHẠC & PLAYLIST
+// ==========================================
+const MUSIC_PLAYLISTS = {
+    energetic: [
+        { title: "Sôi Động 1", src: "./NHACSOIDONG/soidong1.mp3" },
+        { title: "Sôi Động 2", src: "./NHACSOIDONG/soidong2.mp3" },
+        { title: "Sôi Động 3", src: "./NHACSOIDONG/soidong3.mp3" }
+    ],
+    gentle: [
+        { title: "Bài Nhạc Nhẹ 1", src: "./nhacnhe1.mp3" },
+        { title: "Bài Nhạc Nhẹ 2", src: "./nhacnhe2.mp3" }
+    ]
+};
+let currentPlaylistType = 'energetic';
+let currentSongIndex = 0;
+
+window.playMusicType = function(type) {
+    currentPlaylistType = type;
+    currentSongIndex = 0;
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    if (!audio || !song) return;
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        if (type === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "▶ " + song.title;
+        } else if (type === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "▶ " + song.title;
+        }
+    }).catch((error) => { console.log("Lỗi:", error); });
+};
+
+window.nextMoodMusic = function() {
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+    currentSongIndex = (currentSongIndex + 1) % list.length;
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    if (!audio || !song) return;
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        if (currentPlaylistType === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "▶ " + song.title;
+        } else if (currentPlaylistType === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "▶ " + song.title;
+        }
+    });
+};
+// ==========================================
 // MÔ-ĐUN: TRẠM SẠC CẢM XÚC - TỐI ƯU GIAO DIỆN & TẢI TRỌN BỘ TÍNH NĂNG
 // ==========================================
 
@@ -57,7 +114,6 @@ window.launchMoodParticles = function(moodKey) {
     const config = MOOD_PARTICLE_CONFIGS[moodKey] || MOOD_PARTICLE_CONFIGS.happy;
     particlesArray = [];
 
-    // Tạo các hạt
     for (let i = 0; i < config.count; i++) {
         particlesArray.push({
             x: Math.random() * canvas.width,
@@ -66,8 +122,8 @@ window.launchMoodParticles = function(moodKey) {
             speedY: Math.random() * (config.speedMax - config.speedMin) + config.speedMin,
             speedX: (Math.random() - 0.5) * 1.5,
             icon: config.icons[Math.floor(Math.random() * config.icons.length)],
-            opacity: 1, // Bắt đầu với độ mờ 1
-            life: 2 // Đếm số lượt bay (2 lượt)
+            opacity: 1,
+            life: 2
         });
     }
 
@@ -84,7 +140,6 @@ window.launchMoodParticles = function(moodKey) {
             p.y -= p.speedY;
             p.x += p.speedX;
 
-            // Khi hạt bay lên khỏi màn hình, giảm lượt (life)
             if (p.y < -30) {
                 p.life -= 1;
                 if (p.life > 0) {
@@ -102,7 +157,6 @@ window.launchMoodParticles = function(moodKey) {
         if (activeParticles > 0) {
             particleAnimationId = requestAnimationFrame(animateParticles);
         } else {
-            // Tự động dừng hẳn khi hết lượt
             window.stopMoodParticles();
         }
     }
@@ -234,23 +288,9 @@ const MOOD_MESSAGES = {
     }
 };
 
-const moodShuffledPools = { happy: [], chill: [], stressed: [], tired: [] };
-
 function getRandomQuote(moodKey) {
     const quotes = MOOD_MESSAGES[moodKey].quotes;
-    if (!quotes || quotes.length === 0) return "";
-
-    if (!moodShuffledPools[moodKey] || moodShuffledPools[moodKey].length === 0) {
-        let indices = quotes.map((_, index) => index);
-        for (let i = indices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
-        moodShuffledPools[moodKey] = indices;
-    }
-
-    const selectedIndex = moodShuffledPools[moodKey].pop();
-    return quotes[selectedIndex];
+    return quotes[Math.floor(Math.random() * quotes.length)];
 }
 
 const MOOD_DATA = {
@@ -290,7 +330,7 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
                 </div>
             </div>
 
-           <div class="my-5 p-5 bg-slate-950/80 rounded-2xl border border-slate-800 relative flex items-center justify-center gap-3.5 text-center shadow-lg transition-all duration-300" id="mood-talk-box">
+            <div class="my-5 p-5 bg-slate-950/80 rounded-2xl border border-slate-800 relative flex items-center justify-center gap-3.5 text-center shadow-lg transition-all duration-300" id="mood-talk-box">
                 <div class="text-2xl shrink-0" id="talk-avatar">💡</div>
                 <div class="space-y-3 flex-1">
                     <h4 class="text-xs sm:text-sm font-black text-slate-300 tracking-wide" id="talk-title">
@@ -299,7 +339,7 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
                     
                     <div id="welcome-prompt" class="space-y-3">
                         <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent my-1"></div>
-                        <h2 class="text-sm sm:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 uppercase tracking-widest drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)]">
+                        <h2 class="text-sm sm:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 uppercase tracking-widest">
                             Sạc năng lượng ngày mới!<br> Tâm trạng của bạn hôm nay như thế nào?
                         </h2>
                     </div>
@@ -307,7 +347,7 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
                     <p class="text-xs text-slate-400 italic hidden" id="mood-talk-text"></p>
                 </div>
             </div>
-            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                 <div class="md:col-span-4 bg-slate-950/80 border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -319,34 +359,52 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
                     </button>
                 </div>
 
-                <div class="md:col-span-4 bg-slate-950/80 border border-slate-800/80 p-2.5 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <button id="play-btn" onclick="toggleMoodMusic()" class="w-7 h-7 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center text-xs transition cursor-pointer">
+                <!-- 3 Ô ÂM NHẠC & ÂM THANH: SÔI ĐỘNG, NHẸ NHÀNG, ÂM THANH XANH -->
+                <div class="md:col-span-8 bg-slate-950/80 border border-slate-800/80 p-2.5 rounded-2xl flex flex-wrap items-center justify-between gap-2">
+                    <!-- Ô 1: NHẠC SÔI ĐỘNG -->
+                    <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-xl flex-1 min-w-[150px]">
+                        <button onclick="playMusicType('energetic')" class="w-7 h-7 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
                             <i class="fa-solid fa-play"></i>
                         </button>
-                        <div>
-                            <div class="text-xs font-bold text-indigo-300">Lofi Chill</div>
-                            <div id="music-status" class="text-[9px] text-slate-400">Đang dừng</div>
+                        <div class="overflow-hidden">
+                            <div class="text-[11px] font-bold text-amber-300 truncate">🔥 Sôi Động</div>
+                            <div id="energetic-status" class="text-[9px] text-slate-400 truncate">Bấm nghe</div>
                         </div>
                     </div>
-                    <button onclick="toggleRainSound()" id="rain-btn" class="px-2 py-1 bg-slate-900 border border-slate-700 text-slate-400 text-[10px] font-semibold rounded-xl transition cursor-pointer">
-                        🌧️ Tiếng Mưa
-                    </button>
-                </div>
 
-                <div class="md:col-span-4 bg-slate-950/80 border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">📝</span>
-                        <span class="text-xs font-bold text-emerald-400">Kế Hoạch Mỗi Ngày</span>
+                    <!-- Ô 2: NHẠC NHẸ NHÀNG -->
+                    <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1.5 rounded-xl flex-1 min-w-[150px]">
+                        <button onclick="playMusicType('gentle')" class="w-7 h-7 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <div class="overflow-hidden">
+                            <div class="text-[11px] font-bold text-emerald-300 truncate">🌿 Nhẹ Nhàng</div>
+                            <div id="gentle-status" class="text-[9px] text-slate-400 truncate">Bấm nghe</div>
+                        </div>
                     </div>
-                    <button onclick="openTodoListModal()" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition hover:scale-105 cursor-pointer">
-                        Xem Mục Tiêu ✨
-                    </button>
+
+                    <!-- Ô 3: ÂM THANH XANH -->
+                    <div class="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1.5 rounded-xl flex-1 min-w-[150px]">
+                        <button onclick="toggleRainSound()" id="rain-btn" class="w-7 h-7 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
+                            <i class="fa-solid fa-cloud-rain"></i>
+                        </button>
+                        <div class="overflow-hidden">
+                            <div class="text-[11px] font-bold text-cyan-300 truncate">🍃 Âm Thanh Xanh</div>
+                            <div id="rain-status" class="text-[9px] text-slate-400 truncate">Tiếng mưa & thiên nhiên</div>
+                        </div>
+                    </div>
+
+                    <!-- Nút bài tiếp theo -->
+                    <div class="flex items-center gap-1.5 w-full justify-end mt-1">
+                        <button onclick="nextMoodMusic()" class="px-2.5 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[10px] font-semibold rounded-xl transition cursor-pointer">
+                            ⏭️ Bài Khác
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <audio id="bg-audio" loop src="https://stream.zeno.fm/f3wvbbqmdg8uv" preload="none"></audio>
+        <audio id="bg-audio" loop preload="auto"></audio>
         <audio id="rain-audio" loop src="https://assets.mixkit.co/active_storage/sfx/2515/2515-preview.mp3" preload="none"></audio>
 
         <div id="mood-custom-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-5 hidden">
@@ -362,12 +420,11 @@ window.handleMoodSelect = function(moodKey) {
     currentMood = moodKey;
     const moodConfig = MOOD_MESSAGES[moodKey];
     if (!moodConfig) return;
-const welcomePrompt = document.getElementById('welcome-prompt');
+    const welcomePrompt = document.getElementById('welcome-prompt');
     if (welcomePrompt) welcomePrompt.classList.add('hidden');
     window.launchMoodParticles(moodKey);
 
     const randomQuote = getRandomQuote(moodKey);
-
     const boxElem = document.getElementById('mood-talk-box');
     const titleElem = document.getElementById('talk-title');
     const talkElem = document.getElementById('mood-talk-text');
@@ -384,9 +441,6 @@ const welcomePrompt = document.getElementById('welcome-prompt');
         talkElem.className = "text-xs sm:text-sm text-slate-100 leading-relaxed font-normal tracking-wide select-text mt-1";
     }
     if (avatarElem) avatarElem.innerText = moodConfig.avatar;
-
-    const audio = document.getElementById('bg-audio');
-    if (audio) audio.play().then(() => updateMusicUI(true)).catch(() => {});
 };
 
 // KÍCH HOẠCH GAME
@@ -992,21 +1046,72 @@ function updateMusicUI(isPlaying) {
 document.addEventListener("DOMContentLoaded", () => {
     window.renderMoodStation();
 });
+
 // Ánh xạ hàm selectMood về handleMoodSelect để tương thích
 window.selectMood = function(moodKey) {
     if (typeof window.handleMoodSelect === 'function') {
         window.handleMoodSelect(moodKey);
     }
 };
-// ÁNH XẠ ĐỒNG BỘ ÂM NHẠC & CHỌN CẢM XÚC HỆ THỐNG
-window.toggleMusic = function() {
-    if (typeof window.toggleMoodMusic === 'function') {
-        window.toggleMoodMusic();
+
+// ĐIỀU KHIỂN ÂM THANH XANH & NHẠC NỀN
+window.toggleRainSound = function() {
+    const rainAudio = document.getElementById('rain-audio');
+    const rainBtn = document.getElementById('rain-btn');
+    if (!rainAudio) return;
+    if (isRainPlaying) {
+        rainAudio.pause();
+        isRainPlaying = false;
+        if (rainBtn) rainBtn.className = "w-7 h-7 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0";
+    } else {
+        rainAudio.play().then(() => {
+            isRainPlaying = true;
+            if (rainBtn) rainBtn.className = "w-7 h-7 bg-cyan-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0 shadow-[0_0_10px_rgba(56,189,248,0.8)] animate-pulse";
+        }).catch(() => {});
     }
 };
 
-window.selectMood = function(moodKey) {
-    if (typeof window.handleMoodSelect === 'function') {
-        window.handleMoodSelect(moodKey);
-    }
+window.playMusicType = function(type) {
+    currentPlaylistType = type;
+    currentSongIndex = 0;
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    if (!audio || !song) return;
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        if (type === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "▶ " + song.title;
+        } else if (type === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "▶ " + song.title;
+        }
+    }).catch((error) => { console.log("Lỗi phát nhạc:", error); });
 };
+
+window.nextMoodMusic = function() {
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+    currentSongIndex = (currentSongIndex + 1) % list.length;
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    if (!audio || !song) return;
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        if (currentPlaylistType === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "▶ " + song.title;
+        } else if (currentPlaylistType === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "▶ " + song.title;
+        }
+    });
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    window.renderMoodStation();
+});
