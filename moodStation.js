@@ -2,14 +2,66 @@
 // CẤU HÌNH DANH SÁCH NHẠC & PLAYLIST
 // ==========================================
 const MUSIC_PLAYLISTS = {
-    energetic: [
-        { title: "Sôi Động 1", src: "./NHACSOIDONG/soidong1.mp3" },
-        { title: "Sôi Động 2", src: "./NHACSOIDONG/soidong2.mp3" },
-        { title: "Sôi Động 3", src: "./NHACSOIDONG/soidong3.mp3" }
+   energetic: [
+        { title: "Bứt Phá Đỉnh Cao", src: "NHACSOIDONG/Bứt_Phá_Đỉnh_Cao.mp3" },
+        { title: "Cánh Gió Ra Khơi", src: "NHACSOIDONG/Cánh_Gió_Ra_Khơi.mp3" },
+        { title: "Chân Trời Rực Nắng", src: "NHACSOIDONG/Chân_Trời_Rực_Nắng.mp3" },
+        { title: "Chủ Nhân Vận Mệnh", src: "NHACSOIDONG/Chủ_Nhân_Vận_Mệnh.mp3" },
+        { title: "Dẫn Đầu Đường Đua", src: "NHACSOIDONG/Dẫn_Đầu_Đường_Đua.mp3" },
+        { title: "Đỉnh Cao Sự Chờ Điểm", src: "NHACSOIDONG/Đỉnh_Cao_Sự_Chờ_Điểm.mp3" },
+        { title: "Hạnh Phúc Mượn Vay", src: "NHACSOIDONG/Hạnh_Phúc_Mượn_Vay.mp3" },
+        { title: "Khắc Tên Lên Bảng Vàng", src: "NHACSOIDONG/Khắc_Tên_Lên_Bảng_Vàng.mp3" },
+        { title: "Khắc Tên Mình", src: "NHACSOIDONG/Khắc_Tên_Mình.mp3" },
+        { title: "Lối Tiên Phong", src: "NHACSOIDONG/Lối_Tiên_Phong.mp3" },
+        { title: "Nắm Giữ Mật Trời", src: "NHACSOIDONG/Nắm_Giữ_Mật_Trời.mp3" },
+        { title: "Nắm Lấy Tương Lai", src: "NHACSOIDONG/Nắm_Lấy_Tương_Lai.mp3" },
+        { title: "Nắm Lấy Vòng Tay", src: "NHACSOIDONG/Nắm_Lấy_Vòng_Tay.mp3" },
+        { title: "Nắng Hôn Lên Nền Nhà", src: "NHACSOIDONG/Nắng_hôn_lên_nền_nhà.mp3" },
+        { title: "Nắng Sẽ Lại Bừng", src: "NHACSOIDONG/Nắng_Sẽ_Lại_Bừng.mp3" },
+        { title: "Ngày Mới Vẫy Gọi", src: "NHACSOIDONG/Ngày_Mới_Vẫy_Gọi.mp3" },
+        { title: "Nhịp Đập Lạc Loài", src: "NHACSOIDONG/Nhịp_Đập_Lạc_Loài.mp3" },
+        { title: "Nụ Cười Rạng Ngời", src: "NHACSOIDONG/Nụ_Cười_Rạng_Ngời.mp3" },
+        { title: "Nụ Hoa Ngày Mới", src: "NHACSOIDONG/Nụ_hoa_ngày_mới.mp3" },
+        { title: "Sạc Đầy Khát Vọng", src: "NHACSOIDONG/Sạc_Đầy_Khát_Vọng.mp3" },
+        { title: "Sẵn Sàng Bứt Phá", src: "NHACSOIDONG/Sẵn_sàng_bứt_phá.mp3" },
+        { title: "Sau Những Phím Gõ", src: "NHACSOIDONG/Sau_Những_Phím_Gõ.mp3" },
+        { title: "Sôi Động 1", src: "NHACSOIDONG/soidong1.mp3" },
+        { title: "Sôi Động 2", src: "NHACSOIDONG/soidong2.mp3" },
+        { title: "Sôi Động 3", src: "NHACSOIDONG/soidong3.mp3" },
+        { title: "Sôi Động 4", src: "NHACSOIDONG/soidong4.mp3" },
+        { title: "Sôi Động 5", src: "NHACSOIDONG/soidong5.mp3" },
+        { title: "Sôi Động 6", src: "NHACSOIDONG/soidong6.mp3" },
+        { title: "Ta Vươn Cao", src: "NHACSOIDONG/Ta_Vươn_Cao.mp3" },
+        { title: "Vẽ Lại Bản Đồ", src: "NHACSOIDONG/Vẽ_Lại_Bản_Đồ.mp3" }
     ],
     gentle: [
-        { title: "Bài Nhạc Nhẹ 1", src: "./nhacnhe1.mp3" },
-        { title: "Bài Nhạc Nhẹ 2", src: "./nhacnhe2.mp3" }
+        { title: "A Branch of Morning", src: "NHACNHE/A_Branch_of_Morning.mp3" },
+        { title: "Amber Hour Sunlight", src: "NHACNHE/Amber_Hour_Sunlight.mp3" },
+        { title: "Ascent of the Heart", src: "NHACNHE/Ascent_of_the_Heart.mp3" },
+        { title: "Dew on the Tall Grass", src: "NHACNHE/Dew_on_the_Tall_Grass.mp3" },
+        { title: "Fields Before Sleep", src: "NHACNHE/Fields_Before_Sleep.mp3" },
+        { title: "Gold Light On The Hill", src: "NHACNHE/Gold_Light_On_The_Hill.mp3" },
+        { title: "Gold Upon the Salt", src: "NHACNHE/Gold_Upon_the_Salt.mp3" },
+        { title: "Heartbeat of the Morn", src: "NHACNHE/Heartbeat_of_the_Morning.mp3" },
+        { title: "High Grass Waltz", src: "NHACNHE/High_Grass_Waltz.mp3" },
+        { title: "Low Tide Breath", src: "NHACNHE/Low_Tide_Breath.mp3" },
+        { title: "Morning at the Bamboo", src: "NHACNHE/Morning_at_the_Bamboo.mp3" },
+        { title: "Morning at the Shoreline", src: "NHACNHE/Morning_at_the_Shoreline.mp3" },
+        { title: "Morning Temple Ascent", src: "NHACNHE/Morning_Temple_Ascent.mp3" },
+        { title: "Nhẹ Nhàng 1", src: "NHACNHE/nhenhang1.mp3" },
+        { title: "Nhẹ Nhàng 2", src: "NHACNHE/nhenhang2.mp3" },
+        { title: "Patterns in the Canopy", src: "NHACNHE/Patterns_in_the_Canopy.mp3" },
+        { title: "Rain Against the Pane", src: "NHACNHE/Rain_Against_the_Pane.mp3" },
+        { title: "Stained Glass Horizon", src: "NHACNHE/Stained_Glass_Horizon.mp3" },
+        { title: "Sunlight Through the Branches", src: "NHACNHE/Sunlight_Through_the_Branches.mp3" },
+        { title: "Temple of Still Water", src: "NHACNHE/Temple_of_Still_Water.mp3" },
+        { title: "Ten AM Coffee Groove", src: "NHACNHE/Ten_AM_Coffee_Groove.mp3" },
+        { title: "The First Soft Light", src: "NHACNHE/The_First_Soft_Light.mp3" },
+        { title: "The Glass Pavilion", src: "NHACNHE/The_Glass_Pavilion.mp3" },
+        { title: "The Morning Ascent", src: "NHACNHE/The_Morning_Ascent.mp3" },
+        { title: "The Weight of Open", src: "NHACNHE/The_Weight_of_Open.mp3" },
+        { title: "Waking Under Oak", src: "NHACNHE/Waking_Under_Oak.mp3" },
+        { title: "Where the Morning Breaks", src: "NHACNHE/Where_the_Morning_Breaks.mp3" }
     ]
 };
 let currentPlaylistType = 'energetic';
@@ -39,22 +91,61 @@ window.playMusicType = function(type) {
 window.nextMoodMusic = function() {
     const list = MUSIC_PLAYLISTS[currentPlaylistType];
     if (!list || list.length === 0) return;
-    currentSongIndex = (currentSongIndex + 1) % list.length;
+    
+    // Tự động chuyển sang bài kế tiếp, nếu lỗi thì thử bài tiếp theo nữa
+    let attempts = 0;
+    do {
+        currentSongIndex = (currentSongIndex + 1) % list.length;
+        attempts++;
+    } while (attempts < list.length && !list[currentSongIndex].src);
+
     const song = list[currentSongIndex];
     const audio = document.getElementById('bg-audio');
     if (!audio || !song) return;
+    
     audio.src = song.src;
     audio.load();
     audio.play().then(() => {
-        if (currentPlaylistType === 'energetic') {
-            const status = document.getElementById('energetic-status');
-            if (status) status.innerText = "▶ " + song.title;
-        } else if (currentPlaylistType === 'gentle') {
-            const status = document.getElementById('gentle-status');
-            if (status) status.innerText = "▶ " + song.title;
-        }
+        updateSongStatus(song.title);
+    }).catch((error) => {
+        console.log("Không tìm thấy file, tự động chuyển bài kế tiếp...");
+        window.nextMoodMusic(); // Tự động gọi next nếu file lỗi
     });
 };
+
+window.prevMoodMusic = function() {
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+    
+    let attempts = 0;
+    do {
+        currentSongIndex = (currentSongIndex - 1 + list.length) % list.length;
+        attempts++;
+    } while (attempts < list.length && !list[currentSongIndex].src);
+
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    if (!audio || !song) return;
+    
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        updateSongStatus(song.title);
+    }).catch((error) => {
+        console.log("Không tìm thấy file, tự động lùi bài trước...");
+        window.prevMoodMusic();
+    });
+};
+
+function updateSongStatus(title) {
+    if (currentPlaylistType === 'energetic') {
+        const status = document.getElementById('energetic-status');
+        if (status) status.innerText = "▶ " + title;
+    } else if (currentPlaylistType === 'gentle') {
+        const status = document.getElementById('gentle-status');
+        if (status) status.innerText = "▶ " + title;
+    }
+}
 // ==========================================
 // MÔ-ĐUN: TRẠM SẠC CẢM XÚC - TỐI ƯU GIAO DIỆN & TẢI TRỌN BỘ TÍNH NĂNG
 // ==========================================
@@ -313,15 +404,15 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
 
     container.innerHTML = `
         <section class="mb-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
-                <div class="space-y-1 text-center lg:text-left">
-                    <div class="flex items-center justify-center lg:justify-start gap-2">
-                        <span class="text-xs font-black text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 cyber-header-glow flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 🔋 TRẠM SẠC CẢM XÚC
-                        </span>
-                    </div>
-                </div>
-
+           <div class="space-y-1 text-center lg:text-left">
+                  <div class="space-y-1 text-center lg:text-left">
+                  <div class="inline-flex items-center gap-3 bg-slate-900/90 border border-emerald-500/30 px-5 py-3 rounded-2xl shadow-lg">
+                      <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      <span class="text-sm sm:text-base font-black text-emerald-400 tracking-wider uppercase cyber-header-glow">
+                          🔋 TRẠM SẠC CẢM XÚC
+                      </span>
+                  </div>
+              </div>
                 <div class="flex flex-wrap items-center justify-center gap-2 shrink-0">
                     ${Object.keys(MOOD_DATA).map(key => {
                         const m = MOOD_DATA[key];
@@ -350,20 +441,21 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                 <div class="md:col-span-4 bg-slate-950/80 border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">🎮</span>
-                        <span class="text-xs font-bold text-slate-200">Mini-Game Phản Xạ</span>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(56,189,248,0.7)] animate-bounce shrink-0">
+                            <span class="text-base filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">🎮</span>
+                        </div>
+                        <span id="mini-game-name" class="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-300 tracking-wide">Mini-Game Giải Trí</span>
                     </div>
                     <button onclick="launchCurrentMoodGame()" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-indigo-600 text-slate-950 font-black text-xs rounded-xl shadow-md transition hover:scale-105 cursor-pointer">
                         Chơi Trực Tiếp 🚀
                     </button>
                 </div>
-
-                <!-- 3 Ô ÂM NHẠC & ÂM THANH: SÔI ĐỘNG, NHẸ NHÀNG, ÂM THANH XANH -->
+                <!-- 3 Ô ÂM NHẠC & THANH ĐIỀU KHIỂN ĐẦY ĐỦ -->
                 <div class="md:col-span-8 bg-slate-950/80 border border-slate-800/80 p-2.5 rounded-2xl flex flex-wrap items-center justify-between gap-2">
                     <!-- Ô 1: NHẠC SÔI ĐỘNG -->
                     <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-xl flex-1 min-w-[150px]">
-                        <button onclick="playMusicType('energetic')" class="w-7 h-7 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
+                        <button onclick="togglePlayPause('energetic')" class="w-7 h-7 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
                             <i class="fa-solid fa-play"></i>
                         </button>
                         <div class="overflow-hidden">
@@ -374,7 +466,7 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
 
                     <!-- Ô 2: NHẠC NHẸ NHÀNG -->
                     <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1.5 rounded-xl flex-1 min-w-[150px]">
-                        <button onclick="playMusicType('gentle')" class="w-7 h-7 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
+                        <button onclick="togglePlayPause('gentle')" class="w-7 h-7 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
                             <i class="fa-solid fa-play"></i>
                         </button>
                         <div class="overflow-hidden">
@@ -394,13 +486,19 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
                         </div>
                     </div>
 
-                    <!-- Nút bài tiếp theo -->
-                    <div class="flex items-center gap-1.5 w-full justify-end mt-1">
+                 <!-- Nhóm nút điều khiển: Bài Trước, Dừng, Bài Sau -->
+                    <div class="flex items-center gap-2 w-full justify-end mt-1">
+                        <button onclick="prevMoodMusic()" class="px-2.5 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[10px] font-semibold rounded-xl transition cursor-pointer">
+                            ⏮️ Prev
+                        </button>
+                        <button onclick="stopMoodMusic()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-[10px] font-semibold rounded-xl transition cursor-pointer">
+                            ⏸️ Stop
+                        </button>
                         <button onclick="nextMoodMusic()" class="px-2.5 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[10px] font-semibold rounded-xl transition cursor-pointer">
-                            ⏭️ Bài Khác
+                            Next ⏭️
                         </button>
                     </div>
-                </div>
+
             </div>
         </section>
 
@@ -423,6 +521,15 @@ window.handleMoodSelect = function(moodKey) {
     const welcomePrompt = document.getElementById('welcome-prompt');
     if (welcomePrompt) welcomePrompt.classList.add('hidden');
     window.launchMoodParticles(moodKey);
+
+    // Cập nhật tên Mini-Game tùy theo ô cảm xúc
+    const gameNameElem = document.getElementById('mini-game-name');
+    if (gameNameElem) {
+        if (moodKey === 'happy') gameNameElem.innerText = "Nối Số Bứt Phá";
+        else if (moodKey === 'chill') gameNameElem.innerText = "Hình Và Bóng";
+        else if (moodKey === 'stressed') gameNameElem.innerText = "Phản Xạ Hạt Năng Lượng";
+        else if (moodKey === 'tired') gameNameElem.innerText = "Hứng Năng Lượng Tích Cực";
+    }
 
     const randomQuote = getRandomQuote(moodKey);
     const boxElem = document.getElementById('mood-talk-box');
@@ -1115,3 +1222,76 @@ window.nextMoodMusic = function() {
 document.addEventListener("DOMContentLoaded", () => {
     window.renderMoodStation();
 });
+window.prevMoodMusic = function() {
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+
+    // Lùi lại 1 bài, nếu đang ở bài đầu thì quay về bài cuối cùng trong danh sách
+    currentSongIndex = (currentSongIndex - 1 + list.length) % list.length;
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    
+    if (!audio || !song) return;
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        if (currentPlaylistType === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "▶ " + song.title;
+        } else if (currentPlaylistType === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "▶ " + song.title;
+        }
+    });
+};
+window.prevMoodMusic = function() {
+    const list = MUSIC_PLAYLISTS[currentPlaylistType];
+    if (!list || list.length === 0) return;
+
+    // Lùi lại 1 bài, nếu đang ở bài đầu thì quay về bài cuối cùng trong danh sách
+    currentSongIndex = (currentSongIndex - 1 + list.length) % list.length;
+    const song = list[currentSongIndex];
+    const audio = document.getElementById('bg-audio');
+    
+    if (!audio || !song) return;
+    audio.src = song.src;
+    audio.load();
+    audio.play().then(() => {
+        if (currentPlaylistType === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "▶ " + song.title;
+        } else if (currentPlaylistType === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "▶ " + song.title;
+        }
+    });
+};
+window.stopMoodMusic = function() {
+    const audio = document.getElementById('bg-audio');
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0; // Đưa bài hát về từ đầu
+    
+    // Cập nhật lại trạng thái giao diện
+    const energeticStatus = document.getElementById('energetic-status');
+    const gentleStatus = document.getElementById('gentle-status');
+    if (energeticStatus) energeticStatus.innerText = "Đã dừng";
+    if (gentleStatus) gentleStatus.innerText = "Đã dừng";
+};
+window.togglePlayPause = function(type) {
+    const audio = document.getElementById('bg-audio');
+    if (!audio) return;
+
+    if (!audio.paused && currentPlaylistType === type) {
+        audio.pause();
+        if (type === 'energetic') {
+            const status = document.getElementById('energetic-status');
+            if (status) status.innerText = "Đã dừng";
+        } else if (type === 'gentle') {
+            const status = document.getElementById('gentle-status');
+            if (status) status.innerText = "Đã dừng";
+        }
+    } else {
+        window.playMusicType(type);
+    }
+};
