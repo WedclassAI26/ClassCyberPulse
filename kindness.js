@@ -162,6 +162,36 @@ window.renderKindnessModule = function(containerId) {
 
     container.innerHTML = `
         <div class="space-y-5 w-full">
+        <!-- BANNER PHÁT ĐỘNG SỰ KIỆN: TUẦN LỄ TỬ TẾ -->
+            <div class="mb-5 p-4 sm:p-5 bg-gradient-to-r from-rose-950/60 via-slate-900/90 to-purple-950/60 border-2 border-rose-500/40 rounded-3xl shadow-[0_0_30px_rgba(244,63,94,0.2)] backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]"></div>
+
+                <div class="flex items-center gap-4 relative z-10 text-center md:text-left">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center shadow-[0_0_20px_rgba(244,63,94,0.6)] animate-pulse shrink-0">
+                        <i class="fa-solid fa-bullhorn text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Sự Kiện Đặc Biệt</span>
+                            <span class="text-xs text-amber-300 font-bold">⭐ Tuần Lễ Tử Tế (Kindness Week)</span>
+                        </div>
+                        <h3 class="text-sm sm:text-base font-black text-white mt-1">
+                            "Gửi lời tri ân thầy cô & Chúc anh chị khối 12 vượt cấp!"
+                       <h3 id="banner-title" class="text-sm sm:text-base font-black text-white mt-1">
+            "Gửi lời tri ân thầy cô & Chúc anh chị khối 12 vượt cấp!"
+        </h3>
+
+        <p class="text-xs text-slate-300 mt-0.5">Hãy chọn hashtag phù hợp và lan tỏa những thông điệp tích cực nhất để nhận điểm CCS nhé!</p>
+    </div>
+</div>
+
+                <div class="relative z-10 shrink-0">
+                    <span class="px-3.5 py-2 bg-slate-950/80 border border-rose-500/30 rounded-xl text-xs text-rose-300 font-bold flex items-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-heart text-rose-400"></i> Đang diễn ra
+                    </span>
+                </div>
+            </div>
+            <!-- 1. KHUNG NHẬP LỜI CHÚC (ĐÃ ĐƯỢC KHÔI PHỤC ĐẦY ĐỦ) -->
             <div class="bg-slate-900/90 border border-cyan-500/40 p-4 rounded-3xl backdrop-blur-xl shadow-2xl">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-black text-white flex items-center gap-2">
@@ -185,12 +215,24 @@ window.renderKindnessModule = function(containerId) {
                     <input type="text" id="kindness-receiver" placeholder="Gửi tới (Ví dụ: Lớp 11A1, Bạn Nam...)" 
                         class="bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-xs text-white px-4 py-2.5 rounded-xl outline-none">
                     
-                    <select id="kindness-hashtag" class="bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-xs text-slate-300 px-4 py-2.5 rounded-xl outline-none">
-                        <option value="#LanTỏa">#LanTỏa - Năng lượng tích cực</option>
-                        <option value="#ThiTốt">#ThiTốt - Chúc thi may mắn</option>
-                        <option value="#CảmƠn">#CảmƠn - Tri ân bạn bè/thầy cô</option>
-                        <option value="#ĐoànKết">#ĐoànKết - Sức mạnh tập thể</option>
-                    </select>
+                   <select id="kindness-hashtag" class="bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-xs text-slate-300 px-4 py-2.5 rounded-xl outline-none">
+    <!-- Nhóm Chủ Đề Sự Kiện Chung -->
+    <option value="#LanTỏaYêuThương">#LanTỏaYêuThương - Năng lượng tích cực hàng ngày</option>
+    <option value="#TriÂnThầyCô">#TriÂnThầyCô - Tri ân thầy cô giáo</option>
+    <option value="#ChúcThiTốt12">#ChúcThiTốt12 - Chúc anh chị khối 12 vượt cấp</option>
+    <option value="#ĐoànKếtLớp">#ĐoànKếtLớp - Sức mạnh tập thể 11A1</option>
+
+    <!-- Nhóm Ngày Lễ & Sự Kiệt Lớn Trong Năm -->
+    <option value="#KhaiGiảng">#KhaiGiảng - Chào năm học mới rực rỡ</option>
+    <option value="#20Tháng11">#20Tháng11 - Ngày Nhà Giáo Việt Nam</option>
+    <option value="#TếtTrungThu">#TếtTrungThu - Đêm hội trăng rằm ý nghĩa</option>
+    <option value="#26Tháng3">#26Tháng3 - Ngày Thành lập Đoàn TNCS Hồ Chí Minh</option>
+    <option value="#HọcSinhSinhVien">#HọcSinhSinhVien - Ngày truyền thống HSSV (9/1)</option>
+    <option value="#BếGiảng">#BếGiảng - Lưu giữ kỷ niệm mùa hè</option>
+    <option value="#QuốcKhánh2Tháng9">#QuốcKhánh2Tháng9 - Tự hào tổ quốc Việt Nam</option>
+    <option value="#27Tháng7">#27Tháng7 - Tri ân Thương binh Liệt sĩ</option>
+    <option value="#ChúcMừngNămMới">#ChúcMừngNămMới - Mừng Xuân Ất Tỵ / Bính Ngọ</option>
+</select>
                 </div>
 
                 <div class="flex gap-3">
@@ -207,6 +249,30 @@ window.renderKindnessModule = function(containerId) {
                 <div id="kindness-status" class="mt-2 text-[11px] hidden"></div>
             </div>
 
+            <!-- 2. KHUNG VINH DANH ĐẠI SỨ TỬ TẾ -->
+            <div class="mb-6 p-4 sm:p-5 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-indigo-950/40 border-2 border-amber-500/40 rounded-3xl shadow-[0_0_25px_rgba(251,191,36,0.15)] backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]"></div>
+
+                <div class="flex items-center gap-3.5 relative z-10 text-center md:text-left">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-bounce shrink-0">
+                        <i class="fa-solid fa-crown text-xl text-slate-950"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center justify-center md:justify-start gap-1.5">
+                            <span>⭐ VINH DANH ĐẠI SỨ TỬ TẾ TUẦN NÀY</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Những gương mặt lan tỏa nhiều thông điệp tích cực nhất cho cộng đồng lớp!</p>
+                    </div>
+                </div>
+
+                <div id="ambassador-list" class="flex flex-wrap items-center justify-center gap-2 relative z-10">
+                    <div class="px-3 py-1.5 bg-slate-950/80 border border-amber-500/30 rounded-xl text-xs text-amber-200 font-bold flex items-center gap-1.5 shadow-md">
+                        <span>👑 Đang cập nhật dữ liệu...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. DÒNG THỜI GIAN LỜI CHÚC -->
             <div class="bg-slate-900/60 border border-slate-800/90 rounded-3xl p-5 shadow-2xl">
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
                     <h4 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
@@ -229,8 +295,8 @@ window.renderKindnessModule = function(containerId) {
     `;
 
     renderZaloFeed();
+    updateKindnessAmbassadors();
 };
-
 function renderZaloFeed() {
     const feedContainer = document.getElementById('zalo-feed-container');
     if (!feedContainer) return;
@@ -660,4 +726,66 @@ document.addEventListener("DOMContentLoaded", () => {
             window.renderKindnessModule();
         }
     }, 300);
+});
+// HÀM TỰ ĐỘNG THỐNG KÊ VÀ HIỂN THỊ TOP ĐẠI SỨ TỬ TẾ
+function updateKindnessAmbassadors() {
+    const ambassadorContainer = document.getElementById('ambassador-list');
+    if (!ambassadorContainer) return;
+
+    if (!Array.isArray(kindnessMessages) || kindnessMessages.length === 0) {
+        ambassadorContainer.innerHTML = `
+            <span class="text-xs text-slate-400 italic">Chưa có dữ liệu thông điệp. Hãy là người đầu tiên gửi lời chúc!</span>
+        `;
+        return;
+    }
+
+    // Thống kê số lượng tin nhắn theo tên người gửi
+    let senderCounts = {};
+    kindnessMessages.forEach(msg => {
+        let name = msg.sender || "Khách";
+        senderCounts[name] = (senderCounts[name] || 0) + 1;
+    });
+
+    // Sắp xếp lấy top 3 người gửi nhiều nhất
+    let sortedAmbassadors = Object.keys(senderCounts).map(name => {
+        return { name: name, count: senderCounts[name] };
+    }).sort((a, b) => b.count - a.count).slice(0, 5);
+
+    let html = '';
+    const medals = ['🥇', '🥈', '🥉'];
+    
+    sortedAmbassadors.forEach((amb, index) => {
+        let medalIcon = medals[index] || '⭐';
+        html += `
+            <div class="px-3 py-1.5 bg-slate-950/90 border border-amber-500/40 rounded-xl text-xs text-amber-300 font-extrabold flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
+                <span>${medalIcon}</span>
+                <span>${escapeHTML(amb.name)}</span>
+                <span class="bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded-lg text-[10px] font-mono">${amb.count} tin</span>
+            </div>
+        `;
+    });
+
+    ambassadorContainer.innerHTML = html;
+}
+// ĐOẠN CODE LẮNG NGHE SỰ KIỆN ĐỂ TỰ ĐỘNG ĐỔI TIÊU ĐỀ BANNER THEO CHỦ ĐỀ CHỌN
+document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "kindness-hashtag") {
+        const bannerTitle = document.getElementById("banner-title");
+        if (!bannerTitle) return;
+
+        const val = e.target.value;
+        if (val === "#TriÂnThầyCô") {
+            bannerTitle.innerText = "✨ Chủ đề: Gửi lời tri ân sâu sắc tới thầy cô giáo!";
+        } else if (val === "#ChúcThiTốt12") {
+            bannerTitle.innerText = "🚀 Chủ đề: Chúc các anh chị khối 12 tự tin vượt cấp, thi đâu thắng đó!";
+        } else if (val === "#KhaiGiảng") {
+            bannerTitle.innerText = "🎉 Chào năm học mới rực rỡ và nhiều thắng lợi mới!";
+        } else if (val === "#20Tháng11") {
+            bannerTitle.innerText = "🌸 Kỷ niệm Ngày Nhà Giáo Việt Nam 20/11!";
+        } else if (val === "#ChúcMừngNămMới") {
+            bannerTitle.innerText = "🧧 Chúc mừng năm mới an khang thịnh vượng, vạn sự như ý!";
+        } else {
+            bannerTitle.innerText = "💖 Lan tỏa năng lượng tích cực và những lời chúc tốt đẹp nhất!";
+        }
+    }
 });

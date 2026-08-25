@@ -200,21 +200,24 @@ async function startCleanSmileCheckin() {
     }
 }
 
-// THUẬT TOÁN QUÉT NỤ CƯỜI (GIỮ NGUYÊN 100%)
+// THUẬT TOÁN QUÉT NỤ CƯỜI CỐT LÕI (ĐÃ TINH CHỈNH CHUẨN XÁC)
 function handleCleanSmileResults(results) {
     if (!isCheckinRunning) return;
 
+    // 1. Kiểm tra có khuôn mặt hay không
     if (!results || !results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
-        decreaseSmileProgress(2);
+        decreaseSmileProgress(3); // Giảm nhanh hơn nếu mất dấu khuôn mặt
         showSmileMessage('👀 Chưa thấy khuôn mặt. Hãy nhìn vào giữa khung camera nhé!');
         return;
     }
 
     const landmarks = results.multiFaceLandmarks[0];
-    const upperLip = landmarks[13];
-    const lowerLip = landmarks[14];
-    const leftCorner = landmarks[61];
-    const rightCorner = landmarks[291];
+    
+    // Các điểm mốc MediaPipe FaceMesh cho môi và khóe miệng
+    const upperLip = landmarks[13];   // Môi trên
+    const lowerLip = landmarks[14];   // Môi dưới
+    const leftCorner = landmarks[61]; // Khóe miệng trái
+    const rightCorner = landmarks[291];// Khóe miệng phải
 
     if (!upperLip || !lowerLip || !leftCorner || !rightCorner) {
         decreaseSmileProgress(2);
@@ -222,6 +225,7 @@ function handleCleanSmileResults(results) {
         return;
     }
 
+    // 2. Tính toán kích thước miệng
     const mouthWidth = Math.hypot(leftCorner.x - rightCorner.x, leftCorner.y - rightCorner.y);
     const mouthOpen = Math.hypot(upperLip.x - lowerLip.x, upperLip.y - lowerLip.y);
 
@@ -231,29 +235,34 @@ function handleCleanSmileResults(results) {
         return;
     }
 
+    // Tỷ lệ độ mở miệng so với chiều rộng
     const openRatio = mouthOpen / mouthWidth;
 
-    if (openRatio < 0.10) {
-        decreaseSmileProgress(1);
-        showSmileMessage('😐 Chưa thấy nụ cười. Mỉm cười hoặc tươi lên một chút nào!');
+    console.log('Smile Ratio:', openRatio.toFixed(3), 'Current Progress:', currentSmilePercent);
+
+    // 3. ĐIỀU KIỆN CỐT LÕI: NGẬM MIỆNG / KHÔNG CƯỜI -> KHÔNG TĂNG (HOẶC GIẢM)
+    // Ngưỡng openRatio < 0.11 được tính là môi ngậm hoặc cười mímm chi rất nhẹ không tính là check-in
+    const MIN_SMILE_THRESHOLD = 0.11;
+
+    if (openRatio < MIN_SMILE_THRESHOLD) {
+        decreaseSmileProgress(3); // Ngậm miệng lập tức tuột % để ép người dùng phải cười tươi
+        showSmileMessage('😐 Đang ngậm miệng! Hãy hé răng và cười tươi lên nào!');
         return;
     }
 
+    // 11. ĐÃ HỞ MIỆNG - ĐÃ ĐIỀU CHỈNH CHẠY CHẬM DÃI HƠN
     let smileAdd = 0;
     let statusText = '';
 
-    if (openRatio >= 0.10 && openRatio < 0.15) {
-        smileAdd = 2;
-        statusText = '🙂 Tươi lắm! Mở rộng nụ cười hơn nữa nào...';
-    } else if (openRatio >= 0.15 && openRatio < 0.20) {
-        smileAdd = 4;
-        statusText = '😄 Nụ cười rạng rỡ chuẩn Gen Z! Giữ nguyên nhé!';
-    } else if (openRatio >= 0.20 && openRatio < 0.30) {
-        smileAdd = 6;
-        statusText = '🔥 Tuyệt vời! Năng lượng tỏa sáng bùng nổ!';
-    } else if (openRatio >= 0.30) {
-        smileAdd = 9;
-        statusText = '🌟 Nụ cười Siêu Vũ Trụ! Đang cộng điểm cực nhanh!';
+    if (openRatio >= 0.11 && openRatio < 0.15) {
+        smileAdd = 1; // Giảm xuống 1 để tăng từ từ
+        statusText = '🙂 Hơi hé miệng tốt lắm! Giữ nguyên nhé...';
+    } else if (openRatio >= 0.15 && openRatio < 0.22) {
+        smileAdd = 2; // Giảm xuống 2 để chạy chậm hơn
+        statusText = '😄 Nụ cười rạng rỡ chuẩn Gen Z! Giữ chắc nhé!';
+    } else if (openRatio >= 0.22) {
+        smileAdd = 4; // Giảm xuống 4 thay vì 10 để không bị vọt nhanh quá
+        statusText = '🔥 Nụ cười tỏa nắng tuyệt vời! Sắp hoàn thành rồi!';
     }
 
     currentSmilePercent = Math.min(100, currentSmilePercent + smileAdd);
@@ -264,6 +273,7 @@ function handleCleanSmileResults(results) {
         return;
     }
 
+    // 5. ĐẠT 100% THÀNH CÔNG
     if (currentSmilePercent >= 100 && isCheckinRunning) {
         isCheckinRunning = false;
 

@@ -522,7 +522,35 @@ window.handleMoodSelect = function(moodKey) {
     if (welcomePrompt) welcomePrompt.classList.add('hidden');
     window.launchMoodParticles(moodKey);
 
-    // Cập nhật tên Mini-Game tùy theo ô cảm xúc
+    // ==========================================
+    // LOGIC CỘNG 1 ĐIỂM DUY NHẤT TRONG NGÀY & THÔNG BÁO
+    // ==========================================
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const lastCheckinDate = localStorage.getItem('mood_last_checkin_date');
+
+    let bonusNotification = "";
+
+    if (lastCheckinDate !== todayStr) {
+        localStorage.setItem('mood_last_checkin_date', todayStr);
+
+        let currentPoints = parseInt(localStorage.getItem('userPoints')) || 1730;
+        currentPoints += 1;
+        localStorage.setItem('userPoints', currentPoints);
+
+        const scoreBadge = document.querySelector("[class*='Lớp']");
+        if (scoreBadge) {
+            scoreBadge.textContent = `Lớp 11A1 ( ${currentPoints.toLocaleString()} CCS )`;
+        }
+
+        if (typeof addScore === 'function') {
+            addScore(1);
+        }
+
+        // Tạo câu thông báo thành công điểm danh đầu ngày
+        bonusNotification = "🎉 Chúc mừng bạn đã nhận được +1 CCS! ";
+    }
+    // ==========================================
+
     const gameNameElem = document.getElementById('mini-game-name');
     if (gameNameElem) {
         if (moodKey === 'happy') gameNameElem.innerText = "Nối Số Bứt Phá";
@@ -542,8 +570,9 @@ window.handleMoodSelect = function(moodKey) {
         titleElem.innerText = moodConfig.title;
         titleElem.className = `text-xs sm:text-sm font-black tracking-wide ${moodConfig.glowClass}`;
     }
-    if (talkElem) {
-        talkElem.innerText = `"${randomQuote}"`;
+   if (talkElem) {
+        // Ghép câu thông báo điểm thưởng vào ngay đầu câu nói/lời chúc của trạm sạc
+        talkElem.innerText = `"${bonusNotification}${randomQuote}"`;
         talkElem.classList.remove('hidden');
         talkElem.className = "text-xs sm:text-sm text-slate-100 leading-relaxed font-normal tracking-wide select-text mt-1";
     }
