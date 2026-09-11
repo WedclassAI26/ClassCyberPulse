@@ -159,6 +159,25 @@ window.renderKindnessModule = function(containerId) {
     if (!container) return;
 
     const isAdmin = typeof checkIsAdmin === 'function' ? checkIsAdmin() : false;
+    // DỮ LIỆU SỰ KIỆN TỰ ĐỘNG THEO 12 THÁNG
+    const monthlyEvents = {
+        1: { tag: "Chào Xuân Mới", title: "Gửi lời chúc Tết an lành & Khai xuân may mắn cùng bè bạn!" },
+        2: { tag: "Tháng An Toàn Mạng", title: "Cùng nhau lan tỏa thông điệp ứng xử văn minh trên không gian số!" },
+        3: { tag: "Tháng Thanh Niên", title: "Nhiệt huyết tuổi trẻ - Thi đua học tốt & Rèn luyện kỹ năng số!" },
+        4: { tag: "Tháng Sách & Sáng Tạo", title: "Chia sẻ cuốn sách hay & Đọc những câu chuyện truyền cảm hứng!" },
+        5: { tag: "Mùa Thi Rực Rỡ", title: "Gửi lời chúc anh chị khối 12 vượt cấp & Bứt phá kỳ thi cuối năm!" },
+        6: { tag: "Mùa Hè Tình Nguyện", title: "Lan tỏa năng lượng tích cực & Tận hưởng kỳ nghỉ hè an toàn, ý nghĩa!" },
+        7: { tag: "Uống Nước Nhớ Nguồn", title: "Gửi lời tri ân tới các anh hùng thương binh liệt sĩ & Người có công!" },
+        8: { tag: "Chào Năm Học Mới", title: "Tự tin bước vào năm học mới với khí thế & Mục tiêu rực rỡ!" },
+        9: { tag: "Vui Hội Trăng Rằm", title: "Gửi lời chúc Tết Trung Thu ấm áp & Bút tích yêu thương tới bạn bè!" },
+        10: { tag: "Chào Mừng 20/10", title: "Hái ngàn hoa điểm 10 & Gửi lời chúc mừng tới Cô giáo và các bạn nữ!" },
+        11: { tag: "Tri Ân Thầy Cô 20/11", title: "Gửi tấm lòng tri ân sâu sắc & Lời chúc tốt đẹp nhất tới Thầy Cô giáo!" },
+        12: { tag: "Quyết Tâm Ôn Thi HK1", title: "Cùng nhau ôn tập tốt & Đạt kết quả thật cao trong kỳ thi Học Kỳ 1!" }
+    };
+
+    // TỰ ĐỘNG LẤY THÁNG HIỆN TẠI
+    const currentMonth = new Date().getMonth() + 1;
+    const currentEvent = monthlyEvents[currentMonth] || monthlyEvents[9];
 
     container.innerHTML = `
         <div class="space-y-5 w-full">
@@ -173,13 +192,12 @@ window.renderKindnessModule = function(containerId) {
                     <div>
                         <div class="flex items-center justify-center md:justify-start gap-2">
                             <span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Sự Kiện Đặc Biệt</span>
-                            <span class="text-xs text-amber-300 font-bold">⭐ Tuần Lễ Tử Tế (Kindness Week)</span>
+                            <span class="text-xs text-amber-300 font-bold">⭐ Tuần Lễ Tử Tế </span>
                         </div>
-                        <h3 class="text-sm sm:text-base font-black text-white mt-1">
-                            "Gửi lời tri ân thầy cô & Chúc anh chị khối 12 vượt cấp!"
-                       <h3 id="banner-title" class="text-sm sm:text-base font-black text-white mt-1">
-            "Gửi lời tri ân thầy cô & Chúc anh chị khối 12 vượt cấp!"
-        </h3>
+                     <!-- THAY DÒNG 197 - 199 CŨ BẰNG ĐOẠN NÀY -->
+<h3 id="banner-title" class="text-sm sm:text-base font-black text-white mt-1">
+    "${currentEvent.title}"
+</h3>
 
         <p class="text-xs text-slate-300 mt-0.5">Hãy chọn hashtag phù hợp và lan tỏa những thông điệp tích cực nhất để nhận điểm CCS nhé!</p>
     </div>

@@ -58,47 +58,59 @@ function renderScenario() {
     });
 
     container.innerHTML = `
-        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-black text-cyan-400 tracking-wider uppercase flex items-center gap-1.5">
-                    🔥 MỖI NGÀY THỬ THÁCH TÌNH HUỐNG VĂN MINH ĐỂ CỘNG 1 CCS NHÉ!🚀🔥
-                </span>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start w-full">
             
-            <p class="text-xs font-bold text-slate-200 mb-2.5 leading-snug bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
-                ${currentScenario.title}: ${currentScenario.question}
-            </p>
+            <!-- CỘT TRÁI: BẢNG THỬ THÁCH -->
+            <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 shadow-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-cyan-400 tracking-wider uppercase flex items-center gap-1.5">
+                        🔥 THỬ THÁCH
+                    </span>
+                </div>
+                
+                <p class="text-xs font-bold text-slate-200 leading-snug bg-slate-950 p-3 rounded-2xl border border-slate-800/80">
+                    ${currentScenario.title}: ${currentScenario.question}
+                </p>
 
-            <div class="space-y-1.5 mb-2.5" id="scenario-options">
-                ${optionsHtml}
-            </div>
+                <div class="space-y-1.5" id="scenario-options">
+                    ${optionsHtml}
+                </div>
 
-            <div class="flex items-center gap-2 mb-1">
-                ${selectedOptionIndex !== null ? `
-                    <button onclick="toggleExpertAdvice()" class="flex-1 py-2 px-3 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${
-                        isExpertOpen 
-                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' 
-                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 animate-pulse'
-                    }">
-                        <i class="fa-solid ${isExpertOpen ? 'fa-eye-slash' : 'fa-user-ninja'} text-sm"></i>
-                        <span>${isExpertOpen ? 'THU GỌN GÓC CHUYÊN GIA' : '🔍 XEM GÓC CHUYÊN GIA'}</span>
+                <div class="flex items-center gap-2 pt-1">
+                    ${selectedOptionIndex !== null ? `
+                        <button onclick="toggleExpertAdvice()" class="flex-1 py-2.5 px-3 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${
+                            isExpertOpen 
+                                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' 
+                                : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 animate-pulse'
+                        }">
+                            <i class="fa-solid ${isExpertOpen ? 'fa-eye-slash' : 'fa-user-ninja'} text-sm"></i>
+                            <span>${isExpertOpen ? 'ẨN GÓC CHUYÊN GIA' : '🔍 XEM GÓC CHUYÊN GIA'}</span>
+                        </button>
+                    ` : `
+                        <div class="flex-1 text-center py-2.5 px-3 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-[11px] text-slate-500 font-medium italic">
+                            💡 Chọn 1 đáp án để xem Góc Chuyên Gia bên phải & nhận thưởng!
+                        </div>
+                    `}
+
+                    <button onclick="nextScenario()" class="py-2.5 px-3.5 rounded-xl font-bold text-xs bg-slate-800 text-cyan-300 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 transition-all flex items-center gap-1.5 shadow shrink-0" title="Đổi câu hỏi ngẫu nhiên khác">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Đổi câu</span>
                     </button>
-                ` : `
-                    <div class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-[11px] text-slate-500 font-medium italic">
-                        💡 Bấm chọn 1 đáp án để xem Góc Chuyên Gia & nhận thưởng ngay!
-                    </div>
-                `}
-
-                <button onclick="nextScenario()" class="py-2 px-3 rounded-xl font-bold text-xs bg-slate-800 text-cyan-300 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 transition-all flex items-center gap-1.5 shadow" title="Đổi câu hỏi ngẫu nhiên khác">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>Đổi câu</span>
-                </button>
+                </div>
             </div>
 
-            <div id="expert-container"></div>
+            <!-- CỘT PHẢI: BẢNG GÓC CHUYÊN GIA -->
+            <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 shadow-2xl min-h-[300px]">
+                <div class="text-xs font-black text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-800/80 pb-2">
+                    <i class="fa-solid fa-user-ninja text-sm"></i>
+                    <span>GÓC CHUYÊN GIA TƯ VẤN</span>
+                </div>
+
+                <div id="expert-container"></div>
+            </div>
+
         </div>
     `;
-
     updateExpertContainer();
 }
 
