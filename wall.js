@@ -1,3 +1,4 @@
+window.renderKindnessModule = typeof renderKindnessModule === 'function' ? renderKindnessModule : function(){};
 // ==========================================
 // MÔ-ĐUN: TRẠM TỬ TẾ - WALL.JS GỐC
 // ==========================================

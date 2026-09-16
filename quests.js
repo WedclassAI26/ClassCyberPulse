@@ -1,3 +1,4 @@
+window.renderQuestsModule = typeof renderScenarioModule === 'function' ? renderScenarioModule : (typeof renderQuestsModule === 'function' ? renderQuestsModule : function(){});
 // ==========================================
 // GIAO DIỆN & LOGIC XỬ LÝ THỬ THÁCH VĂN MINH MẠNG (INSTANT DOM SYNC FIX)
 // ==========================================

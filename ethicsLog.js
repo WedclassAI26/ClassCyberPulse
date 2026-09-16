@@ -1,3 +1,4 @@
+window.renderEthicsLogModule = typeof renderEthicsLogModule === 'function' ? renderEthicsLogModule : function(){};
 // ==========================================
 // MÔ-ĐUN: NHẬT KÝ ĐẠO ĐỨC SỐ (TÍCH HỢP AI CHECKER & FIREBASE REALTIME)
 // ==========================================

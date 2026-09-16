@@ -1,3 +1,4 @@
+window.renderDailyPlanner = typeof renderDailyPlanner === 'function' ? renderDailyPlanner : function(){};
 window.renderDailyPlanner = function(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;

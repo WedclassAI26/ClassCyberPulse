@@ -18,34 +18,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 });
 
+// Hàm lấy hoặc tạo tên/mã định danh duy nhất cho Khách
+function getOrCreateGuestInfo() {
+    let guestId = sessionStorage.getItem("cyber_guest_id");
+    let guestName = sessionStorage.getItem("cyber_guest_name");
+    
+    if (!guestId) {
+        const randCode = Math.floor(1000 + Math.random() * 9000);
+        guestId = "guest_" + Date.now() + "_" + randCode;
+        guestName = "Khách Google #" + randCode;
+        sessionStorage.setItem("cyber_guest_id", guestId);
+        sessionStorage.setItem("cyber_guest_name", guestName);
+    }
+    
+    return { id: guestId, name: guestName };
+}
+
 function updateAuthDisplay() {
     const authContainer = document.getElementById("auth-container");
     if (!authContainer) return;
 
     const savedUser = localStorage.getItem("cyberUser");
     let user = null;
+    if (savedUser) { try { user = JSON.parse(savedUser); } catch (e) { user = null; } }
 
-    if (savedUser) {
-        try {
-            user = JSON.parse(savedUser);
-        } catch (error) {
-            localStorage.removeItem("cyberUser");
-            user = null;
-        }
-    }
+    const currentScore = typeof window.getGlobalScore === 'function' ? window.getGlobalScore() : 0;
 
     if (user && user.loggedIn === true) {
-        const displayName = user.name || "Thành viên";
-        const displayClass = user.classRoom || "Hệ thống";
-        const score = Number(user.score) || 0;
-
+        const displayName = user.name || user.email || "Thành viên";
+        const displayClass = user.classRoom || "Học sinh";
         authContainer.innerHTML = `
             <div class="flex items-center gap-3 bg-slate-800/90 border border-emerald-500/40 px-3.5 py-2 rounded-2xl shadow-lg">
                 <div>
                     <div class="text-xs font-bold text-white">${escapeHTML(displayName)}</div>
                     <div class="text-[10px] text-slate-400">Lớp: <span class="text-cyan-400 font-semibold">${escapeHTML(displayClass)}</span></div>
                 </div>
-                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-bold">${score} CCS</span>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-xl font-bold" id="user-score">${currentScore} CCS</span>
                 <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 text-xs cursor-pointer ml-1" title="Đăng xuất">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
@@ -54,11 +62,17 @@ function updateAuthDisplay() {
         return;
     }
 
-    const guestScore = Number(sessionStorage.getItem("guestScore") || 0);
+    // LẤY ĐÚNG TÊN KHÁCH CÓ MÃ SỐ NGẪU NHIÊN Ở ĐÂY
+    const guestInfo = typeof getOrCreateGuestInfo === 'function' ? getOrCreateGuestInfo() : { name: "Khách Google" };
+    
     authContainer.innerHTML = `
-        <div class="flex items-center gap-2">
-            ${guestScore > 0 ? `<span class="text-[10px] text-slate-500 hidden sm:block">${guestScore} CCS phiên này</span>` : ""}
-            <a href="login.html" class="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+        <div class="flex items-center gap-3 bg-slate-800/90 border border-slate-700/60 px-3.5 py-2 rounded-2xl shadow-lg">
+            <div>
+                <div class="text-xs font-bold text-slate-200">${escapeHTML(guestInfo.name)}</div>
+                <div class="text-[10px] text-slate-400">Phiên trải nghiệm</div>
+            </div>
+            <span class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-xl font-bold" id="user-score">${currentScore} CCS</span>
+            <a href="login.html" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-1">
                 <i class="fa-solid fa-user-astronaut"></i> Đăng Nhập
             </a>
         </div>
@@ -68,43 +82,10 @@ function updateAuthDisplay() {
 function handleLogout() {
     localStorage.removeItem("cyberUser");
     sessionStorage.removeItem("guestScore");
+    sessionStorage.removeItem("guestSessionId");
+    sessionStorage.removeItem("guestSessionName");
     updateAuthDisplay();
     refreshScoreDisplay(0);
-}
-
-function addScore(pointsToAdd) {
-    const points = Number(pointsToAdd) || 0;
-    if (points <= 0) return;
-
-    const savedUser = localStorage.getItem("cyberUser");
-    let user = null;
-
-    if (savedUser) {
-        try {
-            user = JSON.parse(savedUser);
-        } catch (error) {
-            localStorage.removeItem("cyberUser");
-            user = null;
-        }
-    }
-
-    if (user && user.loggedIn === true) {
-        user.score = (Number(user.score) || 0) + points;
-        localStorage.setItem("cyberUser", JSON.stringify(user));
-        if (user.email) {
-            localStorage.setItem("cyberScore_" + user.email.toLowerCase(), String(user.score));
-        }
-        updateAuthDisplay();
-        refreshScoreDisplay(user.score);
-        return;
-    }
-
-    let guestScore = Number(sessionStorage.getItem("guestScore") || 0);
-    guestScore += points;
-    sessionStorage.setItem("guestScore", String(guestScore));
-    refreshScoreDisplay(guestScore);
-    showLoginReminder();
-    updateAuthDisplay();
 }
 
 function showLoginReminder() {
@@ -133,10 +114,10 @@ function refreshScoreDisplay(score) {
     const ids = ["user-score", "score", "current-score", "ccs-score", "profile-score"];
     ids.forEach(id => {
         const element = document.getElementById(id);
-        if (element) element.textContent = score;
+        if (element) element.textContent = score + " CCS";
     });
     document.querySelectorAll("[data-user-score]").forEach(element => {
-        element.textContent = score;
+        element.textContent = score + " CCS";
     });
 }
 
@@ -323,51 +304,136 @@ function closeClassModal() {
 }
 
 // ==========================================
-// 4. HÀM CHUYỂN TAB DÙNG CHUNG CẢ HỆ THỐNG
-// ==========================================
-// ==========================================
-// HÀM CHUYỂN TAB HOÀN CHỈNH
+// 4. HÀM CHUYỂN TAB TRÊN HEADER NAVIGATION
 // ==========================================
 window.switchTab = function(tabId) {
-   const allTabs = ['dashboard', 'planner', 'quests', 'wall', 'ethics'];
-
-    allTabs.forEach(id => {
-        const sec = document.getElementById(`tab-${id}`);
-        const nav = document.getElementById(`nav-${id}`);
-
-        if (id === tabId) {
-            // HIỂN THỊ TAB ĐƯỢC CHỌN
-            if (sec) sec.classList.remove('hidden');
-            if (nav) {
-                nav.className = "px-4 py-2 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-md flex items-center space-x-2 cursor-pointer";
-            }
-        } else {
-            // ẨN CÁC TAB CÒN LẠI (ĐẢM BẢO KHÔNG BỊ HIỆN ĐÈ)
-            if (sec) sec.classList.add('hidden');
-            if (nav) {
-                nav.className = "px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2 cursor-pointer";
-            }
-        }
+    const tabs = ['dashboard', 'planner', 'quests', 'wall', 'ethics'];
+    
+    tabs.forEach(t => {
+        const sec = document.getElementById(`tab-${t}`);
+        const nav = document.getElementById(`nav-${t}`);
+        if (sec) sec.classList.add('hidden');
+        if (nav) nav.className = "px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer";
     });
 
-    // KÍCH HOẠCH DỮ LIỆU KHI CHUYỂN TAB
-    if (tabId === 'quests' && typeof window.renderQuestsModule === 'function') {
-        window.renderQuestsModule('scenario-container');
+    const activeSec = document.getElementById(`tab-${tabId}`);
+    const activeNav = document.getElementById(`nav-${tabId}`);
+    if (activeSec) activeSec.classList.remove('hidden');
+    if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-bold transition-all text-white bg-indigo-600 shadow-md cursor-pointer";
+
+    if (tabId === 'quests') {
+        const container = document.getElementById('scenario-container') || document.getElementById('tab-quests');
+        if (container) {
+            if (typeof window.renderQuestsModule === 'function') window.renderQuestsModule(container.id);
+            else if (typeof window.renderScenarioModule === 'function') window.renderScenarioModule(container.id);
+            else if (typeof renderQuestsModule === 'function') renderQuestsModule(container.id);
+        }
     }
-    if (tabId === 'wall' && typeof window.renderKindnessModule === 'function') {
-        window.renderKindnessModule('kindness-module-container');
+    else if (tabId === 'wall') {
+        const container = document.getElementById('kindness-module-container') || document.getElementById('tab-wall');
+        if (container) {
+            if (typeof window.renderKindnessModule === 'function') window.renderKindnessModule(container.id);
+            else if (typeof renderKindnessModule === 'function') renderKindnessModule(container.id);
+        }
     }
-    if (tabId === 'ethics' && typeof window.renderEthicsLogModule === 'function') {
-        window.renderEthicsLogModule('ethics-module-container');
+    else if (tabId === 'ethics') {
+        const container = document.getElementById('ethics-module-container') || document.getElementById('tab-ethics');
+        if (container) {
+            if (typeof window.renderEthicsLogModule === 'function') window.renderEthicsLogModule(container.id);
+            else if (typeof renderEthicsLogModule === 'function') renderEthicsLogModule(container.id);
+        }
     }
-    if (tabId === 'planner' && typeof window.renderDailyPlanner === 'function') {
-        window.renderDailyPlanner('planner-content');
+    else if (tabId === 'planner') {
+        const container = document.getElementById('planner-content') || document.getElementById('tab-planner');
+        if (container) {
+            if (typeof window.renderDailyPlanner === 'function') window.renderDailyPlanner(container.id);
+            else if (typeof window.renderPlannerModule === 'function') window.renderPlannerModule(container.id);
+            else if (typeof renderDailyPlanner === 'function') renderDailyPlanner(container.id);
+        }
+    }
+
+    if (tabId === 'dashboard' && typeof window.initPersonalLeaderboardListener === 'function') {
+        window.initPersonalLeaderboardListener();
     }
 };
 
-// TỰ ĐỘNG CHỌN TAB MẶC ĐỊNH KHI MỚI MỞ TRANG
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof window.switchTab === 'function') {
-        window.switchTab('dashboard');
+    setTimeout(() => {
+        if (typeof window.switchTab === 'function') {
+            window.switchTab('dashboard');
+        }
+    }, 200);
+});
+
+// ==========================================
+// 5. ĐỒNG BỘ VÀ CỘNG ĐIỂM CHUẨN HOÁ TOÀN CỤC
+// ==========================================
+window.getGlobalScore = function() {
+    const guest = Number(sessionStorage.getItem("guestScore") || 0);
+    const savedUser = localStorage.getItem("cyberUser");
+    let userScore = 0;
+    if (savedUser) {
+        try {
+            const u = JSON.parse(savedUser);
+            if (u && u.loggedIn) userScore = Number(u.score || 0);
+        } catch(e) {}
+    }
+    return Math.max(guest, userScore);
+};
+
+window.addScore = function(pointsToAdd) {
+    const points = Number(pointsToAdd) || 0;
+    if (points <= 0) return;
+
+    const savedUser = localStorage.getItem("cyberUser");
+    let user = null;
+    if (savedUser) { try { user = JSON.parse(savedUser); } catch (e) {} }
+
+    // 1. Cập nhật điểm Local
+    if (user && user.loggedIn) {
+        user.score = (Number(user.score) || 0) + points;
+        localStorage.setItem("cyberUser", JSON.stringify(user));
+    } else {
+        let guestScore = Number(sessionStorage.getItem("guestScore") || 0);
+        guestScore += points;
+        sessionStorage.setItem("guestScore", String(guestScore));
+    }
+
+    const currentScore = window.getGlobalScore();
+    updateAuthDisplay();
+    refreshScoreDisplay(currentScore);
+
+    // 2. GHI ĐIỂM TRỰC TIẾP VÀO COLLECTION "users" TRÊN FIREBASE DÙ LÀ MAIL HAY KHÁCH
+    if (window.db) {
+        const guestInfo = typeof getOrCreateGuestInfo === 'function' ? getOrCreateGuestInfo() : { id: 'guest_user', name: 'Khách Google' };
+        
+        const userId = (user && user.loggedIn && user.email) 
+            ? user.email.replace(/[^a-zA-Z0-9]/g, "_") 
+            : guestInfo.id;
+            
+        const userName = (user && user.loggedIn) 
+            ? (user.name || user.email) 
+            : guestInfo.name;
+            
+        const userClass = (user && user.loggedIn) 
+            ? (user.classRoom || "Học sinh") 
+            : "Khách";
+
+        window.db.collection("users").doc(userId).set({
+            name: userName,
+            className: userClass,
+            ccs: currentScore,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).then(() => {
+            if (typeof window.initPersonalLeaderboardListener === 'function') {
+                window.initPersonalLeaderboardListener();
+            }
+        }).catch(err => console.log("Lỗi đồng bộ users:", err));
+    }
+};
+document.addEventListener("DOMContentLoaded", () => {
+    // Ép cập nhật lại giao diện góc phải ngay khi tải trang
+    if (typeof updateAuthDisplay === 'function') {
+        updateAuthDisplay();
     }
 });
