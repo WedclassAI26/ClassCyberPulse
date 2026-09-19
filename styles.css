@@ -1,3 +1,32 @@
+/* ==========================================
+   CLASS CYBER PULSE - STYLE HÀNH TINH SỐ & CYBERPUNK
+   ========================================== */
+
+/* --- BIẾN TOÀN CỤC & TÔNG MÀU CHỦ ĐẠO --- */
+:root {
+    --bg-main: #070913;
+    --bg-card: rgba(18, 24, 48, 0.85);
+    --accent-cyan: #00f0ff;
+    --accent-pink: #ff007f;
+}
+
+/* --- NỀN TỔNG THỂ VŨ TRỤ SÂU THẨM & SANG TRỌNG --- */
+body {
+    background: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #111b38 40%, var(--bg-main) 100%);
+    background-attachment: fixed;
+    color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* --- KHUNG THẺ KÍNH MỜ (GLASSMORPHISM) & VIỀN NEON --- */
+.card, .chat-container, header {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* --- HIỆU ỨNG QUAY CHẬM (SPIN SLOW) --- */
 @keyframes spinSlow {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -7,30 +36,7 @@
     animation: spinSlow 12s linear infinite;
 }
 
-/* Hiệu ứng Glow lộng lẫy cho Hành tinh */
-.planet-glow-amber {
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
-}
-
-.planet-glow-emerald {
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
-}
-
-.planet-glow-indigo {
-    box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
-}
-/* --- HIỆU ỨNG CYBER NEON & HÀNH TINH --- */
-
-@keyframes spinSlow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-    animation: spinSlow 12s linear infinite;
-}
-
-/* Hiệu ứng Glow lộng lẫy và rực rỡ hơn cho Hành tinh */
+/* --- HIỆU ỨNG GLOW LỘNG LẪY CHO HÀNH TINH --- */
 .planet-glow-amber {
     box-shadow: 0 0 35px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.4);
     border: 1px solid rgba(245, 158, 11, 0.5);
@@ -46,46 +52,25 @@
     border: 1px solid rgba(99, 102, 241, 0.5);
 }
 
-/* Nâng cấp tổng thể nền sáng sủa, nổi bật chất Cyberpunk Gen Z */
-:root {
-    --bg-main: #070913;
-    --bg-card: rgba(18, 24, 48, 0.85);
-    --accent-cyan: #00f0ff;
-    --accent-pink: #ff007f;
-}
-
-body {
-    background: radial-gradient(circle at 50% 20%, #111b38 0%, var(--bg-main) 100%);
-    color: #f8fafc;
-}
-
-/* Khung thẻ kính mờ phát sáng nhẹ */
-.card, .chat-container, header {
-    background: var(--bg-card);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 240, 255, 0.25);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-/* Tùy chỉnh icon chat bot */
+/* --- TÙY CHỈNH ICON CHAT BOT --- */
 .chat-bot-icon {
-    width: 50px;      /* Kích thước to hơn cho dễ bấm */
+    width: 50px;
     height: 50px;
-    filter: drop-shadow(0 0 10px var(--accent-cyan)); /* Hiệu ứng bóng neon */
+    filter: drop-shadow(0 0 10px var(--accent-cyan));
     transition: all 0.3s ease;
 }
 
-/* Hiệu ứng khi di chuột vào */
 .chat-bot-icon-wrapper:hover .chat-bot-icon {
     transform: scale(1.1);
     filter: drop-shadow(0 0 20px var(--accent-pink));
 }
-/* --- HIỆU ỨNG CHECK-IN BAY TỪ CAMERA XUỐNG & DÂNG LÊN HẠ XUỐNG --- */
 
-/* 1. Bay nẩy từ vị trí camera xuống ô kết quả */
+/* --- HIỆU ỨNG ANIMATION CHECK-IN & TRẠM SẠC (FLY-DOWN & FLOATING) --- */
 @keyframes flyDownBoost {
     0% {
         opacity: 0;
         transform: translateY(-120px) scale(0.5);
+        filter: brightness(1.5);
     }
     60% {
         opacity: 1;
@@ -94,10 +79,10 @@ body {
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
+        filter: brightness(1);
     }
 }
 
-/* 2. Dâng lên hạ xuống liên tục (Floating Pulse) */
 @keyframes floatUpDown {
     0%, 100% {
         transform: translateY(0px);
@@ -107,7 +92,6 @@ body {
     }
 }
 
-/* 3. Hiệu ứng vệt sáng lướt qua */
 @keyframes shimmer {
     100% {
         transform: translateX(100%);
@@ -118,24 +102,30 @@ body {
     animation: flyDownBoost 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
                floatUpDown 3s ease-in-out infinite 0.8s;
 }
-/* --- HIỆU ỨNG FLY-DOWN CHO KHUNG LỜI CHÚC TRẠM SẠC --- */
-@keyframes flyDownEffect {
-    0% {
-        opacity: 0;
-        transform: translateY(-25px) scale(0.92);
-        filter: brightness(1.5);
-    }
-    60% {
-        opacity: 1;
-        transform: translateY(8px) scale(1.02);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: brightness(1);
-    }
+/* --- NỀN ĐEN TUYỀN VŨ TRỤ SÂU THẨM (KHÔNG ÁM TÍM) --- */
+body {
+    background: radial-gradient(circle at 50% 10%, #0c1224 0%, #070913 50%, #020408 100%);
+    background-attachment: fixed;
+    color: #f8fafc;
+    min-height: 100vh;
 }
 
-.animate-fly-down {
-    animation: flyDownEffect 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* --- KHUNG THẺ KÍNH MỜ VIỀN XANH NEON CYAN SÁNG RỰC --- */
+.card, .chat-container, header, 
+div[class*="bg-slate-900"], div[class*="bg-slate-950"] {
+    background: rgba(11, 17, 33, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.45);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 
+                0 0 15px rgba(0, 240, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Hiệu ứng khi rê chuột vào các khối */
+.card:hover, div[class*="bg-slate-900"]:hover {
+    border-color: rgba(0, 240, 255, 0.9);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 
+                0 0 25px rgba(0, 240, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transition: all 0.3s ease;
 }
