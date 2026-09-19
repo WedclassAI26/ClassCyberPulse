@@ -18,22 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 });
 
-// Hàm lấy hoặc tạo tên/mã định danh duy nhất cho Khách
-function getOrCreateGuestInfo() {
-    let guestId = sessionStorage.getItem("cyber_guest_id");
-    let guestName = sessionStorage.getItem("cyber_guest_name");
-    
-    if (!guestId) {
-        const randCode = Math.floor(1000 + Math.random() * 9000);
-        guestId = "guest_" + Date.now() + "_" + randCode;
-        guestName = "Khách Google #" + randCode;
-        sessionStorage.setItem("cyber_guest_id", guestId);
-        sessionStorage.setItem("cyber_guest_name", guestName);
-    }
-    
-    return { id: guestId, name: guestName };
-}
-
 function updateAuthDisplay() {
     const authContainer = document.getElementById("auth-container");
     if (!authContainer) return;
@@ -44,6 +28,7 @@ function updateAuthDisplay() {
 
     const currentScore = typeof window.getGlobalScore === 'function' ? window.getGlobalScore() : 0;
 
+    // Nếu đã đăng nhập thành công bằng tài khoản
     if (user && user.loggedIn === true) {
         const displayName = user.name || user.email || "Thành viên";
         const displayClass = user.classRoom || "Học sinh";
@@ -62,14 +47,12 @@ function updateAuthDisplay() {
         return;
     }
 
-    // LẤY ĐÚNG TÊN KHÁCH CÓ MÃ SỐ NGẪU NHIÊN Ở ĐÂY
-    const guestInfo = typeof getOrCreateGuestInfo === 'function' ? getOrCreateGuestInfo() : { name: "Khách Google" };
-    
+    // Nếu là Khách Google (Không tham gia xếp hạng)
     authContainer.innerHTML = `
         <div class="flex items-center gap-3 bg-slate-800/90 border border-slate-700/60 px-3.5 py-2 rounded-2xl shadow-lg">
             <div>
-                <div class="text-xs font-bold text-slate-200">${escapeHTML(guestInfo.name)}</div>
-                <div class="text-[10px] text-slate-400">Phiên trải nghiệm</div>
+                <div class="text-xs font-bold text-slate-200">Khách Google</div>
+                <div class="text-[10px] text-slate-400">Chưa cập nhật</div>
             </div>
             <span class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-xl font-bold" id="user-score">${currentScore} CCS</span>
             <a href="login.html" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-1">
@@ -82,8 +65,6 @@ function updateAuthDisplay() {
 function handleLogout() {
     localStorage.removeItem("cyberUser");
     sessionStorage.removeItem("guestScore");
-    sessionStorage.removeItem("guestSessionId");
-    sessionStorage.removeItem("guestSessionName");
     updateAuthDisplay();
     refreshScoreDisplay(0);
 }
@@ -367,6 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ==========================================
 // 5. ĐỒNG BỘ VÀ CỘNG ĐIỂM CHUẨN HOÁ TOÀN CỤC
+// (CHỈ THÀNH VIÊN ĐÃ ĐĂNG NHẬP MỚI ĐƯỢC TÍNH ĐIỂM XẾP HẠNG)
 // ==========================================
 window.getGlobalScore = function() {
     const guest = Number(sessionStorage.getItem("guestScore") || 0);
@@ -378,7 +360,7 @@ window.getGlobalScore = function() {
             if (u && u.loggedIn) userScore = Number(u.score || 0);
         } catch(e) {}
     }
-    return Math.max(guest, userScore);
+    return savedUser ? userScore : guest;
 };
 
 window.addScore = function(pointsToAdd) {
@@ -389,7 +371,7 @@ window.addScore = function(pointsToAdd) {
     let user = null;
     if (savedUser) { try { user = JSON.parse(savedUser); } catch (e) {} }
 
-    // 1. Cập nhật điểm Local
+    // 1. Cập nhật điểm Local tùy theo trạng thái
     if (user && user.loggedIn) {
         user.score = (Number(user.score) || 0) + points;
         localStorage.setItem("cyberUser", JSON.stringify(user));
@@ -403,21 +385,11 @@ window.addScore = function(pointsToAdd) {
     updateAuthDisplay();
     refreshScoreDisplay(currentScore);
 
-    // 2. GHI ĐIỂM TRỰC TIẾP VÀO COLLECTION "users" TRÊN FIREBASE DÙ LÀ MAIL HAY KHÁCH
-    if (window.db) {
-        const guestInfo = typeof getOrCreateGuestInfo === 'function' ? getOrCreateGuestInfo() : { id: 'guest_user', name: 'Khách Google' };
-        
-        const userId = (user && user.loggedIn && user.email) 
-            ? user.email.replace(/[^a-zA-Z0-9]/g, "_") 
-            : guestInfo.id;
-            
-        const userName = (user && user.loggedIn) 
-            ? (user.name || user.email) 
-            : guestInfo.name;
-            
-        const userClass = (user && user.loggedIn) 
-            ? (user.classRoom || "Học sinh") 
-            : "Khách";
+    // 2. CHỈ ĐỒNG BỘ LÊN FIREBASE (XẾP HẠNG) NẾU LÀ THÀNH VIÊN ĐÃ ĐĂNG NHẬP
+    if (user && user.loggedIn && window.db) {
+        const userId = user.email ? user.email.replace(/[^a-zA-Z0-9]/g, "_") : "user_member";
+        const userName = user.name || user.email || "Thành viên";
+        const userClass = user.classRoom || "Học sinh";
 
         window.db.collection("users").doc(userId).set({
             name: userName,
@@ -431,8 +403,8 @@ window.addScore = function(pointsToAdd) {
         }).catch(err => console.log("Lỗi đồng bộ users:", err));
     }
 };
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Ép cập nhật lại giao diện góc phải ngay khi tải trang
     if (typeof updateAuthDisplay === 'function') {
         updateAuthDisplay();
     }
