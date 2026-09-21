@@ -1,4 +1,5 @@
 window.renderDailyPlanner = typeof renderDailyPlanner === 'function' ? renderDailyPlanner : function(){};
+
 window.renderDailyPlanner = function(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -28,38 +29,38 @@ window.renderDailyPlanner = function(containerId) {
             <!-- BANNER CHÀO MỪNG & ĐỘNG LỰC -->
             <div class="bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 shadow-xl flex flex-col md:flex-row justify-between items-center gap-3 relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 text-8xl opacity-10">🪐</div>
-                <div class="space-y-1 relative z-10">
+                <div class="space-y-1 relative z-10 w-full md:w-auto">
                     <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                         <i class="fa-solid fa-clock text-emerald-400"></i> ${dateString}
                     </div>
-                    <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center gap-2">
+                    <h2 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center gap-2">
                         <i class="fa-solid fa-rocket text-emerald-400"></i> Trạm Lịch Trình & Deadline Vũ Trụ
                     </h2>
                     <p class="text-xs text-slate-300 italic">${randomQuote}</p>
                 </div>
-                <div class="bg-slate-950/90 px-4 py-2 rounded-2xl border border-slate-800 text-center relative z-10 shrink-0 shadow-md">
+                <div class="bg-slate-950/90 px-4 py-2 rounded-2xl border border-slate-800 text-center relative z-10 shrink-0 shadow-md w-full md:w-auto flex md:flex-col justify-between items-center">
                     <span class="text-[11px] text-slate-400 block">Tiến độ hôm nay</span>
                     <span class="text-lg font-black text-emerald-400" id="planner-progress">0/0</span>
                 </div>
             </div>
 
-            <!-- KHUNG LỜI KHEN NGỢI CHỮ VÀNG CHIẾN THẮNG RỰC RỠ -->
-            <div id="planner-praise-box" class="hidden bg-slate-950/95 border-2 border-red-500 rounded-2xl p-3.5 flex items-center gap-4 text-white shadow-[0_0_35px_rgba(239,68,68,0.8)] animate-pulse transition-all duration-300 relative overflow-hidden">
+            <!-- KHUNG LỜI KHEN NGỢI CHIẾN THẮNG -->
+            <div id="planner-praise-box" class="hidden bg-slate-950/95 border-2 border-red-500 rounded-2xl p-3.5 flex items-center gap-3 sm:gap-4 text-white shadow-[0_0_35px_rgba(239,68,68,0.8)] animate-pulse transition-all duration-300 relative overflow-hidden">
                 <div class="absolute inset-0 bg-[radial-gradient(circle,_rgba(239,68,68,0.2)_10%,_transparent_10%)] bg-[length:20px_20px] pointer-events-none"></div>
-                <div class="text-3xl animate-bounce shrink-0 relative z-10">🎆</div>
-                <div class="space-y-1 flex-1 relative z-10">
-                    <div class="text-xs uppercase tracking-widest font-black text-yellow-300 flex items-center gap-2">
+                <div class="text-2xl sm:text-3xl animate-bounce shrink-0 relative z-10">🎆</div>
+                <div class="space-y-1 flex-1 relative z-10 min-w-0">
+                    <div class="text-[11px] sm:text-xs uppercase tracking-widest font-black text-yellow-300 flex items-center gap-2">
                         <span>✨ Chúc Mừng Thành Tích Vũ Trụ ✨</span>
                     </div>
-                    <span id="planner-praise-text" class="text-base sm:text-lg font-black text-yellow-300 tracking-wide block drop-shadow-[0_0_12px_rgba(253,224,71,0.9)]"></span>
+                    <span id="planner-praise-text" class="text-sm sm:text-lg font-black text-yellow-300 tracking-wide block drop-shadow-[0_0_12px_rgba(253,224,71,0.9)] truncate"></span>
                 </div>
-                <div class="text-3xl animate-spin shrink-0 relative z-10">🌟</div>
+                <div class="text-2xl sm:text-3xl animate-spin shrink-0 relative z-10">🌟</div>
             </div>
 
             <!-- KHUNG 2 CỘT TỐI ƯU KHÔNG GIAN -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 
-                <!-- CỘT 1: FORM LÊN LỊCH NHIỆM VỤ & LỜI KHUYÊN NĂNG LƯỢNG -->
+                <!-- CỘT 1: FORM LÊN LỊCH -->
                 <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 flex flex-col justify-between">
                     <div class="space-y-3">
                         <h3 class="text-xs font-black text-slate-200 uppercase tracking-wider flex items-center gap-2">
@@ -89,7 +90,7 @@ window.renderDailyPlanner = function(containerId) {
 
                         <div>
                             <label class="text-xs text-slate-400 block mb-1">Mức độ ưu tiên:</label>
-                            <select id="task-priority" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                            <select id="task-priority" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
                                 <option value="normal">Bình thường 🟢</option>
                                 <option value="important">Quan trọng 🟡</option>
                                 <option value="very-important">Rất quan trọng 🔥</option>
@@ -101,25 +102,22 @@ window.renderDailyPlanner = function(containerId) {
                         </button>
                     </div>
 
-                    <!-- THÊM KHUNG LỜI KHUYÊN TRUYỀN CẢM HỨNG Ý NGHĨA -->
                     <div class="mt-4 p-3 bg-gradient-to-r from-purple-950/60 via-slate-950 to-indigo-950/60 border border-purple-500/40 rounded-xl text-center space-y-1 shadow-inner">
                         <div class="text-[11px] font-black text-amber-400 uppercase tracking-widest flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-seedling"></i> Kim Chỉ Nam Thành Công
                         </div>
                         <p class="text-[11px] text-slate-300 italic leading-relaxed">
-                            "Biết lập kế hoạch tỉ mỉ, kiên định hành động và luôn giữ cảm xúc tích cực, làm những việc tử tế chính là chìa khóa vàng mở cánh cửa dẫn tới thành công rực rỡ!" 🌟
+                            "Biết lập kế hoạch tỉ mỉ, kiên định hành động và luôn giữ cảm xúc tích cực chính là chìa khóa vàng!" 🌟
                         </p>
                     </div>
                 </div>
 
-                <!-- CỘT 2: DANH SÁCH NHIỆM VỤ (CHỮ TO RÕ, ĐẸP MẮT) -->
+                <!-- CỘT 2: DANH SÁCH NHIỆM VỤ -->
                 <div class="lg:col-span-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                     <h3 class="text-xs font-black text-slate-200 uppercase tracking-wider flex items-center justify-between">
                         <span class="flex items-center gap-2"><i class="fa-solid fa-list-check text-emerald-400"></i> Danh Sách Việc Cần Làm & Deadline</span>
                     </h3>
-                    <div id="task-list-items" class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-                        <!-- Render danh sách -->
-                    </div>
+                    <div id="task-list-items" class="space-y-3 max-h-[420px] overflow-y-auto pr-1"></div>
                 </div>
 
             </div>
@@ -219,8 +217,73 @@ window.renderDailyPlanner = function(containerId) {
                 const index = target.getAttribute('data-index');
                 const isChecked = target.checked;
                 tasks[index].completed = isChecked;
-                
+
+                // Kiểm tra nếu học sinh tích hoàn thành nhiệm vụ
                 if (isChecked) {
+                    // Kiểm tra xem HÔM NAY đã nhận điểm danh từ Kế Hoạch chưa
+                    const todayKey = new Date().toISOString().split('T')[0];
+                    const lastRewardDate = localStorage.getItem('planner_reward_date');
+
+                    if (lastRewardDate !== todayKey) {
+                        // Nếu hôm nay CHƯA NHẬN ĐIỂM -> Tiến hành cộng 1 điểm DUY NHẤT trong ngày
+                        localStorage.setItem('planner_reward_date', todayKey);
+
+                        // Hiệu ứng chữ "+1 CCS 🔥" bay lên
+                        const rect = target.getBoundingClientRect();
+                        const floatEl = document.createElement("div");
+                        floatEl.className = "fixed z-[9999] text-emerald-400 font-extrabold text-base sm:text-lg pointer-events-none transition-all duration-700 ease-out animate-pulse";
+                        floatEl.innerText = "+ 1 CCS Hằng Ngày 🔥";
+                        floatEl.style.left = `${rect.left + window.scrollX}px`;
+                        floatEl.style.top = `${rect.top + window.scrollY - 20}px`;
+                        document.body.appendChild(floatEl);
+                        setTimeout(() => {
+                            floatEl.style.transform = "translateY(-60px) scale(1.2)";
+                            floatEl.style.opacity = "0";
+                        }, 50);
+                        setTimeout(() => floatEl.remove(), 800);
+
+                        // Logic cộng điểm vào hệ thống
+                        let storedUser = JSON.parse(localStorage.getItem("cyberUser")) || {};
+                        let currentScore = Number(storedUser.score);
+                        if (isNaN(currentScore)) {
+                            currentScore = 84;
+                            for (let i = 0; i < localStorage.length; i++) {
+                                let k = localStorage.key(i);
+                                if (k.startsWith("cyberScore_") || k === "userScore") {
+                                    let v = parseInt(localStorage.getItem(k));
+                                    if (!isNaN(v)) { currentScore = v; break; }
+                                }
+                            }
+                        }
+                        
+                        let newScore = currentScore + 1;
+                        storedUser.score = newScore;
+                        localStorage.setItem("cyberUser", JSON.stringify(storedUser));
+                        if (storedUser.email) {
+                            localStorage.setItem("cyberScore_" + storedUser.email, newScore);
+                        }
+                        localStorage.setItem("userScore", newScore);
+
+                        if (typeof addScoreToUserClass === 'function') {
+                            try { addScoreToUserClass(1); } catch (e) {}
+                        }
+
+                        const allElements = document.querySelectorAll('*');
+                        allElements.forEach(el => {
+                            if (el.children.length === 0 && el.textContent) {
+                                let txt = el.textContent.trim();
+                                if (/^\d+\s*CCS$/.test(txt) || (txt.endsWith("CCS") && txt.length <= 10)) {
+                                    el.textContent = newScore + " CCS";
+                                }
+                            }
+                        });
+
+                        if (typeof updateHeaderScore === 'function') updateHeaderScore();
+                        if (typeof updateUserInterface === 'function') updateUserInterface();
+                        if (typeof loadUserData === 'function') loadUserData();
+                    }
+
+                    // Hiệu ứng pháo hoa và lời khen chúc mừng khi hoàn thành task
                     const praiseBox = document.getElementById('planner-praise-box');
                     const praiseText = document.getElementById('planner-praise-text');
                     if (praiseBox && praiseText) {
@@ -238,6 +301,7 @@ window.renderDailyPlanner = function(containerId) {
 
                 updateTaskList();
             }
+
             const deleteBtn = target.closest('.delete-task-btn');
             if (deleteBtn) {
                 const index = deleteBtn.getAttribute('data-index');
@@ -256,17 +320,17 @@ window.renderDailyPlanner = function(containerId) {
         for (let i = 0; i < 100; i++) {
             const particle = document.createElement('div');
             const color = colors[Math.floor(Math.random() * colors.length)];
-            
+           
             particle.className = `fixed pointer-events-none z-50 rounded-full`;
             const size = Math.random() * 14 + 6;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
             particle.style.backgroundColor = color;
             particle.style.boxShadow = `0 0 15px ${color}`;
-            
+           
             particle.style.left = `${centerX}px`;
             particle.style.top = `${centerY}px`;
-            
+           
             particle.style.transition = `all 1.8s cubic-bezier(0.1, 0.7, 0.1, 1)`;
             document.body.appendChild(particle);
 

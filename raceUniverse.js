@@ -123,37 +123,37 @@ window.renderPersonalLeaderboard = function(users) {
         `;
     }).join('');
 
-  let restHTML = restUsers.map((user, idx) => {
+    let restHTML = restUsers.map((user, idx) => {
         const rankNumber = idx + 4;
         const isMe = isLogged && (user.id === currentId || user.name === currentName);
         const initial = (user.name || 'U').charAt(0).toUpperCase();
 
         return `
-            <div class="flex items-center justify-between p-4 ${isMe ? 'bg-indigo-950/80 border-indigo-500/80 shadow-[0_0_20px_rgba(99,102,241,0.3)]' : 'bg-slate-900/80 border-slate-800/80'} rounded-2xl border hover:border-cyan-400/60 hover:bg-slate-900 transition-all duration-300 group">
-                <div class="flex items-center gap-4">
+            <div class="flex items-center justify-between p-3.5 sm:p-4 ${isMe ? 'bg-indigo-950/80 border-indigo-500/80 shadow-[0_0_20px_rgba(99,102,241,0.3)]' : 'bg-slate-900/80 border-slate-800/80'} rounded-2xl border hover:border-cyan-400/60 hover:bg-slate-900 transition-all duration-300 group">
+                <div class="flex items-center gap-3 sm:gap-4 min-w-0">
                     <!-- Huy hiệu số thứ hạng -->
-                    <div class="w-9 h-9 rounded-xl bg-slate-950 border border-slate-700 text-cyan-400 font-black text-xs flex items-center justify-center shadow-inner group-hover:border-cyan-400 transition-colors">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-950 border border-slate-700 text-cyan-400 font-black text-xs flex items-center justify-center shadow-inner group-hover:border-cyan-400 transition-colors shrink-0">
                         #${rankNumber}
                     </div>
                     
                     <!-- Avatar nhỏ và thông tin học sinh -->
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-sm shadow-md border border-white/20">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white font-black text-sm shadow-md border border-white/20 shrink-0">
                             ${initial}
                         </div>
-                        <div>
-                            <div class="text-xs font-black ${isMe ? 'text-indigo-300' : 'text-white'} flex items-center gap-2">
-                                ${escapeHTML(user.name)} 
-                                ${isMe ? '<span class="px-2 py-0.5 rounded-full text-[9px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase font-bold">Bạn</span>' : ''}
+                        <div class="min-w-0">
+                            <div class="text-xs font-black ${isMe ? 'text-indigo-300' : 'text-white'} flex flex-wrap items-center gap-2">
+                                <span class="truncate">${escapeHTML(user.name)}</span>
+                                ${isMe ? '<span class="px-2 py-0.5 rounded-full text-[9px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase font-bold shrink-0">Bạn</span>' : ''}
                             </div>
-                            <div class="text-[10px] text-cyan-300/80 font-semibold mt-0.5">${escapeHTML(user.className || 'Học sinh')}</div>
+                            <div class="text-[10px] text-cyan-300/80 font-semibold mt-0.5 truncate">${escapeHTML(user.className || 'Học sinh')}</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Điểm số CCS -->
-                <div class="text-right">
-                    <span class="text-xs font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]">${user.ccs || 0} CCS</span>
+                <div class="text-right shrink-0 ml-2">
+                    <span class="text-xs sm:text-sm font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]">${user.ccs || 0} CCS</span>
                 </div>
             </div>
         `;
@@ -165,41 +165,45 @@ window.renderPersonalLeaderboard = function(users) {
     const myScore = isLogged && myRankIdx !== -1 ? validUsers[myRankIdx].ccs : (isLogged ? activeScore : 0);
 
     container.innerHTML = `
-        <div class="space-y-6">
-            <div class="flex justify-between items-center pb-2">
+        <div class="space-y-6 px-1 sm:px-2">
+            <!-- Tiêu đề & Tổng số học sinh -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2">
                 <div>
-                    <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                    <h2 class="text-xl sm:text-2xl font-black text-white flex flex-wrap items-center gap-2">
                         <span class="text-amber-400">🌟 Bảng Xếp Hạng Công Dân Số</span>
-                        <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full uppercase tracking-wider font-semibold">TỔNG ${validUsers.length} HỌC SINH</span>
+                        <span class="text-[10px] sm:text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider font-semibold">TỔNG ${validUsers.length} HỌC SINH</span>
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">Hệ thống tự động vinh danh Top 3 thành viên cao điểm nhất toàn trường thời gian thực.</p>
+                    <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Hệ thống tự động vinh danh Top 3 thành viên cao điểm nhất toàn trường thời gian thực.</p>
                 </div>
             </div>
 
+            <!-- Top 3: Tự động xếp dọc 1 cột trên điện thoại, ngang 3 cột trên máy tính -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 ${top3HTML}
             </div>
 
+            <!-- Danh sách từ hạng 4 trở xuống -->
             ${restUsers.length > 0 ? `
-                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl">
-                    <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">DANH SÁCH THI ĐUA CÁ NHÂN (${restUsers.length} Học Sinh)</h4>
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
+                    <h4 class="text-[11px] sm:text-xs font-black text-slate-400 uppercase tracking-wider mb-3">DANH SÁCH THI ĐUA CÁ NHÂN (${restUsers.length} Học Sinh)</h4>
                     <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
                         ${restHTML}
                     </div>
                 </div>
             ` : ''}
 
-            <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black text-xs flex items-center justify-center border border-amber-500/40">
+            <!-- Thanh tổng kết cá nhân ở đáy (tối ưu chống tràn chữ trên điện thoại) -->
+            <div class="bg-amber-500/10 border border-amber-500/30 p-3.5 sm:p-4 rounded-2xl flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black text-xs flex items-center justify-center border border-amber-500/40 shrink-0">
                         #${myRankNum}
                     </div>
-                    <div>
-                        <div class="text-xs font-bold text-white">Thứ hạng của bạn (${escapeHTML(currentName)})</div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-bold text-white truncate">Thứ hạng của bạn (${escapeHTML(currentName)})</div>
                         <div class="text-[10px] text-amber-300">${isLogged ? 'Thành viên chính thức' : 'Khách không tham gia xếp hạng'}</div>
                     </div>
                 </div>
-                <div class="text-sm font-black text-amber-400">${isLogged ? myScore : 0} CCS</div>
+                <div class="text-sm font-black text-amber-400 shrink-0">${isLogged ? myScore : 0} CCS</div>
             </div>
         </div>
     `;

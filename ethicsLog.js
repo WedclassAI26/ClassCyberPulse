@@ -284,7 +284,7 @@ function renderEthicsFeed() {
     feedContainer.innerHTML = html;
 }
 
-// 4. KIỂM DUYỆT AI DỨT KHOÁT KHI GỬI BÀI
+// 4. KIỂM DUYỆT AI & CHẶN NỘI DUNG VÔ NGHĨA / TIÊU CỰC DỨT KHOÁT KHI GỬI BÀI
 window.submitEthicsLog = async function() {
     const input = document.getElementById('ethics-input');
     const resultBox = document.getElementById('ethics-result');
@@ -292,21 +292,13 @@ window.submitEthicsLog = async function() {
     const text = input ? input.value.trim() : "";
     const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
-    let imageUrl = "";
-    if (file) {
-        imageUrl = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.readAsDataURL(file);
-        });
-    }
-
     const closeBtnHtml = `
         <button onclick="window.closeEthicsResult()" class="absolute top-2 right-2 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg p-1 w-5 h-5 flex items-center justify-center transition-all cursor-pointer" title="Đóng">
             <i class="fa-solid fa-xmark text-xs"></i>
         </button>
     `;
 
+    // 1. Kiểm tra độ dài tối thiểu 50 ký tự
     if (text.length < 50) {
         if (window.triggerEthicsShake) window.triggerEthicsShake();
         if (resultBox) {
@@ -320,9 +312,7 @@ window.submitEthicsLog = async function() {
                     <span class="text-xs font-bold text-rose-300">0 Điểm CCS</span>
                 </div>
                 <div class="text-xs leading-relaxed">
-                    <p class="font-bold text-white flex items-start gap-1">
-                        <span>📌 Bài viết mới đạt <b>${text.length}/50 ký tự tối thiểu</b>.</span>
-                    </p>
+                    <p class="font-bold text-white">📌 Bài viết mới đạt <b>${text.length}/50 ký tự tối thiểu</b>.</p>
                 </div>
                 ${closeBtnHtml}
             `;
@@ -331,25 +321,130 @@ window.submitEthicsLog = async function() {
         return;
     }
 
+    // 2. Kiểm tra gõ phím bừa / chuỗi vô nghĩa
+    const words = text.split(/\s+/);
+    let meaninglessCount = 0;
+    const vowelRegex = /[aeiouăâêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i;
+    
+    words.forEach(w => {
+        if (w.length > 3 && !vowelRegex.test(w)) {
+            meaninglessCount++;
+        }
+    });
+
+    if (meaninglessCount >= 2 || /([a-zA-Z])\1{2,}/.test(text)) {
+        if (window.triggerEthicsShake) window.triggerEthicsShake();
+        if (resultBox) {
+            resultBox.className = "p-3 pr-8 rounded-xl border-2 border-rose-400/70 bg-rose-950/80 text-rose-200 relative shadow-md backdrop-blur-xl space-y-1.5";
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `
+                <div class="flex items-center justify-between border-b border-rose-500/30 pb-1.5">
+                    <span class="bg-rose-500/30 text-rose-200 border border-rose-400/40 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                        🤖 AI Phát Hiện Gõ Phím Bừa
+                    </span>
+                    <span class="text-xs font-bold text-rose-300">0 Điểm CCS</span>
+                </div>
+                <div class="text-xs leading-relaxed">
+                    <p class="font-bold text-white">Nội dung chứa chuỗi ký tự vô nghĩa. Vui lòng viết bài học đạo đức nghiêm túc!</p>
+                </div>
+                ${closeBtnHtml}
+            `;
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+    }
+
+    let imageUrl = "";
+    if (file) {
+        imageUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Hiển thị trạng thái đang chờ AI đánh giá
     if (resultBox) {
         resultBox.className = "p-2.5 pr-8 rounded-xl text-xs border bg-slate-950/90 border-slate-800 text-slate-300 relative shadow-md";
         resultBox.classList.remove('hidden');
         resultBox.innerHTML = `
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-spinner fa-spin text-amber-400 shrink-0"></i> 
-                <span class="leading-snug">Mình đang đánh giá nội dung bài viết của bạn...</span>
+                <span class="leading-snug">AI đang kiểm duyệt nội dung và thái độ bài viết...</span>
             </div>
         `;
     }
+// 🛡️ CHỐT CHẶN CỨNG: TỰ ĐỘNG TỪ CHỐI CÁC HÀNH VI TIÊU CỰC NẾU KHÔNG CÓ THÁI ĐỘ HỐI LỖI
+    const absoluteToxicWords = ["ăn trộm", "trộm cắp", "móc túi", "trấn lột", "đánh nhau", "bắt nạt", "hút thuốc", "pod", "vape", "ma túy", "đánh bạc"];
+    const lowerTextCheck = text.toLowerCase();
+    
+    let isExplicitlyBad = false;
+    for (let w of absoluteToxicWords) {
+        if (lowerTextCheck.includes(w)) {
+            // Mở rộng toàn bộ các từ đồng nghĩa mang hàm nghĩa tốt, nhận lỗi và hướng sửa sai
+            const hasTrueApology = lowerTextCheck.includes("hối hận") || 
+                                   lowerTextCheck.includes("hối lỗi") || 
+                                   lowerTextCheck.includes("ân hận") || 
+                                   lowerTextCheck.includes("xin lỗi") || 
+                                   lowerTextCheck.includes("nhận lỗi") || 
+                                   lowerTextCheck.includes("nhận ra") || 
+                                   lowerTextCheck.includes("sửa sai") || 
+                                   lowerTextCheck.includes("sửa đổi") || 
+                                   lowerTextCheck.includes("rút kinh nghiệm") || 
+                                   lowerTextCheck.includes("khắc phục") || 
+                                   lowerTextCheck.includes("tự trách") || 
+                                   lowerTextCheck.includes("suy ngẫm") || 
+                                   lowerTextCheck.includes("cải thiện");
+            if (!hasTrueApology) {
+                isExplicitlyBad = true;
+                break;
+            }
+        }
+    }
 
+    if (isExplicitlyBad) {
+        if (window.triggerEthicsShake) window.triggerEthicsShake();
+        if (resultBox) {
+            resultBox.className = "p-3 pr-8 rounded-xl border-2 border-rose-400/80 bg-rose-950/85 text-rose-100 relative shadow-lg backdrop-blur-xl space-y-2";
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `
+                <div class="flex items-center justify-between border-b border-rose-500/30 pb-1.5">
+                    <span class="bg-rose-500/40 text-rose-100 border border-rose-400/50 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                        ⚠️ Hành Vi Hoặc Thái Độ Chưa Chuẩn Mực
+                    </span>
+                    <span class="text-xs font-bold text-rose-300">0 Điểm CCS</span>
+                </div>
+                <div class="text-xs leading-relaxed space-y-1.5">
+                    <p class="text-rose-100 font-semibold flex items-start gap-1">
+                        <span>❌ <b>Đánh giá:</b> Nội dung phản ánh hành vi sai trái nhưng chưa thể hiện thái độ hối lỗi nghiêm túc.</span>
+                    </p>
+                    <div class="text-[11px] text-rose-100 bg-rose-900/50 p-2 rounded-lg border border-rose-500/30 space-y-1">
+                        <p class="font-semibold text-rose-200"><b>Hậu quả:</b> Gây ảnh hưởng xấu tới kỷ luật và đạo đức học đường.</p>
+                        <p class="font-semibold text-rose-300 pt-1 border-t border-rose-500/20"><b>Lời nhắc từ mình:</b> Hãy chia sẻ bài học hoặc việc làm tích cực bạn nhé!</p>
+                    </div>
+                </div>
+                ${closeBtnHtml}
+            `;
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return; // Dừng ngay lập tức, không cho gửi lên Firebase và không cộng điểm
+    }
     try {
-        const promptText = `[KIỂM DUYỆT ĐẠO ĐỨC] Bài viết: "${text}" ${file ? `(Có tệp: ${file.name})` : ''}.
+        // 3. GỬI PROMPT THÔNG MINH CHO AI KIỂM DUYỆT NGỮ NGHĨA & THÁI ĐỘ
+        const promptText = `[KIỂM DUYỆT ĐẠO ĐỨC HỌC SINH] 
+Bài viết của học sinh: "${text}" ${file ? `(Có tệp: ${file.name})` : ''}.
+
+YÊU CẦU KIỂM DUYỆT NGHIÊM NGẶT:
+- Phân tích xem bài viết có nội dung vi phạm pháp luật, trộm cắp, tệ nạn xã hội, bạo lực, vô lễ hoặc có thái độ tiêu cực, khoe khoang lỗi lầm, bất mãn, không ăn năn (ví dụ: ăn trộm tiền rồi bực bội, cãi lại,...) hay không.
+- Nếu học sinh kể về việc phạm lỗi nhưng KHÔNG có thái độ thành khẩn hối hận, xin lỗi, rút kinh nghiệm sâu sắc mà mang tính chất khoe chiến tích hoặc phàn nàn -> PHẢI TỪ CHỐI (status: "rejected").
+- Chỉ CHẤP NHẬN (status: "approved") khi đó là việc làm tử tế, bài học ý nghĩa, hoặc câu chuyện nhận lỗi và sửa sai thực sự chân thành.
+
 XƯNG HÔ: "mình" (AI) và "bạn" (học sinh).
 
-NẾU SAI/VI PHẠM (trốn tiết, gian lận, chửi thề, bộc phốt):
-{"status": "rejected", "errorTitle": "Tên_Lỗi", "errorDetail": "Chi_Tiết_Lỗi", "consequence": "Hậu_Quả", "advice": "Lời_Khuyên"}
+NẾU TỪ CHỐI (VI PHẠM / THÁI ĐỘ KÉM):
+{"status": "rejected", "errorTitle": "Hành Vi Hoặc Thái Độ Chưa Chuẩn Mực", "errorDetail": "Nội dung phản ánh hành vi sai trái hoặc chưa thể hiện sự hối hận, nghiêm túc.", "consequence": "Gây ảnh hưởng lệch lạc về đạo đức và kỷ luật tập thể.", "advice": "Bạn cần nhìn nhận lại lỗi lầm một cách thành khẩn và chia sẻ bài học tích cực hơn!"}
 
-NẾU TÍCH CỰC & TỬ TẾ:
+NẾU ĐƯỢC DUYỆT (TÍCH CỰC & TỬ TẾ):
 {"status": "approved", "textApproved": true, "fileApproved": true, "valueTag": "Tên_Giá_Trị", "message": "Lời_Khen", "impact": "Tác_Động"}
 
 Trả về duy nhất JSON chuẩn:`;
@@ -425,23 +520,24 @@ Trả về duy nhất JSON chuẩn:`;
             if (window.updateEthicsCharCount) window.updateEthicsCharCount();
             if (window.removeEthicsFile) window.removeEthicsFile();
         } else {
+            // AI ĐÃ TỪ CHỐI (STATUS: REJECTED) -> CHẶN ĐỨNG, KHÔNG LƯU, KHÔNG CỘNG ĐIỂM
             if (window.triggerEthicsShake) window.triggerEthicsShake();
             if (resultBox) {
                 resultBox.className = "p-3 pr-8 rounded-xl border-2 border-rose-400/80 bg-rose-950/85 text-rose-100 relative shadow-lg backdrop-blur-xl space-y-2";
                 resultBox.innerHTML = `
                     <div class="flex items-center justify-between border-b border-rose-500/30 pb-1.5">
                         <span class="bg-rose-500/40 text-rose-100 border border-rose-400/50 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
-                            ⚠️ ${data.errorTitle || "Hành Vi Chưa Đúng Nội Quy"}
+                            ⚠️ ${data.errorTitle || "Hành Vi Hoặc Thái Độ Chưa Chuẩn Mực"}
                         </span>
                         <span class="text-xs font-bold text-rose-300">0 Điểm CCS</span>
                     </div>
                     <div class="text-xs leading-relaxed space-y-1.5">
                         <p class="text-rose-100 font-semibold flex items-start gap-1">
-                            <span>❌ <b>Lỗi sai:</b> ${data.errorDetail || 'Hành động này vi phạm nội quy học đường.'}</span>
+                            <span>❌ <b>Đánh giá:</b> ${data.errorDetail || 'Nội dung phản ánh thái độ hoặc hành vi chưa đúng.'}</span>
                         </p>
                         <div class="text-[11px] text-rose-100 bg-rose-900/50 p-2 rounded-lg border border-rose-500/30 space-y-1">
-                            <p class="font-semibold text-rose-200"><b>Hậu quả:</b> ${data.consequence || 'Gây ảnh hưởng xấu tới kỷ luật và kết quả học tập.'}</p>
-                            <p class="font-semibold text-rose-300 pt-1 border-t border-rose-500/20"><b>Lời nhắc từ mình:</b> ${data.advice || 'Bạn hãy thay bằng một việc làm tích cực hơn nhé!'}</p>
+                            <p class="font-semibold text-rose-200"><b>Hậu quả:</b> ${data.consequence || 'Gây ảnh hưởng xấu tới kỷ luật lớp học.'}</p>
+                            <p class="font-semibold text-rose-300 pt-1 border-t border-rose-500/20"><b>Lời nhắc từ mình:</b> ${data.advice || 'Bạn hãy suy nghĩ và chia sẻ việc làm tích cực hơn nhé!'}</p>
                         </div>
                     </div>
                     ${closeBtnHtml}

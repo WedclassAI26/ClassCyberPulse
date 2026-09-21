@@ -44,29 +44,29 @@
                 <span class="text-xl font-extrabold tracking-tight text-white">ClassCyber<span class="text-indigo-400">Pulse</span></span>
             </div>
             
-            <div class="flex md:flex space-x-1 bg-slate-900/90 p-1.5 rounded-full border border-slate-800">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-white bg-indigo-600 shadow-md cursor-pointer">
+            <<!-- Thanh menu tối ưu trượt ngang trên điện thoại -->
+            <div class="flex items-center space-x-1 bg-slate-900/90 p-1.5 rounded-full border border-slate-800 overflow-x-auto whitespace-nowrap scrollbar-none max-w-[50vw] sm:max-w-none shrink-0">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-indigo-600 shadow-md cursor-pointer shrink-0">
                     <i class="fa-solid fa-globe text-cyan-300"></i>
                     <span>Hành Tinh Số</span>
                 </button>
-                <button onclick="switchTab('planner')" id="nav-planner" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+                <button onclick="switchTab('planner')" id="nav-planner" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
                     <i class="fa-solid fa-calendar-check text-emerald-400"></i>
                     <span>Kế Hoạch</span>
                 </button>
-                <button onclick="switchTab('quests')" id="nav-quests" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+                <button onclick="switchTab('quests')" id="nav-quests" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
                     <i class="fa-solid fa-bolt text-amber-400"></i>
                     <span>Góc Chuyên Gia</span>
                 </button>
-                <button onclick="switchTab('wall')" id="nav-wall" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+                <button onclick="switchTab('wall')" id="nav-wall" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
                     <i class="fa-solid fa-heart text-rose-400"></i>
                     <span>Trạm Tử Tế</span>
                 </button>
-                <button onclick="switchTab('ethics')" id="nav-ethics" class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+                <button onclick="switchTab('ethics')" id="nav-ethics" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
                     <i class="fa-solid fa-book-open text-emerald-400"></i>
                     <span>Nhật Ký Đạo Đức</span>
                 </button>
             </div>
-            
             <div class="flex items-center space-x-3">
                 <!-- Đã sửa lỗi lồng thẻ trùng lặp -->
                 <div id="auth-container"></div>
