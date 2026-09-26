@@ -33,6 +33,33 @@
     <!-- Thư viện Face-API -->
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+/* --- ÉP KHUNG CHỨA CAMERA CỐ ĐỊNH TUYỆT ĐỐI --- */
+#video-container {
+    position: relative !important;
+    width: 100% !important;
+    height: 240px !important;
+    max-height: 240px !important;
+    overflow: hidden !important;
+    border-radius: 1rem !important;
+    display: block !important;
+    transform: translateZ(0);
+}
+
+/* --- ÉP THẺ VIDEO NẰM GỌN TRONG KHUNG, CHỐNG TRÀN 100% --- */
+#video-container video, 
+#webcam-video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    border-radius: 1rem !important;
+    z-index: 10 !important;
+}
+</style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans touch-auto">
 
@@ -44,29 +71,6 @@
                 <span class="text-xl font-extrabold tracking-tight text-white">ClassCyber<span class="text-indigo-400">Pulse</span></span>
             </div>
             
-            <<!-- Thanh menu tối ưu trượt ngang trên điện thoại -->
-            <div class="flex items-center space-x-1 bg-slate-900/90 p-1.5 rounded-full border border-slate-800 overflow-x-auto whitespace-nowrap scrollbar-none max-w-[50vw] sm:max-w-none shrink-0">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-white bg-indigo-600 shadow-md cursor-pointer shrink-0">
-                    <i class="fa-solid fa-globe text-cyan-300"></i>
-                    <span>Hành Tinh Số</span>
-                </button>
-                <button onclick="switchTab('planner')" id="nav-planner" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
-                    <i class="fa-solid fa-calendar-check text-emerald-400"></i>
-                    <span>Kế Hoạch</span>
-                </button>
-                <button onclick="switchTab('quests')" id="nav-quests" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
-                    <i class="fa-solid fa-bolt text-amber-400"></i>
-                    <span>Góc Chuyên Gia</span>
-                </button>
-                <button onclick="switchTab('wall')" id="nav-wall" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
-                    <i class="fa-solid fa-heart text-rose-400"></i>
-                    <span>Trạm Tử Tế</span>
-                </button>
-                <button onclick="switchTab('ethics')" id="nav-ethics" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer shrink-0">
-                    <i class="fa-solid fa-book-open text-emerald-400"></i>
-                    <span>Nhật Ký Đạo Đức</span>
-                </button>
-            </div>
             <div class="flex items-center space-x-3">
                 <!-- Đã sửa lỗi lồng thẻ trùng lặp -->
                 <div id="auth-container"></div>
@@ -256,5 +260,29 @@
     <script src="./js/kindness.js"></script>
     <script src="./js/app.js"></script>
     <script src="./js/aiChatWidget.js?v=20260817"></script>
+    <!-- THANH MENU 5 MỤC CỐ ĐỊNH Ở ĐÁY CHO ĐIỆN THOẠI -->
+<nav class="mobile-bottom-nav sm:hidden">
+  <a href="index.html" class="nav-item active">
+    <i class="fas fa-globe"></i>
+    <span>Hành Tinh</span>
+  </a>
+  <button onclick="switchTab('planner')" class="nav-item">
+    <i class="fas fa-calendar-check"></i>
+    <span>Kế Hoạch</span>
+  </button>
+  <button onclick="switchTab('quests')" class="nav-item">
+    <i class="fas fa-bolt"></i>
+    <span>Chuyên Gia</span>
+  </button>
+  <button onclick="switchTab('wall')" class="nav-item">
+    <i class="fas fa-heart"></i>
+    <span>Tử Tế</span>
+  </button>
+  <button onclick="switchTab('ethics')" class="nav-item">
+    <i class="fas fa-book-open"></i>
+    <span>Đạo Đức</span>
+  </button>
+  
+</nav>
 </body>
 </html>

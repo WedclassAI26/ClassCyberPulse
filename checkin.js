@@ -106,7 +106,20 @@ async function startCleanSmileCheckin() {
 
         videoElement.srcObject = cameraMediaStream;
         await videoElement.play();
+videoElement.srcObject = cameraMediaStream;
+await videoElement.play();
 
+// --- ÉP CỨNG KHUNG VIDEO CHỐNG TRÀN ---
+videoElement.style.setProperty("position", "absolute", "important");
+videoElement.style.setProperty("top", "0", "important");
+
+videoElement.style.setProperty("left", "0", "important");
+
+videoElement.style.setProperty("transform", "none", "important");
+videoElement.style.setProperty("width", "100%", "important");
+videoElement.style.setProperty("height", "100%", "important");
+videoElement.style.setProperty("object-fit", "cover", "important");
+videoElement.style.setProperty("object-position", "center center", "important");
         // HIỆU ỨNG QUÉT TRONG SUỐT - CAMERA RÕ SÁNG 100%
         if (camOverlay) {
             camOverlay.style.display = 'flex';
