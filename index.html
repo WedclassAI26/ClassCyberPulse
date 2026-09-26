@@ -47,17 +47,28 @@
 }
 
 /* --- ÉP THẺ VIDEO NẰM GỌN TRONG KHUNG, CHỐNG TRÀN 100% --- */
-#video-container video, 
+#video-container video,
 #webcam-video {
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    inset: 0 !important;
+
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important;
+
+    max-width: 100% !important;
+    max-height: 100% !important;
+
+    object-fit: contain !important;
     object-position: center center !important;
+
+    display: block !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
     border-radius: 1rem !important;
-    z-index: 10 !important;
+
+    z-index: 1 !important;
 }
 </style>
 </head>
