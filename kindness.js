@@ -319,9 +319,17 @@ function renderZaloFeed() {
     const feedContainer = document.getElementById('zalo-feed-container');
     if (!feedContainer) return;
 
+    // BƯỚC 1: Lưu lại danh sách các ngày đang mở trước khi render lại
+    const openDates = [];
+    feedContainer.querySelectorAll('details[open]').forEach(det => {
+        const dateSummary = det.querySelector('summary span span');
+        if (dateSummary) {
+            openDates.push(dateSummary.innerText.trim());
+        }
+    });
+
     const isAdmin = typeof checkIsAdmin === 'function' ? checkIsAdmin() : false;
     const currentUserName = getCurrentUserName();
-
     const todayStr = new Date().toISOString().split('T')[0];
 
     const groupedByDate = {};
@@ -340,9 +348,12 @@ function renderZaloFeed() {
             const formattedDate = formatDateDisplay(dateStr);
             const count = groupedByDate[dateStr].length;
             const isToday = (dateStr === todayStr);
+            
+            // Kiểm tra xem ngày này trước đó có đang mở hay không (hoặc là hôm nay)
+            const isOpen = isToday || openDates.some(d => d.includes(formattedDate) || formattedDate.includes(d));
 
             html += `
-                <details class="group bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden transition-all" ${isToday ? 'open' : ''}>
+                <details class="group bg-slate-950/80 border border-slate-800 rounded-2xl overflow-hidden transition-all" ${isOpen ? 'open' : ''}>
                     <summary class="px-4 py-3 bg-slate-950/90 border-b border-slate-800/50 cursor-pointer flex items-center justify-between hover:bg-slate-800/40 transition-all select-none">
                         <span class="flex items-center gap-2 text-xs font-bold text-cyan-300">
                             <i class="fa-regular fa-calendar-check text-amber-400"></i>
@@ -372,41 +383,45 @@ function renderZaloFeed() {
                                 : "bg-amber-500/10 text-amber-400/60 border-amber-500/20 opacity-70 hover:opacity-100 hover:bg-amber-500/20";
 
                             return `
-                                <div class="bg-slate-950/90 border border-slate-800 hover:border-cyan-500/40 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs transition-all shadow-md">
-                                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                                        <span class="text-xs text-slate-500 font-mono shrink-0">${msg.time || '12:00'}</span>
-                                        <span class="font-extrabold text-cyan-400 shrink-0 text-xs">
-                                            ${escapeHTML(msg.sender)} ➔ ${escapeHTML(msg.receiver)}:
-                                        </span>
-                                        <span class="text-slate-200 italic truncate text-xs font-medium">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl gap-3">
+                                    <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs text-slate-400 font-mono shrink-0">${msg.time || '12:00'}</span>
+                                            <span class="font-extrabold text-cyan-400 text-xs truncate">
+                                                ${escapeHTML(msg.sender)} ➔${escapeHTML(msg.receiver)}
+                                            </span>
+                                        </div>
+                                        <span class="text-slate-200 italic text-xs font-medium leading-relaxed break-words">
                                             "${escapeHTML(msg.content)}"
                                         </span>
-                                        <span class="text-xs text-teal-300 bg-teal-500/10 px-2.5 py-1 rounded-lg border border-teal-500/20 shrink-0 hidden lg:inline-block font-mono">
+                                        <span class="text-xs text-teal-300 bg-teal-500/10 px-2.5 py-1 rounded-lg border border-teal-500/20 w-fit font-mono hidden sm:inline-block">
                                             ${escapeHTML(msg.aiComment)}
                                         </span>
                                     </div>
                                     
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        <div class="flex items-center rounded-xl overflow-hidden border transition-all ${heartBtnStyle}">
-                                            <button onclick="toggleLikeMessage('${msg.id}')" class="px-2 py-1 cursor-pointer transition-transform active:scale-125">
-                                                <i class="fa-solid fa-heart text-xs"></i>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <!-- Nút Thả Tim độc lập -->
+                                        <span style="display: inline-flex; align-items: center; border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.1); border-radius: 10px; overflow: hidden;" class="transition-all ${heartBtnStyle}">
+                                            <button onclick="toggleLikeMessage('${msg.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: ${hasLiked ? '#ffffff' : '#fb7185'}; font-weight: bold;" class="cursor-pointer">
+                                                <i class="fa-solid fa-heart"></i>
                                             </button>
-                                            <span onclick="showLikeListModal('${msg.id}')" class="font-bold text-xs pr-2.5 py-1 cursor-pointer hover:underline">
+                                            <span onclick="showLikeListModal('${msg.id}')" style="padding: 6px 10px; cursor: pointer; font-size: 12px; font-weight: bold; color: #fecdd3;" class="hover:underline">
                                                 ${likeCount}
                                             </span>
-                                        </div>
+                                        </span>
 
-                                        <div class="flex items-center rounded-xl overflow-hidden border transition-all ${reportBtnStyle}">
-                                            <button onclick="openReportSelectModal('${msg.id}')" class="px-2 py-1 cursor-pointer transition-transform active:scale-125">
-                                                <i class="fa-solid fa-flag text-xs"></i>
+                                        <!-- Nút Thả Cờ độc lập -->
+                                        <span style="display: inline-flex; align-items: center; border: 1px solid rgba(251,191,36,0.3); background: rgba(251,191,36,0.1); border-radius: 10px; overflow: hidden;" class="transition-all ${reportBtnStyle}">
+                                            <button onclick="openReportSelectModal('${msg.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fbbf24; font-weight: bold;" class="cursor-pointer">
+                                                <i class="fa-solid fa-flag"></i>
                                             </button>
-                                            <span onclick="showReportDetailModal('${msg.id}')" class="font-bold text-xs pr-2.5 py-1 cursor-pointer hover:underline">
+                                            <span onclick="showReportDetailModal('${msg.id}')" style="padding: 6px 10px; cursor: pointer; font-size: 12px; font-weight: bold; color: #fde68a;" class="hover:underline">
                                                 ${reportCount}
                                             </span>
-                                        </div>
+                                        </span>
 
                                         ${isAdmin ? `
-                                            <button onclick="handleDeleteMessageByAdmin('${msg.id}')" class="text-rose-400 hover:text-white bg-rose-500/20 hover:bg-rose-600 px-2 py-1 rounded-xl border border-rose-500/40 transition-all text-xs font-bold flex items-center gap-1 cursor-pointer">
+                                            <button onclick="handleDeleteMessageByAdmin('${msg.id}')" style="padding: 6px 10px; background: rgba(244,63,94,0.2); border: 1px solid rgba(244,63,94,0.4); border-radius: 10px; color: #f43f5e; cursor: pointer; font-size: 12px;" class="cursor-pointer">
                                                 <i class="fa-solid fa-trash-can"></i>
                                             </button>
                                         ` : ''}
@@ -422,7 +437,6 @@ function renderZaloFeed() {
 
     feedContainer.innerHTML = html;
 }
-
 window.toggleLikeMessage = function(id) {
     const msg = kindnessMessages.find(m => String(m.id) === String(id));
     if (!msg) return;
@@ -807,3 +821,29 @@ document.addEventListener("change", function(e) {
         }
     }
 });
+// --- SCRIPT TỰ ĐỘNG KHÓA CỨNG NÚT TIM / CỜ CHỐNG BUNG TRÀN ---
+document.addEventListener("click", function(e) {
+    if (e.target.closest('#zalo-feed-container button') || e.target.closest('#zalo-feed-container span')) {
+        setTimeout(() => {
+            document.querySelectorAll('#zalo-feed-container .inline-flex, #zalo-feed-container div[class*="flex items-center gap-2"]').forEach(el => {
+                el.style.display = "inline-flex";
+                el.style.width = "auto";
+                el.style.maxWidth = "fit-content";
+                el.style.transform = "none";
+            });
+        }, 10);
+    }
+});
+
+// Chạy quét ngay khi render để cố định từ đầu
+setInterval(() => {
+    document.querySelectorAll('#zalo-feed-container button').forEach(btn => {
+        if (btn.innerHTML.includes('heart') || btn.innerHTML.includes('flag')) {
+            const parent = btn.parentElement;
+            if (parent) {
+                parent.style.display = "inline-flex";
+                parent.style.width = "auto";
+            }
+        }
+    });
+}, 500);

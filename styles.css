@@ -1197,8 +1197,113 @@ p, span, div {
 }
 }
 /* Chống trình duyệt tự động zoom màn hình trên điện thoại khi bấm vào ô nhập liệu */
-@media (max-width: 768px) {
+/* === CHỈ ÁP DỤNG CHO ĐIỆN THOẠI (DƯỚI 640px) === */
+@media (max-width: 640px) {
+  /* Chống zoom khi bấm input */
   input, select, textarea {
     font-size: 16px !important;
   }
+  
+}
+
+/* --- ÉP TOÀN BỘ MENU MÁY TÍNH HIỆN LÊN --- */
+@media screen and (min-width: 641px) {
+  nav {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  nav * {
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+/* --- KHÓA BẢO VỆ HIỂN THỊ MENU TRÊN MÁY TÍNH --- */
+@media screen and (min-width: 641px) {
+  header nav, 
+  header .flex, 
+  .desktop-nav, 
+  nav[class*="flex"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+/* --- ÉP MÁY TÍNH KHÔNG HIỆN MENU DƯỚI ĐÁY --- */
+@media screen and (min-width: 641px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+/* --- TÁCH BIỆT HOÀN TOÀN: ĐIỆN THOẠI DƯỚI - MÁY TÍNH TRÊN --- */
+@media screen and (max-width: 640px) {
+  /* Điện thoại: Hiện thanh menu dưới đáy */
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+}
+
+@media screen and (min-width: 641px) {
+  /* Máy tính: Ẩn tuyệt đối thanh menu dưới đáy, trả menu về phía trên */
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+/* --- MÁY TÍNH: HIỆN MENU TRÊN, ẨN MENU DƯỚI --- */
+@media screen and (min-width: 641px) {
+  /* Hiện toàn bộ menu/thanh điều hướng phía trên trên máy tính */
+  nav, header, .desktop-nav, .nav-menu {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  
+  /* Ẩn riêng thanh menu dưới đáy trên máy tính */
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+/* --- ĐIỆN THOẠI: HIỆN MENU DƯỚI --- */
+@media screen and (max-width: 640px) {
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+}
+/* --- KHÓA CỨNG TOÀN CỤC CHỐNG BUNG TRÀN CHO MỌI NÚT TƯƠNG TÁC --- */
+.flex button, 
+.flex span, 
+div[class*="flex"] > button,
+div[class*="flex"] > span {
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* Đảm bảo các nhóm nút tim/cờ hoặc trạng thái không bị kéo giãn chiều ngang */
+.inline-flex, 
+div:has(> button[onclick*="toggle"], > button[onclick*="openReport"], > button[onclick*="like"]) {
+    display: inline-flex !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    flex: 0 0 auto !important;
+}
+/* --- LỚP KHIÊN KHÓA CỨNG TUYỆT ĐỐI CHO MỌI NÚT TIM / CỜ --- */
+div:has(> button[onclick*="toggle"], > button[onclick*="openReport"], > button[onclick*="Ethics"]),
+div:has(> span > button) {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: fit-content !important;
+    max-width: fit-content !important;
+    flex-shrink: 0 !important;
+}
+
+/* Ép buộc các nhóm nút bấm không bao giờ được giãn nở chiều ngang */
+button[onclick*="toggle"], 
+button[onclick*="openReport"],
+button[onclick*="Ethics"] {
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
 }

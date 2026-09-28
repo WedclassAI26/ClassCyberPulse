@@ -1,4 +1,4 @@
-window.renderKindnessModule = typeof renderKindnessModule === 'function' ? renderKindnessModule : function(){};
+
 // ==========================================
 // MÔ-ĐUN: TRẠM TỬ TẾ - WALL.JS GỐC
 // ==========================================
@@ -140,7 +140,6 @@ async function postKindnessMessage() {
         alert("⚠️ Hệ thống AI phát hiện từ ngữ chưa phù hợp hoặc thiếu văn minh. Vui lòng điều chỉnh để lan tỏa năng lượng tích cực!");
         return;
     }
-
     const messages = getMessages();
     messages.unshift({
         sender: "Từ Lớp 11A1 ➔ Toàn trường",

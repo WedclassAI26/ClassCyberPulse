@@ -160,10 +160,19 @@ function renderEthicsModule(containerId) {
     window.renderEthicsLogModule(containerId);
 }
 
-// 3. HIỂN THỊ DÒNG THỜI GIAN THEO NGÀY
+// 3. HIỂN THỊ DÒNG THỜI GIAN THEO NGÀY (CÓ TÍCH HỢP GIỮ NGUYÊN TRẠNG THÁI MỞ)
 function renderEthicsFeed() {
     const feedContainer = document.getElementById('ethics-feed-container');
     if (!feedContainer) return;
+
+    // Lưu lại danh sách các ngày đang mở trước khi render lại
+    const openDates = [];
+    feedContainer.querySelectorAll('details[open]').forEach(det => {
+        const dateSummary = det.querySelector('summary span span');
+        if (dateSummary) {
+            openDates.push(dateSummary.innerText.trim());
+        }
+    });
 
     const isAdmin = typeof checkIsAdmin === 'function' ? checkIsAdmin() : false;
     const currentUserName = getCurrentUserName();
@@ -186,8 +195,11 @@ function renderEthicsFeed() {
             const count = groupedByDate[dateStr].length;
             const isToday = (dateStr === todayStr);
 
+            // Giữ nguyên trạng thái mở nếu ngày này trước đó đang mở hoặc là hôm nay
+            const isOpen = isToday || openDates.some(d => d.includes(formattedDate) || formattedDate.includes(d));
+
             html += `
-                <details class="group bg-slate-950/80 border border-slate-800 rounded-xl overflow-hidden transition-all" ${isToday ? 'open' : ''}>
+                <details class="group bg-slate-950/80 border border-slate-800 rounded-xl overflow-hidden transition-all" ${isOpen ? 'open' : ''}>
                     <summary class="px-3.5 py-2.5 bg-slate-950/90 border-b border-slate-800/50 cursor-pointer flex items-center justify-between hover:bg-slate-800/40 transition-all select-none">
                         <span class="flex items-center gap-2 text-xs font-bold text-amber-300">
                             <i class="fa-regular fa-calendar-check text-emerald-400"></i>
@@ -210,51 +222,55 @@ function renderEthicsFeed() {
                             const hasReported = reportArray.some(r => typeof r === 'object' ? r.reporter === currentUserName : r === currentUserName);
 
                             const heartBtnStyle = hasLiked 
-                                ? "bg-rose-600 text-white shadow-md shadow-rose-500/40 border-rose-500 scale-105" 
+                                ? "bg-rose-600 text-white shadow-md shadow-rose-500/40 border-rose-500" 
                                 : "bg-rose-500/10 text-rose-400/60 border-rose-500/20 opacity-70 hover:opacity-100 hover:bg-rose-500/20";
 
                             const reportBtnStyle = hasReported || (isAdmin && reportCount > 0)
-                                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/40 border-amber-400 scale-105"
+                                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/40 border-amber-400"
                                 : "bg-amber-500/10 text-amber-400/60 border-amber-500/20 opacity-70 hover:opacity-100 hover:bg-amber-500/20";
 
                             return `
-                                <div class="bg-slate-950/90 border border-slate-800 hover:border-amber-500/40 p-2.5 rounded-xl space-y-2 text-xs transition-all shadow-sm">
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div class="flex items-center gap-2 flex-1 min-w-0">
-                                            <span class="text-[11px] text-slate-500 font-mono shrink-0">${log.time || '12:00'}</span>
-                                            <span class="font-extrabold text-amber-400 shrink-0 text-xs">
-                                                ${escapeHTML(log.author)}:
-                                            </span>
-                                            <span class="text-slate-100 font-medium text-xs truncate">
-                                                "${escapeHTML(log.content)}"
-                                            </span>
-                                            <button onclick="showAIFeedbackModal('${log.id}')" class="text-[9px] text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-1.5 py-0.5 rounded shrink-0 font-bold transition cursor-pointer flex items-center gap-1" title="Bấm để xem nhận xét từ AI">
+                                <div class="bg-slate-950/90 border border-slate-800 hover:border-amber-500/40 p-3 rounded-xl space-y-3 text-xs transition-all shadow-sm">
+                                    <!-- Phần nội dung và nút bấm: Trên điện thoại xếp dọc (flex-col), máy tính nằm ngang (sm:flex-row) -->
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-start sm:items-center gap-2 flex-1 min-w-0">
+                                            <span class="text-[11px] text-slate-500 font-mono shrink-0 mt-0.5 sm:mt-0">${log.time || '12:00'}</span>
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0 flex-1">
+                                                <span class="font-extrabold text-amber-400 shrink-0 text-xs">
+                                                    ${escapeHTML(log.author)}:
+                                                </span>
+                                                <span class="text-slate-100 font-medium text-xs break-words">
+                                                    "${escapeHTML(log.content)}"
+                                                </span>
+                                            </div>
+                                            <button onclick="showAIFeedbackModal('${log.id}')" class="text-[9px] text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-1.5 py-0.5 rounded shrink-0 font-bold transition cursor-pointer self-start sm:self-center" title="Bấm để xem nhận xét từ AI">
                                                 <span>✔ AI Verified</span>
                                             </button>
                                         </div>
 
-                                        <div class="flex items-center gap-1.5 shrink-0">
-                                            <div class="flex items-center rounded-lg overflow-hidden border transition-all ${heartBtnStyle}">
-                                                <button onclick="toggleLikeEthicsLog('${log.id}')" class="px-2 py-0.5 cursor-pointer transition-transform active:scale-125" title="Thả tim">
-                                                    <i class="fa-solid fa-heart text-[10px]"></i>
+                                        <!-- Cụm nút Thả Tim & Cờ: Co giãn linh hoạt, không bị cố định chết kích thước pixel trên điện thoại -->
+                                        <div class="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+                                            <span style="display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.1);" class="transition-all ${heartBtnStyle}">
+                                                <button onclick="toggleLikeEthicsLog('${log.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fb7185;" title="Thả tim">
+                                                    <i class="fa-solid fa-heart text-xs"></i>
                                                 </button>
-                                                <span onclick="showEthicsLikeListModal('${log.id}')" class="font-bold text-xs pr-2 py-0.5 cursor-pointer hover:underline">
+                                                <span onclick="showEthicsLikeListModal('${log.id}')" style="padding: 6px 10px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #fecdd3;" class="hover:underline">
                                                     ${likeCount}
                                                 </span>
-                                            </div>
+                                            </span>
 
-                                            <div class="flex items-center rounded-lg overflow-hidden border transition-all ${reportBtnStyle}">
-                                                <button onclick="openEthicsReportSelectModal('${log.id}')" class="px-2 py-0.5 cursor-pointer transition-transform active:scale-125" title="Báo cáo vi phạm">
-                                                    <i class="fa-solid fa-flag text-[10px]"></i>
+                                            <span style="display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; border: 1px solid rgba(251,191,36,0.3); background: rgba(251,191,36,0.1);" class="transition-all ${reportBtnStyle}">
+                                                <button onclick="openEthicsReportSelectModal('${log.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fbbf24;" title="Báo cáo vi phạm">
+                                                    <i class="fa-solid fa-flag text-xs"></i>
                                                 </button>
-                                                <span onclick="showEthicsReportDetailModal('${log.id}')" class="font-bold text-xs pr-2 py-0.5 cursor-pointer hover:underline">
+                                                <span onclick="showEthicsReportDetailModal('${log.id}')" style="padding: 6px 10px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #fde68a;" class="hover:underline">
                                                     ${isAdmin ? reportCount : (hasReported ? 1 : 0)}
                                                 </span>
-                                            </div>
+                                            </span>
 
                                             ${isAdmin ? `
-                                                <button onclick="handleDeleteEthicsLogByAdmin('${log.id}')" class="text-rose-400 hover:text-white bg-rose-500/20 hover:bg-rose-600 px-2 py-0.5 rounded-lg border border-rose-500/40 transition-all text-xs font-bold flex items-center gap-1 cursor-pointer">
-                                                    <i class="fa-solid fa-trash-can"></i>
+                                                <button onclick="handleDeleteEthicsLogByAdmin('${log.id}')" style="padding: 6px 10px;" class="text-rose-400 hover:text-white bg-rose-500/20 hover:bg-rose-600 rounded-lg border border-rose-500/40 transition-all text-xs font-bold flex items-center justify-center cursor-pointer shrink-0" title="Xóa bài viết">
+                                                    <i class="fa-solid fa-trash-can text-xs"></i>
                                                 </button>
                                             ` : ''}
                                         </div>
@@ -298,7 +314,6 @@ window.submitEthicsLog = async function() {
         </button>
     `;
 
-    // 1. Kiểm tra độ dài tối thiểu 50 ký tự
     if (text.length < 50) {
         if (window.triggerEthicsShake) window.triggerEthicsShake();
         if (resultBox) {
@@ -321,7 +336,6 @@ window.submitEthicsLog = async function() {
         return;
     }
 
-    // 2. Kiểm tra gõ phím bừa / chuỗi vô nghĩa
     const words = text.split(/\s+/);
     let meaninglessCount = 0;
     const vowelRegex = /[aeiouăâêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i;
@@ -363,7 +377,6 @@ window.submitEthicsLog = async function() {
         });
     }
 
-    // Hiển thị trạng thái đang chờ AI đánh giá
     if (resultBox) {
         resultBox.className = "p-2.5 pr-8 rounded-xl text-xs border bg-slate-950/90 border-slate-800 text-slate-300 relative shadow-md";
         resultBox.classList.remove('hidden');
@@ -374,14 +387,13 @@ window.submitEthicsLog = async function() {
             </div>
         `;
     }
-// 🛡️ CHỐT CHẶN CỨNG: TỰ ĐỘNG TỪ CHỐI CÁC HÀNH VI TIÊU CỰC NẾU KHÔNG CÓ THÁI ĐỘ HỐI LỖI
+
     const absoluteToxicWords = ["ăn trộm", "trộm cắp", "móc túi", "trấn lột", "đánh nhau", "bắt nạt", "hút thuốc", "pod", "vape", "ma túy", "đánh bạc"];
     const lowerTextCheck = text.toLowerCase();
     
     let isExplicitlyBad = false;
     for (let w of absoluteToxicWords) {
         if (lowerTextCheck.includes(w)) {
-            // Mở rộng toàn bộ các từ đồng nghĩa mang hàm nghĩa tốt, nhận lỗi và hướng sửa sai
             const hasTrueApology = lowerTextCheck.includes("hối hận") || 
                                    lowerTextCheck.includes("hối lỗi") || 
                                    lowerTextCheck.includes("ân hận") || 
@@ -427,16 +439,16 @@ window.submitEthicsLog = async function() {
             `;
             resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        return; // Dừng ngay lập tức, không cho gửi lên Firebase và không cộng điểm
+        return;
     }
+
     try {
-        // 3. GỬI PROMPT THÔNG MINH CHO AI KIỂM DUYỆT NGỮ NGHĨA & THÁI ĐỘ
         const promptText = `[KIỂM DUYỆT ĐẠO ĐỨC HỌC SINH] 
 Bài viết của học sinh: "${text}" ${file ? `(Có tệp: ${file.name})` : ''}.
 
 YÊU CẦU KIỂM DUYỆT NGHIÊM NGẶT:
-- Phân tích xem bài viết có nội dung vi phạm pháp luật, trộm cắp, tệ nạn xã hội, bạo lực, vô lễ hoặc có thái độ tiêu cực, khoe khoang lỗi lầm, bất mãn, không ăn năn (ví dụ: ăn trộm tiền rồi bực bội, cãi lại,...) hay không.
-- Nếu học sinh kể về việc phạm lỗi nhưng KHÔNG có thái độ thành khẩn hối hận, xin lỗi, rút kinh nghiệm sâu sắc mà mang tính chất khoe chiến tích hoặc phàn nàn -> PHẢI TỪ CHỐI (status: "rejected").
+- Phân tích xem bài viết có nội dung vi phạm pháp luật, trộm cắp, tệ nạn xã hội, bạo lực, vô lễ hoặc có thái độ tiêu cực, khoe khoang lỗi lầm, bất mãn, không ăn năn hay không.
+- Nếu học sinh kể về việc phạm lỗi nhưng KHÔNG có thái độ thành khẩn hối hận, xin lỗi, rút kinh nghiệm sâu sắc -> PHẢI TỪ CHỐI (status: "rejected").
 - Chỉ CHẤP NHẬN (status: "approved") khi đó là việc làm tử tế, bài học ý nghĩa, hoặc câu chuyện nhận lỗi và sửa sai thực sự chân thành.
 
 XƯNG HÔ: "mình" (AI) và "bạn" (học sinh).
@@ -520,7 +532,6 @@ Trả về duy nhất JSON chuẩn:`;
             if (window.updateEthicsCharCount) window.updateEthicsCharCount();
             if (window.removeEthicsFile) window.removeEthicsFile();
         } else {
-            // AI ĐÃ TỪ CHỐI (STATUS: REJECTED) -> CHẶN ĐỨNG, KHÔNG LƯU, KHÔNG CỘNG ĐIỂM
             if (window.triggerEthicsShake) window.triggerEthicsShake();
             if (resultBox) {
                 resultBox.className = "p-3 pr-8 rounded-xl border-2 border-rose-400/80 bg-rose-950/85 text-rose-100 relative shadow-lg backdrop-blur-xl space-y-2";
