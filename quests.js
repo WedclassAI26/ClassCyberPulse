@@ -1,6 +1,6 @@
 window.renderQuestsModule = typeof renderScenarioModule === 'function' ? renderScenarioModule : (typeof renderQuestsModule === 'function' ? renderQuestsModule : function(){});
 // ==========================================
-// GIAO DIỆN & LOGIC XỬ LÝ THỬ THÁCH VĂN MINH MẠNG (INSTANT DOM SYNC FIX)
+// GIAO DIỆN & LOGIC XỬ LÝ THỬ THÁCH VĂN MINH MẠNG (INSTANT DOM SYNC FIX & RESPONSIVE)
 // ==========================================
 let currentScenario = null;
 let selectedOptionIndex = null; 
@@ -55,66 +55,72 @@ function renderScenario() {
         }
         let iconClass = (selectedOptionIndex === displayIdx) ? "fa-circle-check text-cyan-400 text-base" : "fa-circle text-slate-700 text-xs";
         
-        optionsHtml += '<button onclick="selectOption(' + displayIdx + ', event)" class="w-full text-left p-2.5 rounded-xl border ' + extraClass + ' transition-all text-xs md:text-sm flex items-center justify-between mb-2"><span class="pr-2">' + opt.text + '</span><i class="fa-solid ' + iconClass + '"></i></button>';
+        // Sửa: Thêm style bọc dòng tuyệt đối cho nội dung câu trả lời, không bị tràn
+        optionsHtml += `
+            <button onclick="selectOption(${displayIdx}, event)" style="width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; text-align: left; word-break: break-word; overflow-wrap: break-word;" class="p-3 rounded-xl border ${extraClass} transition-all text-xs md:text-sm mb-2.5 cursor-pointer gap-3">
+                <span style="flex: 1; word-break: break-word; overflow-wrap: break-word; white-space: normal;">${opt.text}</span>
+                <i class="fa-solid ${iconClass} shrink-0"></i>
+            </button>
+        `;
     });
 
     container.innerHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start w-full overflow-hidden">
             
             <!-- CỘT TRÁI: BẢNG THỬ THÁCH -->
-            <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl space-y-3">
+            <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl space-y-3 w-full overflow-hidden box-sizing">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-black text-cyan-400 tracking-wider uppercase flex items-center gap-1.5">
                         🔥 THỬ THÁCH
                     </span>
                 </div>
                 
-                <p class="text-xs font-bold text-slate-200 leading-relaxed bg-slate-950 p-3 rounded-2xl border border-slate-800/80">
+                <p style="word-break: break-word; overflow-wrap: break-word;" class="text-xs font-bold text-slate-200 leading-relaxed bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
                     ${currentScenario.title}: ${currentScenario.question}
                 </p>
 
-                <div class="space-y-1.5" id="scenario-options">
+                <div class="space-y-1 w-full" id="scenario-options">
                     ${optionsHtml}
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+                <<!-- HÀNG NÚT ĐIỀU KHIỂN: Chia đều chuẩn tuyệt đối, không bao giờ rớt dòng -->
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%; box-sizing: border-box;" class="pt-2">
                     ${selectedOptionIndex !== null ? `
-                        <button onclick="toggleExpertAdvice()" class="flex-1 py-2.5 px-3 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${
+                        <button onclick="toggleExpertAdvice()" style="width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" class="py-2.5 px-3 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-1.5 shadow-lg cursor-pointer ${
                             isExpertOpen 
                                 ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' 
                                 : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 animate-pulse'
-                        }">
-                            <i class="fa-solid ${isExpertOpen ? 'fa-eye-slash' : 'fa-user-ninja'} text-sm"></i>
-                            <span>${isExpertOpen ? 'ẨN GÓC CHUYÊN GIA' : '🔍 XEM GÓC CHUYÊN GIA'}</span>
+                        }" title="Ẩn/Hiện góc chuyên gia">
+                            <i class="fa-solid ${isExpertOpen ? 'fa-eye-slash' : 'fa-user-ninja'} text-sm shrink-0"></i>
+                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${isExpertOpen ? 'ẨN CHUYÊN GIA' : 'GÓC CHUYÊN GIA'}</span>
                         </button>
                     ` : `
-                        <div class="flex-1 text-center py-2.5 px-3 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-[11px] text-slate-500 font-medium italic">
-                            💡 Chọn 1 đáp án để xem Góc Chuyên Gia & nhận thưởng!
+                        <div style="width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center;" class="text-center py-2 px-2 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-[10px] sm:text-[11px] text-slate-500 font-medium italic">
+                            💡 Chọn đáp án để xem tư vấn!
                         </div>
                     `}
 
-                    <button onclick="nextScenario()" class="py-2.5 px-3.5 rounded-xl font-bold text-xs bg-slate-800 text-cyan-300 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 transition-all flex items-center justify-center gap-1.5 shadow shrink-0" title="Đổi câu hỏi ngẫu nhiên khác">
-                        <i class="fa-solid fa-rotate"></i>
+                    <button onclick="nextScenario()" style="width: auto; box-sizing: border-box; white-space: nowrap;" class="py-2.5 px-3.5 rounded-xl font-bold text-xs bg-slate-800 text-cyan-300 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 transition-all flex items-center justify-center gap-1.5 shadow shrink-0 cursor-pointer" title="Đổi câu hỏi ngẫu nhiên khác">
+                        <i class="fa-solid fa-rotate shrink-0"></i>
                         <span>Đổi câu</span>
                     </button>
                 </div>
             </div>
 
             <!-- CỘT PHẢI: BẢNG GÓC CHUYÊN GIA -->
-            <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl min-h-[250px] sm:min-h-[300px]">
+            <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl min-h-[250px] sm:min-h-[300px] w-full overflow-hidden">
                 <div class="text-xs font-black text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-800/80 pb-2">
                     <i class="fa-solid fa-user-ninja text-sm"></i>
                     <span>GÓC CHUYÊN GIA TƯ VẤN</span>
                 </div>
 
-                <div id="expert-container"></div>
+                <div id="expert-container" class="w-full overflow-hidden"></div>
             </div>
 
         </div>
     `;
     updateExpertContainer();
 }
-
 function updateExpertContainer() {
     const expertDiv = document.getElementById('expert-container');
     if (!expertDiv) return;
@@ -144,20 +150,37 @@ function updateExpertContainer() {
         }
 
         expertDiv.innerHTML = `
-            <div class="mt-2.5 p-3 rounded-xl bg-gradient-to-b ${bgGradient} border ${borderColor} shadow-2xl animate-fadeIn space-y-2 text-xs relative">
-                <button onclick="toggleExpertAdvice()" class="absolute top-2 right-2 w-5 h-5 rounded-full bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-colors shadow-md text-[11px] font-bold" title="Đóng bảng lời khuyên">
+            <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 10px; overflow: hidden;" class="mt-2.5 p-3 rounded-xl bg-gradient-to-b ${bgGradient} border ${borderColor} shadow-2xl animate-fadeIn text-xs relative">
+                <button onclick="toggleExpertAdvice()" style="position: absolute; top: 10px; right: 10px;" class="w-5 h-5 rounded-full bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-colors shadow-md text-[11px] font-bold cursor-pointer" title="Đóng bảng lời khuyên">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                <div class="font-black text-sm ${headerColor} flex items-center gap-2 border-b border-slate-800/80 pb-1.5 pr-6 uppercase tracking-wide">
-                    <i class="fa-solid fa-lightbulb text-base animate-bounce"></i>
-                    <span>${advice.title}</span>
+                
+                <div style="display: flex; align-items: center; gap: 8px; width: 100%; padding-right: 25px; box-sizing: border-box;" class="font-black text-sm ${headerColor} border-b border-slate-800/80 pb-1.5 uppercase tracking-wide">
+                    <i class="fa-solid fa-lightbulb text-base animate-bounce shrink-0"></i>
+                    <span style="word-break: break-word; overflow-wrap: break-word; width: 100%;">${advice.title}</span>
                 </div>
-                <p class="text-slate-100 font-semibold text-sm leading-relaxed italic bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80">
+
+                <div style="width: 100%; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word;" class="text-slate-100 font-semibold text-xs sm:text-sm leading-relaxed italic bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80">
                     "${advice.analysis}"
-                </p>
-                ${advice.law ? `<div class="p-2 rounded-lg bg-rose-950/60 border border-rose-500/50 text-rose-100 text-xs leading-relaxed font-medium">${advice.law}</div>` : ''}
-                ${advice.consequence ? `<div class="text-xs text-orange-200 font-semibold leading-relaxed">${advice.consequence}</div>` : ''}
-                ${advice.kindness ? `<div class="p-2 rounded-lg bg-emerald-950/60 border border-emerald-500/50 text-emerald-100 text-xs leading-relaxed font-bold">${advice.kindness}</div>` : ''}
+                </div>
+
+                ${advice.law ? `
+                    <div style="width: 100%; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word;" class="p-2 rounded-lg bg-rose-950/60 border border-rose-500/50 text-rose-100 text-xs leading-relaxed font-medium">
+                        ${advice.law}
+                    </div>
+                ` : ''}
+
+                ${advice.consequence ? `
+                    <div style="width: 100%; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word;" class="text-xs text-orange-200 font-semibold leading-relaxed p-2 rounded-lg bg-slate-950/40 border border-slate-800">
+                        ${advice.consequence}
+                    </div>
+                ` : ''}
+
+                ${advice.kindness ? `
+                    <div style="width: 100%; box-sizing: border-box; word-break: break-word; overflow-wrap: break-word;" class="p-2 rounded-lg bg-emerald-950/60 border border-emerald-500/50 text-emerald-100 text-xs leading-relaxed font-bold">
+                        ${advice.kindness}
+                    </div>
+                ` : ''}
             </div>
         `;
     } else {
@@ -170,64 +193,85 @@ function selectOption(displayIndex, event) {
 
     selectedOptionIndex = displayIndex;
 
+    const currentOptions = getShuffledOptions(currentScenario);
+    const selectedOpt = currentOptions[displayIndex];
+
+    // Kiểm tra xem đáp án có phải là đáp án đúng/tử tế hay không (dựa vào advice.type hoặc cấu trúc tùy chọn)
+    // Nếu advice.type là 'vi-pham' thì không cộng điểm (hoặc bạn có thể check theo logic đúng sai của câu hỏi)
+    const isCorrect = selectedOpt && selectedOpt.expertAdvice && selectedOpt.expertAdvice.type !== 'vi-pham';
+
+    let pointsToAdd = 0;
+    let notificationText = "";
+
+    if (isCorrect) {
+        pointsToAdd = 1; // Trả lời đúng được cộng 1 điểm
+        notificationText = "+ 1 CCS (Trả lời đúng Thử Thách) 🔥";
+    } else {
+        notificationText = "Đáp án chưa chính xác, không được cộng điểm!";
+    }
+
+    // Hiệu ứng bay chữ thông báo kết quả điểm số
     if (event) {
         const floatEl = document.createElement("div");
-        floatEl.className = "fixed z-[9999] text-emerald-400 font-extrabold text-lg pointer-events-none transition-all duration-700 ease-out animate-pulse";
-        floatEl.innerText = "+ 1 CCS 🔥";
-        floatEl.style.left = `${event.clientX}px`;
-        floatEl.style.top = `${event.clientY - 30}px`;
+        floatEl.className = `fixed z-[9999] font-extrabold text-sm sm:text-base pointer-events-none transition-all duration-700 ease-out animate-pulse bg-slate-950/90 px-3 py-1.5 rounded-xl border shadow-xl ${isCorrect ? 'text-emerald-400 border-emerald-500/40' : 'text-rose-400 border-rose-500/40'}`;
+        floatEl.innerText = notificationText;
+        floatEl.style.left = `${Math.min(event.clientX - 40, window.innerWidth - 220)}px`;
+        floatEl.style.top = `${Math.max(event.clientY - 40, 50)}px`;
         document.body.appendChild(floatEl);
         setTimeout(() => {
-            floatEl.style.transform = "translateY(-60px) scale(1.2)";
+            floatEl.style.transform = "translateY(-50px) scale(1.1)";
             floatEl.style.opacity = "0";
-        }, 50);
-        setTimeout(() => floatEl.remove(), 800);
+        }, 600);
+        setTimeout(() => floatEl.remove(), 1200);
     }
 
-    let storedUser = JSON.parse(localStorage.getItem("cyberUser")) || {};
-    let currentScore = Number(storedUser.score);
-    if (isNaN(currentScore)) {
-        currentScore = 84;
-        for (let i = 0; i < localStorage.length; i++) {
-            let k = localStorage.key(i);
-            if (k.startsWith("cyberScore_") || k === "userScore") {
-                let v = parseInt(localStorage.getItem(k));
-                if (!isNaN(v)) { currentScore = v; break; }
+    // Nếu trả lời đúng thì tiến hành cộng điểm vào tài khoản
+    if (pointsToAdd > 0) {
+        let storedUser = JSON.parse(localStorage.getItem("cyberUser")) || {};
+        let currentScore = Number(storedUser.score);
+        if (isNaN(currentScore)) {
+            currentScore = 84;
+            for (let i = 0; i < localStorage.length; i++) {
+                let k = localStorage.key(i);
+                if (k.startsWith("cyberScore_") || k === "userScore") {
+                    let v = parseInt(localStorage.getItem(k));
+                    if (!isNaN(v)) { currentScore = v; break; }
+                }
             }
         }
-    }
-    
-    let newScore = currentScore + 1;
+        
+        let newScore = currentScore + pointsToAdd;
 
-    storedUser.score = newScore;
-    localStorage.setItem("cyberUser", JSON.stringify(storedUser));
-    if (storedUser.email) {
-        localStorage.setItem("cyberScore_" + storedUser.email, newScore);
-    }
-    localStorage.setItem("userScore", newScore);
-
-    if (typeof addScoreToUserClass === 'function') {
-        try { addScoreToUserClass(1); } catch (e) {}
-    }
-
-    const allElements = document.querySelectorAll('*');
-    allElements.forEach(el => {
-        if (el.children.length === 0 && el.textContent) {
-            let txt = el.textContent.trim();
-            if (/^\d+\s*CCS$/.test(txt) || (txt.endsWith("CCS") && txt.length <= 10)) {
-                el.textContent = newScore + " CCS";
-            }
+        storedUser.score = newScore;
+        localStorage.setItem("cyberUser", JSON.stringify(storedUser));
+        if (storedUser.email) {
+            localStorage.setItem("cyberScore_" + storedUser.email, newScore);
         }
-    });
+        localStorage.setItem("userScore", newScore);
 
-    if (typeof updateHeaderScore === 'function') updateHeaderScore();
-    if (typeof updateUserInterface === 'function') updateUserInterface();
-    if (typeof loadUserData === 'function') loadUserData();
+        if (typeof addScoreToUserClass === 'function') {
+            try { addScoreToUserClass(pointsToAdd); } catch (e) {}
+        }
+
+        // Cập nhật điểm số trên toàn bộ giao diện trang web ngay lập tức
+        const allElements = document.querySelectorAll('*');
+        allElements.forEach(el => {
+            if (el.children.length === 0 && el.textContent) {
+                let txt = el.textContent.trim();
+                if (/^\d+\s*CCS$/.test(txt) || (txt.endsWith("CCS") && txt.length <= 10)) {
+                    el.textContent = newScore + " CCS";
+                }
+            }
+        });
+
+        if (typeof updateHeaderScore === 'function') updateHeaderScore();
+        if (typeof updateUserInterface === 'function') updateUserInterface();
+        if (typeof loadUserData === 'function') loadUserData();
+    }
 
     isExpertOpen = true; 
     renderScenario(); 
 }
-
 function toggleExpertAdvice() {
     isExpertOpen = !isExpertOpen;
     updateExpertContainer();

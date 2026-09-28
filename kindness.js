@@ -253,16 +253,15 @@ window.renderKindnessModule = function(containerId) {
 </select>
                 </div>
 
-                <div class="flex gap-3">
-                    <input type="text" id="kindness-input" placeholder="Nhập lời nhắn gửi ngắn gọn chân thành tới bạn bè..." 
-                        class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-xs text-white px-4 py-3 rounded-2xl outline-none">
-                    
-                    <button id="btn-send-kindness" onclick="handleSendKindnessMessage()" 
-                        class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                        <span>Gửi (+1 CCS)</span>
-                    </button>
-                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+    <textarea id="kindness-input" rows="3" placeholder="Nhập lời nhắn gửi ngắn gọn chân thành tới bạn bè..."
+        class="w-full bg-slate-950/80 border border-slate-800 focus:border-cyan-400 text-xs text-white p-3 rounded-xl resize-none outline-none"></textarea>
+    <button id="btn-send-kindness" onclick="handleSendKindnessMessage()"
+        class="sm:w-auto w-full px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shrink-0 shadow-lg">
+        <i class="fa-solid fa-paper-plane text-xs"></i>
+        <span>Gửi (+1 CCS)</span>
+    </button>
+</div>
 
                 <div id="kindness-status" class="mt-2 text-[11px] hidden"></div>
             </div>
@@ -297,7 +296,6 @@ window.renderKindnessModule = function(containerId) {
                         <i class="fa-solid fa-comments text-cyan-400 text-base"></i>
                         <span>DÒNG THỜI GIAN LỜI CHÚC</span>
                     </h4>
-                    <span class="text-xs text-emerald-400 font-bold">● Đồng bộ Realtime Firebase</span>
                 </div>
 
                 <div class="max-h-[650px] overflow-y-auto space-y-3 pr-2 custom-scroll" id="zalo-feed-container"></div>

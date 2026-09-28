@@ -1307,3 +1307,45 @@ button[onclick*="Ethics"] {
     flex-shrink: 0 !important;
     width: auto !important;
 }
+/* --- LỚP KHIÊN ÉP KHUNG RESPONSIVE TUYỆT ĐỐI CHO MỌI MODULE --- */
+#scenario-container, #expert-container, .grid {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Chống tràn cho toàn bộ văn bản và khung chứa bên trong module Chuyên gia */
+#scenario-container *, #expert-container * {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Đảm bảo khung cha của Chuyên Gia và Thử Thách không bị giãn nở vô lý */
+div:has(> #scenario-container), div:has(> #expert-container) {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+/* --- ÉP BUỘC TẤT CẢ CÁC Ô TRONG GÓC CHUYÊN GIA XẾP DỌC, KHÔNG TRÀN NGANG --- */
+#expert-container *, #expert-container div {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Biến mọi cấu trúc flex hoặc grid ngang bên trong kết quả chuyên gia thành cột dọc */
+#expert-container .flex, 
+#expert-container [class*="grid"],
+#expert-container div[style*="flex"] {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+/* Giới hạn khung phải của chuyên gia luôn nằm gọn trong lưới */
+#expert-container {
+    width: 100% !important;
+    overflow-x: hidden !important;
+}

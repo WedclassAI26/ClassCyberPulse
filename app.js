@@ -409,3 +409,75 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAuthDisplay();
     }
 });
+// ==========================================
+// HÀM RESET TOÀN BỘ HỆ THỐNG (CÓ MẬT KHẨU BẢO MẬT & VÉT SẠCH DỮ LIỆU)
+// ==========================================
+window.resetAllPagesAndSystem = async function() {
+    // 1. Yêu cầu nhập mật khẩu bảo mật Admin
+    const adminPass = prompt("🔒 Vui lòng nhập mật khẩu Admin để reset hệ thống:");
+    
+    // Bạn có thể đổi mật khẩu tại đây nếu muốn:
+    const SECRET_PASSWORD = "admin020406"; 
+
+    if (adminPass !== SECRET_PASSWORD) {
+        alert("❌ Sai mật khẩu! Bạn không có quyền reset hệ thống.");
+        return;
+    }
+
+    // 2. Xác nhận lại lần cuối trước khi xóa
+    if (!confirm("⚠️ XÁC NHẬN LẦN CUỐI:\nThao tác này sẽ xóa sạch toàn bộ dữ liệu trên tất cả các module, Firebase và trình duyệt. Bạn có chắc chắn muốn tiếp tục không?")) {
+        return;
+    }
+
+    try {
+        console.log("Đang tiến hành dọn dẹp dữ liệu trên Firebase...");
+        
+        // Danh sách các collection trên Firestore cần xóa sạch (bao gồm cả "tin nhắn tử tế")
+        const collectionsToClear = [
+            "ethics_logs", 
+            "tin nhắn tử tế", 
+            "kindness",
+            "kindness_logs", 
+            "wall_posts", 
+            "mood_logs", 
+            "checkin_logs", 
+            "users",
+            "class_scores",
+            "leaderboard",
+            "expert_logs"
+        ];
+
+        if (window.db) {
+            for (let colName of collectionsToClear) {
+                try {
+                    const snapshot = await window.db.collection(colName).get();
+                    if (!snapshot.empty) {
+                        const batch = window.db.batch();
+                        snapshot.forEach((doc) => {
+                            batch.delete(doc.ref);
+                        });
+                        await batch.commit();
+                        console.log(`Đã xóa sạch collection: ${colName}`);
+                    }
+                } catch (e) {
+                    console.warn(`Bỏ qua collection ${colName} hoặc chưa tồn tại.`);
+                }
+            }
+        }
+
+        // 3. Xóa toàn bộ LocalStorage, SessionStorage và Cookie trên trình duyệt
+        localStorage.clear();
+        sessionStorage.clear();
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+
+        console.log("Đã xóa sạch bộ nhớ trình duyệt thành công!");
+
+        alert("🎉 ĐÃ RESET TOÀN BỘ HỆ THỐNG THÀNH CÔNG!\nTrang web đã hoàn toàn sạch sẽ, sẵn sàng cho bạn đem đi thi.");
+        location.reload(); // Tải lại trang ở trạng thái ban đầu
+    } catch (error) {
+        console.error("Lỗi khi reset hệ thống:", error);
+        alert("Có lỗi xảy ra khi kết nối Firebase. Vui lòng kiểm tra lại mạng!");
+    }
+};
