@@ -19,7 +19,7 @@ body {
 }
 
 /* --- KHUNG THẺ KÍNH MỜ (GLASSMORPHISM) & VIỀN NEON --- */
-.card, .chat-container, header {
+.card, header {
     background: var(--bg-card);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(0, 240, 255, 0.25);
@@ -1348,4 +1348,23 @@ div:has(> #scenario-container), div:has(> #expert-container) {
 #expert-container {
     width: 100% !important;
     overflow-x: hidden !important;
+}
+/* Thiết lập cho màn hình máy tính (lớn hơn 768px): Khung chat rộng 450px */
+@media (min-width: 768px) {
+    #ai-chat-box {
+        width: 450px !important;
+        max-width: none !important;
+        right: 20px !important; /* Cách lề phải một chút cho đẹp */
+    }
+}
+
+/* Thiết lập cho điện thoại (nhỏ hơn 768px): Khung chat tự động co giãn, tràn viền */
+@media (max-width: 767px) {
+    #ai-chat-box {
+        width: auto !important;
+        max-width: 90vw !important; /* Chiếm 90% chiều rộng màn hình đt */
+        left: 5vw !important;      /* Căn giữa */
+        right: 5vw !important;     
+        bottom: 80px !important;   /* Đẩy lên cao một chút tránh nút gửi */
+    }
 }

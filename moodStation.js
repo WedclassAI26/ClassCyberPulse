@@ -771,17 +771,23 @@ function getRandomQuote(moodKey) {
 
 
 const MOOD_DATA = {
-
-    happy: { label: "🔥 Full Pin", btnClass: "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300" },
-
-    chill: { label: "🌿 Thư Thái", btnClass: "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/40 text-emerald-300" },
-
-    stressed: { label: "☕ Hơi Áp Lực", btnClass: "bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/40 text-rose-300" },
-
-    tired: { label: "😴 Cần Nạp Pin", btnClass: "bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/40 text-indigo-300" }
-
+    happy: { 
+        label: "🔥 Full Pin", 
+        btnClass: "flex-1 py-1.5 px-1.5 sm:px-3 rounded-lg border text-[10.5px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer text-center whitespace-nowrap bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-sm" 
+    },
+    chill: { 
+        label: "🌿 Thư Thái", 
+        btnClass: "flex-1 py-1.5 px-1.5 sm:px-3 rounded-lg border text-[10.5px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer text-center whitespace-nowrap bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/40 text-emerald-300 shadow-sm" 
+    },
+    stressed: { 
+        label: "☕ Hơi Áp Lực", 
+        btnClass: "flex-1 py-1.5 px-1.5 sm:px-3 rounded-lg border text-[10.5px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer text-center whitespace-nowrap bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/40 text-rose-300 shadow-sm" 
+    },
+    tired: { 
+        label: "😴 Cần Nạp Pin", 
+        btnClass: "flex-1 py-1.5 px-1.5 sm:px-3 rounded-lg border text-[10.5px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer text-center whitespace-nowrap bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/40 text-indigo-300 shadow-sm" 
+    }
 };
-
 
 
 let currentMood = 'happy';
@@ -807,10 +813,20 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
 
 
     container.innerHTML = `
-        <section class="mb-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+        <section class="mood-premium mb-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+            <!-- Premium desktop hero: purely decorative, hidden on mobile -->
+            <div class="mood-premium-hero" aria-label="Trạm sạc cảm xúc">
+                <div class="mood-premium-hero-copy">
+                    <div class="mood-premium-overline"><i class="fa-solid fa-battery-three-quarters"></i> KHÔNG GIAN NĂNG LƯỢNG</div>
+                    <h2>TRẠM SẠC CẢM XÚC</h2>
+                    <p>Dừng lại một chút, lắng nghe cảm xúc của chính mình.<br>Sạc năng lượng tích cực để học tập và sống tốt hơn mỗi ngày.</p>
+                </div>
+            </div>
+            <div class="mood-premium-label">Hôm nay bạn đang cảm thấy thế nào?</div>
+
            <div class="space-y-3">
                 <!-- Tiêu đề Trạm Sạc -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="mood-premium-options flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div class="inline-flex items-center gap-2.5 bg-slate-900/90 border border-emerald-500/30 px-4 py-2.5 rounded-2xl shadow-lg">
                         <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
                         <span class="text-xs sm:text-sm font-black text-emerald-400 tracking-wider uppercase cyber-header-glow">
@@ -848,7 +864,7 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
             </div>
 
             <!-- Khu vực Mini-Game và Bảng điều khiển Âm nhạc -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+            <div class="mood-premium-activities grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
                 <!-- Nút mở Mini-Game -->
                 <div class="lg:col-span-4 bg-slate-950/80 border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -864,41 +880,40 @@ window.renderMoodStation = function(containerId = 'mood-station-container') {
 
                 <!-- 3 Ô ÂM NHẠC & THANH ĐIỀU KHIỂN (Responsive hoàn toàn) -->
                 <div class="lg:col-span-8 bg-slate-950/80 border border-slate-800/80 p-3 rounded-2xl flex flex-col gap-2.5">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <!-- Ô 1: Nhạc Sôi Động -->
-                        <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-xl min-w-0">
-                            <button onclick="togglePlayPause('energetic')" class="w-7 h-7 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
-                                <i class="fa-solid fa-play"></i>
-                            </button>
-                            <div class="overflow-hidden min-w-0 flex-1">
-                                <div class="text-[11px] font-bold text-amber-300 truncate">🔥 Sôi Động</div>
-                                <div id="energetic-status" class="text-[9px] text-slate-400 truncate">Bấm nghe</div>
-                            </div>
-                        </div>
+                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Ô 1: Nhạc Sôi Động -->
+        <div onclick="togglePlayPause('energetic')" class="group flex items-center gap-3 bg-slate-900/80 border border-amber-500/30 hover:border-amber-500 p-3 rounded-2xl cursor-pointer transition-all duration-300">
+            <div class="w-10 h-10 min-w-[40px] rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-play text-sm"></i>
+            </div>
+            <div class="overflow-hidden min-w-0 flex-1">
+                <div class="text-[13px] font-bold text-amber-300 truncate">🔥 Sôi Động</div>
+                <div id="energetic-status" class="text-[11px] text-slate-400 truncate">Bấm nghe</div>
+            </div>
+        </div>
 
-                        <!-- Ô 2: Nhạc Nhẹ Nhàng -->
-                        <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1.5 rounded-xl min-w-0">
-                            <button onclick="togglePlayPause('gentle')" class="w-7 h-7 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
-                                <i class="fa-solid fa-play"></i>
-                            </button>
-                            <div class="overflow-hidden min-w-0 flex-1">
-                                <div class="text-[11px] font-bold text-emerald-300 truncate">🌿 Nhẹ Nhàng</div>
-                                <div id="gentle-status" class="text-[9px] text-slate-400 truncate">Bấm nghe</div>
-                            </div>
-                        </div>
+        <!-- Ô 2: Nhạc Nhẹ Nhàng -->
+        <div onclick="togglePlayPause('gentle')" class="group flex items-center gap-3 bg-slate-900/80 border border-emerald-500/30 hover:border-emerald-500 p-3 rounded-2xl cursor-pointer transition-all duration-300">
+            <div class="w-10 h-10 min-w-[40px] rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-play text-sm"></i>
+            </div>
+            <div class="overflow-hidden min-w-0 flex-1">
+                <div class="text-[13px] font-bold text-emerald-300 truncate">🌿 Nhẹ Nhàng</div>
+                <div id="gentle-status" class="text-[11px] text-slate-400 truncate">Bấm nghe</div>
+            </div>
+        </div>
 
-                        <!-- Ô 3: Âm Thanh Xanh -->
-                        <div class="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1.5 rounded-xl min-w-0">
-                            <button onclick="toggleRainSound()" id="rain-btn" class="w-7 h-7 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl flex items-center justify-center text-xs transition cursor-pointer font-black shrink-0">
-                                <i class="fa-solid fa-cloud-rain"></i>
-                            </button>
-                            <div class="overflow-hidden min-w-0 flex-1">
-                                <div class="text-[11px] font-bold text-cyan-300 truncate">🍃 Âm Thanh Xanh</div>
-                                <div id="rain-status" class="text-[9px] text-slate-400 truncate">Thiên nhiên</div>
-                            </div>
-                        </div>
-                    </div>
-
+        <!-- Ô 3: Âm Thanh Xanh -->
+        <div onclick="togglePlayPause('ambient')" class="group flex items-center gap-3 bg-slate-900/80 border border-cyan-500/30 hover:border-cyan-500 p-3 rounded-2xl cursor-pointer transition-all duration-300">
+            <div class="w-10 h-10 min-w-[40px] rounded-xl bg-cyan-500 text-slate-950 flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-play text-sm"></i>
+            </div>
+            <div class="overflow-hidden min-w-0 flex-1">
+                <div class="text-[13px] font-bold text-cyan-300 truncate">🔊 Âm Thanh Xanh</div>
+                <div id="ambient-status" class="text-[11px] text-slate-400 truncate">Bấm nghe</div>
+            </div>
+        </div>
+    </div>
                     <!-- Thanh điều hướng nhạc phụ: Prev, Stop, Next -->
                     <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800/80">
                         <button onclick="prevMoodMusic()" class="px-2.5 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[10px] font-semibold rounded-xl transition cursor-pointer">
@@ -1459,241 +1474,132 @@ window.end2248Connect = function() {
 
 
 // ==========================================
-
 // GAME 2: 🌿 Ô THƯ THÁI -> GAME HÌNH VÀ BÓNG
-
 // ==========================================
 
 let currentAngle = 0;
-
 let isMovingRight = true;
-
 let targetAngle = 0;
-
-const ITEM_ICONS = ['🚀', '🔥', '⭐', '⚡', '🎯', '👑'];
-
+const ITEM_ICONS = ['🚀', '🔥', '⭐', '⚡', '🎯', '👑', '💎', '🍀', '💡', '🌈'];
 let currentIcon = '🚀';
 
-
-
 function playShadowMatchGame() {
-
     const modal = document.getElementById('mood-custom-modal');
-
     const body = document.getElementById('mood-modal-body');
-
     if (!modal || !body) return;
 
-
-
     gameScore = 0;
-
     gameLevel = 1;
-
     currentAngle = -60;
-
     targetAngle = 0;
-
     currentIcon = ITEM_ICONS[Math.floor(Math.random() * ITEM_ICONS.length)];
 
-
-
     body.innerHTML = `
-
-        <div class="space-y-4">
-
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-
-                <span class="text-xs sm:text-sm font-black text-emerald-400">🌿 THƯ THÁI: GAME HÌNH VÀ BÓNG</span>
-
-                <span class="text-xs sm:text-sm font-bold text-cyan-400">LEVEL: <b id="sm-lvl">1</b></span>
-
-                <span class="text-xs sm:text-sm font-bold text-emerald-400">ĐIỂM: <b id="sm-score">0</b></span>
-
+        <div class="flex justify-between items-center mb-2 px-1 text-emerald-400 font-bold text-xs sm:text-sm">
+            <span>🌿 HÌNH VÀ BÓNG</span>
+            <div class="flex gap-3">
+                <span>LEVEL: <b id="sm-lvl" class="text-amber-400">1</b></span>
+                <span>ĐIỂM: <b id="sm-score" class="text-emerald-300">0</b></span>
             </div>
-
-
-
-            <p class="text-xs text-slate-300">Canh thời điểm hình xoay trùng khớp hoàn toàn lên BÓNG ĐEN rồi bấm DỪNG!</p>
-
-
-
-            <div class="relative w-full h-[380px] bg-slate-950 rounded-3xl border-2 border-emerald-500/50 overflow-hidden flex items-center justify-center select-none shadow-inner">
-
-                <div class="absolute text-8xl opacity-20 filter grayscale contrast-200" style="transform: rotate(0deg);">
-
-                    ${currentIcon}
-
-                </div>
-
-                <div id="moving-shape" class="absolute text-8xl filter drop-shadow-[0_0_20px_rgba(52,211,153,0.9)] transition-none">
-
-                    ${currentIcon}
-
-                </div>
-
-                <div id="match-feedback" class="absolute top-6 text-sm font-black uppercase tracking-widest hidden"></div>
-
-            </div>
-
-
-
-            <button onclick="stopShadowMatch()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 font-black text-slate-950 rounded-2xl text-xs sm:text-sm shadow-lg transition transform active:scale-95 cursor-pointer">
-
-                🎯 DỪNG NGAY KHỚP BÓNG
-
-            </button>
-
         </div>
 
+        <div class="relative w-full h-[320px] bg-slate-950 rounded-2xl border-2 border-emerald-500/50 overflow-hidden flex items-center justify-center mb-3">
+            <div id="bg-shadow-icon" class="absolute text-[11rem] opacity-20 filter grayscale contrast-200 pointer-events-none transition-all duration-300" style="transform: rotate(0deg);">
+                ${currentIcon}
+            </div>
+            
+            <div id="moving-shape" class="absolute text-[11rem] filter drop-shadow-[0_0_20px_rgba(52,211,153,0.9)] transition-all duration-300" style="transform: rotate(0deg);">
+                ${currentIcon}
+            </div>
+
+            <div id="match-feedback" class="absolute top-4 text-xs font-black uppercase tracking-widest hidden z-10"></div>
+        </div>
+        
+        <button onclick="stopShadowMatch()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black uppercase tracking-wider rounded-xl shadow-lg hover:opacity-90 transition cursor-pointer text-sm">
+            🎯 DỪNG NGAY KHỚP BÓNG
+        </button>
     `;
 
-
-
     modal.classList.remove('hidden');
-
+    clearTimeout(gameTimer);
     startShadowMatchLoop();
-
 }
-
-
 
 function startShadowMatchLoop() {
-
     clearTimeout(gameTimer);
-
-
 
     const shape = document.getElementById('moving-shape');
-
     if (!shape) return;
 
-
-
-    const speed = 2.5 + gameLevel * 1.5;
-
-
+    // Tốc độ tăng dần theo cấp độ (gameLevel)
+    const speed = (2.0 + gameLevel * 1.2);
 
     if (isMovingRight) {
-
         currentAngle += speed;
-
-        if (currentAngle >= 70) isMovingRight = false;
-
+        if (currentAngle >= 75) isMovingRight = false;
     } else {
-
         currentAngle -= speed;
-
-        if (currentAngle <= -70) isMovingRight = true;
-
+        if (currentAngle <= -75) isMovingRight = true;
     }
 
-
-
     shape.style.transform = `rotate(${currentAngle}deg)`;
-
-    gameTimer = setTimeout(startShadowMatchLoop, 20);
-
+    
+    // Tốc độ vòng lặp nhanh hơn ở các level cao
+    const intervalTime = Math.max(12, 25 - gameLevel * 2);
+    gameTimer = setTimeout(startShadowMatchLoop, intervalTime);
 }
 
-
-
 window.stopShadowMatch = function() {
-
     clearTimeout(gameTimer);
 
-
-
     const feedback = document.getElementById('match-feedback');
-
     if (!feedback) return;
-
-
 
     const diff = Math.abs(currentAngle - targetAngle);
 
-
-
-    if (diff <= 8) {
-
-        gameScore += 20;
-
-        feedback.innerText = "✨ HOÀN HẢO! +20 ĐIỂM";
-
-        feedback.className = "absolute top-6 text-sm font-black uppercase tracking-widest text-emerald-400 animate-bounce";
-
-    } else if (diff <= 20) {
-
+    if (diff <= 10) {
+        gameScore += 20 * gameLevel;
+        feedback.innerText = `✨ HOÀN HẢO! +${20 * gameLevel} ĐIỂM`;
+        feedback.className = "absolute top-6 text-sm font-black uppercase tracking-widest text-emerald-400 animate-bounce z-10";
+    } else if (diff <= 25) {
         gameScore += 10;
-
         feedback.innerText = "👍 KHÁ TỐT! +10 ĐIỂM";
-
-        feedback.className = "absolute top-6 text-sm font-black uppercase tracking-widest text-amber-400";
-
+        feedback.className = "absolute top-6 text-sm font-black uppercase tracking-widest text-amber-400 z-10";
     } else {
-
         feedback.innerText = "❌ LỆCH BÓNG RỒI!";
-
-        feedback.className = "absolute top-6 text-sm font-black uppercase tracking-widest text-rose-500";
-
+        feedback.className = "absolute top-6 text-sm font-black uppercase tracking-widest text-rose-500 z-10";
     }
-
-
 
     feedback.classList.remove('hidden');
 
-
-
-    if (gameScore >= gameLevel * 30) {
-
+    // Cứ mỗi 40 điểm sẽ lên 1 cấp độ, tăng độ khó
+    if (gameScore >= gameLevel * 40) {
         gameLevel++;
-
     }
 
-
-
     const scoreElem = document.getElementById('sm-score');
-
     const lvlElem = document.getElementById('sm-lvl');
-
     if (scoreElem) scoreElem.innerText = gameScore;
-
     if (lvlElem) lvlElem.innerText = gameLevel;
 
-
-
     setTimeout(() => {
-
         if (document.getElementById('moving-shape')) {
-
             feedback.classList.add('hidden');
-
+            
+            // Thay đổi icon ngẫu nhiên liên tục cho mỗi lượt chơi mới
             currentIcon = ITEM_ICONS[Math.floor(Math.random() * ITEM_ICONS.length)];
-
             const modalBody = document.getElementById('mood-modal-body');
-
             if (modalBody) {
-
-                const shapes = modalBody.querySelectorAll('.text-8xl');
-
+                const shapes = modalBody.querySelectorAll('#moving-shape, #bg-shadow-icon');
                 shapes.forEach(s => s.innerText = currentIcon);
-
             }
-
+            
             currentAngle = -60;
-
             isMovingRight = true;
-
             startShadowMatchLoop();
-
         }
-
-    }, 1000);
-
+    }, 900);
 };
-
-
-
 // ==========================================
 
 // GAME 3: ☕ Ô HƠI ÁP LỰC -> PHẢN XẠ HẠT NĂNG LƯỢNG

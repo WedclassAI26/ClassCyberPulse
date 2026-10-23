@@ -1,0 +1,322 @@
+/* ClassCyberPulse Premium V3 — desktop only, replace prior premium CSS.
+   Keeps all JS IDs, click handlers, and all <=1023px styles unchanged. */
+@media screen and (min-width:1024px) {
+  #mood-station-container .mood-premium {
+    background:linear-gradient(156deg,#111b36,#0b142a 68%,#0b1428)!important;
+    border:1px solid rgba(98,119,204,.2)!important;
+    border-radius:29px!important;
+    box-shadow:0 22px 60px rgba(0,0,0,.25)!important;
+    padding:25px!important;
+  }
+  #mood-station-container .mood-premium-hero {
+    display:flex;align-items:center;min-height:190px;margin-bottom:23px;
+    padding:25px 35px;border-radius:24px;overflow:hidden;
+    background:linear-gradient(90deg,#16284b 0%,rgba(20,32,70,.93) 32%,rgba(12,20,54,.05) 73%),url('../assets/mood-hero-space.webp') right center / auto 100% no-repeat;
+    border:1px solid rgba(111,136,224,.22);
+  }
+  #mood-station-container .mood-premium-hero-copy{position:relative;z-index:1;max-width:57%}
+  #mood-station-container .mood-premium-overline{color:#9eb2ff;font-size:11px;font-weight:750;letter-spacing:.12em;margin-bottom:11px}
+  #mood-station-container .mood-premium-overline i{color:#58debe;margin-right:6px}
+  #mood-station-container .mood-premium-hero h2{font-size:30px;font-weight:850;line-height:1.25;color:#fff;letter-spacing:-.035em;margin-bottom:8px}
+  #mood-station-container .mood-premium-hero p{color:#bdc9e8;font-size:14px;line-height:1.7}
+  #mood-station-container .mood-premium-label{display:block;font-size:21px;font-weight:800;color:#f8faff;padding:0 6px 12px;letter-spacing:-.025em}
+  #mood-station-container .mood-premium-options{background:rgba(28,41,78,.7);border:1px solid rgba(121,146,216,.19);border-radius:19px;padding:14px 20px;gap:12px}
+  #mood-station-container .mood-premium-options>div:first-child{display:none}
+  #mood-station-container .mood-premium-options>div:last-child{justify-content:center;width:100%;gap:13px}
+  #mood-station-container .mood-premium-options button{min-height:43px;padding:10px 20px!important;border-radius:26px!important;font-size:13px!important;box-shadow:none!important;transition:transform .2s ease}
+  #mood-station-container .mood-premium-options button:hover{transform:translateY(-2px)}
+  #mood-station-container #mood-talk-box{background:rgba(22,33,64,.82)!important;border:1px solid rgba(115,139,202,.18)!important;border-radius:20px!important;padding:18px 22px!important;margin:15px 0 25px!important;box-shadow:none!important}
+  #mood-station-container #talk-avatar{width:56px;height:56px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#8066ff,#5746e8);flex-shrink:0}
+  #mood-station-container #talk-title{font-size:15px!important;line-height:1.5!important;color:#e7edff!important;letter-spacing:0}
+  #mood-station-container #welcome-prompt h2{font-size:16px!important;letter-spacing:0;text-transform:none}
+  /* Activity row: a compact game card and three illustrated tracks */
+  #mood-station-container .mood-premium-activities{gap:17px!important;align-items:stretch!important}
+  #mood-station-container .mood-premium-activities>div{
+    border-radius:23px!important;border:1px solid rgba(135,153,229,.18)!important;
+    padding:20px!important;box-shadow:0 10px 26px rgba(0,0,0,.14)!important;
+  }
+  #mood-station-container .mood-premium-activities>div:first-child{
+    display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;
+    position:relative;min-height:230px;overflow:hidden;
+    background:radial-gradient(circle at 95% 90%,rgba(108,79,240,.45),transparent 56%),linear-gradient(140deg,#25316d,#141d3b)!important;
+  }
+  #mood-station-container .mood-premium-activities>div:first-child::after{
+    content:'\f11b';font-family:'Font Awesome 6 Free';font-weight:900;
+    position:absolute;right:22px;bottom:45px;font-size:110px;line-height:1;color:#a9acff;
+    transform:rotate(-16deg);text-shadow:0 14px 20px rgba(2,8,35,.42);
+    pointer-events:none;opacity:.85;
+  }
+  #mood-station-container #mini-game-name{font-size:21px!important;line-height:1.3!important;white-space:normal!important;color:#f7f8ff!important;-webkit-text-fill-color:#f7f8ff;position:relative;z-index:2}
+  #mood-station-container .mood-premium-activities button[onclick="launchCurrentMoodGame()"]{
+    position:relative;z-index:2;background:linear-gradient(100deg,#7360ff,#5a47ed)!important;color:#fff!important;
+    border-radius:28px!important;padding:12px 19px!important;font-size:13px!important;
+    box-shadow:0 8px 20px rgba(95,80,240,.25)!important;
+  }
+  #mood-station-container .mood-premium-activities>div:nth-child(2){
+    background:linear-gradient(160deg,#172449,#101a34)!important;min-height:230px;justify-content:space-between;
+  }
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid{gap:13px!important}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div{
+    min-height:182px!important;position:relative;overflow:hidden;isolation:isolate;
+    flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;
+    padding:13px!important;gap:8px!important;border-radius:16px!important;
+    border:1px solid rgba(191,205,255,.16)!important;
+    transition:transform .22s ease, border-color .22s ease;
+  }
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div:nth-child(1){background:linear-gradient(180deg,transparent 12%,rgba(24,18,45,.9) 95%),url('../assets/music-energetic.svg') center top / cover no-repeat!important}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div:nth-child(2){background:linear-gradient(180deg,transparent 12%,rgba(8,42,50,.91) 95%),url('../assets/music-gentle.svg') center top / cover no-repeat!important}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div:nth-child(3){background:linear-gradient(180deg,transparent 12%,rgba(7,27,59,.94) 95%),url('../assets/music-nature.svg') center top / cover no-repeat!important}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div:hover{transform:translateY(-3px);border-color:rgba(199,209,255,.48)!important}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div>div:first-child{width:43px!important;height:43px!important;min-width:43px!important;border-radius:50%!important;box-shadow:0 7px 20px rgba(0,0,0,.22)}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div>div:nth-child(2){position:relative;z-index:2;overflow:visible}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div>div:nth-child(2)>div:first-child{color:#fff!important;font-size:14px!important;text-shadow:0 2px 8px rgba(0,0,0,.55)}
+  #mood-station-container .mood-premium-activities>div:nth-child(2)>.grid>div>div:nth-child(2)>div:last-child{color:#d5def5!important}
+}
+/* Hide premium-only decorative banner on tablet/mobile. Existing mobile rules untouched. */
+@media screen and (max-width:1023px){
+  #mood-station-container .mood-premium-hero,
+  #mood-station-container .mood-premium-label{display:none!important}
+}
+
+
+/* Premium V4 refinements — desktop only. All mobile layouts remain on original CSS. */
+@media screen and (min-width: 1024px) {
+  /* Calm down the long dynamic message without hiding any of its content. */
+  #mood-station-container #mood-talk-box {
+    gap: 16px !important;
+    padding: 19px 22px !important;
+  }
+  #mood-station-container #talk-title {
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    line-height: 1.45 !important;
+    text-shadow: none !important;
+  }
+  #mood-station-container #mood-talk-box p,
+  #mood-station-container #mood-talk-text {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    overflow-wrap: anywhere;
+  }
+
+  /* Mini-game: contextual supporting copy in the otherwise empty space. */
+  #mood-station-container .mood-premium-activities > div:first-child {
+    min-height: 258px;
+  }
+  #mood-station-container .mood-premium-activities > div:first-child::before {
+    content: 'Thử thách vui mỗi ngày\A Giải trí nhẹ nhàng, nạp thêm năng lượng.';
+    white-space: pre-line;
+    position: absolute;
+    top: 93px;
+    left: 21px;
+    max-width: 51%;
+    color: #bdc8ea;
+    font-size: 13px;
+    line-height: 1.65;
+    pointer-events: none;
+  }
+  #mood-station-container .mood-premium-activities > div:first-child::after {
+    right: 16px;
+    bottom: 28px;
+    font-size: 122px;
+    opacity: .72;
+  }
+
+  /* Music: consistent landscape art with a semi-transparent lower info strip. */
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div {
+    min-height: 204px !important;
+    padding: 12px 14px 15px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    gap: 7px !important;
+    position: relative;
+    isolation: isolate;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 104px;
+    background: linear-gradient(0deg, rgba(7, 13, 33, .93), rgba(7, 13, 33, .59) 68%, transparent);
+    pointer-events: none;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div {
+    z-index: 1;
+    position: relative;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:first-child {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:nth-child(2) {
+    width: 100%;
+    min-width: 0;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:nth-child(2) > div:first-child {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:nth-child(2) > div:last-child {
+    font-size: 11px !important;
+    color: #bfcbee !important;
+  }
+}
+
+
+
+/* =============================================================
+   PREMIUM V4 MOBILE — phone-only visual upgrade
+   Keeps legacy top header, bottom navigation, chatbot and actions.
+   NOTE: Revert by restoring the backed-up premium CSS file.
+   ============================================================= */
+@media screen and (max-width: 767px) {
+  #mood-station-container { min-width:0!important; }
+  #mood-station-container .mood-premium {
+    padding:12px!important; margin-bottom:18px!important;
+    border-radius:23px!important;
+    border:1px solid rgba(124,145,227,.25)!important;
+    background:linear-gradient(160deg,#101a35 0%,#0b1428 100%)!important;
+    box-shadow:0 12px 28px rgba(0,0,0,.22)!important;
+    overflow:hidden;
+  }
+  /* Show a compact version of the space-themed hero on phones. */
+  #mood-station-container .mood-premium-hero {
+    display:flex!important;align-items:flex-start!important;
+    min-height:148px!important;margin:0 0 13px!important;
+    padding:17px 15px!important;border-radius:18px!important;
+    background:linear-gradient(90deg,rgba(17,32,68,.99),rgba(17,32,68,.78) 65%,rgba(17,32,68,.24)),url('../assets/mood-hero-space.webp') right center / auto 100% no-repeat!important;
+    border:1px solid rgba(125,149,237,.2)!important;
+  }
+  #mood-station-container .mood-premium-hero-copy {max-width:77%!important;position:relative;z-index:1;}
+  #mood-station-container .mood-premium-overline {font-size:9px!important;letter-spacing:.07em!important;color:#a6b9ff!important;margin-bottom:7px!important;}
+  #mood-station-container .mood-premium-hero h2 {font-size:20px!important;line-height:1.22!important;color:#fff!important;font-weight:850!important;margin-bottom:7px!important;letter-spacing:-.025em!important;}
+  #mood-station-container .mood-premium-hero p {font-size:10px!important;line-height:1.48!important;color:#d5ddfa!important;}
+  #mood-station-container .mood-premium-label {display:block!important;font-size:15px!important;line-height:1.4!important;color:#f8faff!important;font-weight:800!important;margin:0 2px 10px!important;}
+  #mood-station-container .mood-premium-options {
+    background:rgba(28,41,78,.72)!important;border:1px solid rgba(121,146,216,.22)!important;
+    border-radius:17px!important;padding:12px!important;gap:10px!important;
+  }
+  #mood-station-container .mood-premium-options > div:first-child {display:none!important;}
+  #mood-station-container .mood-premium-options > div:last-child {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;}
+  #mood-station-container .mood-premium-options button {
+    width:100%!important;min-width:0!important;min-height:42px!important;
+    padding:9px 5px!important;border-radius:12px!important;
+    font-size:10px!important;line-height:1.25!important;
+    white-space:normal!important;box-shadow:none!important;
+  }
+  #mood-station-container #mood-talk-box {
+    margin:12px 0 15px!important;padding:13px!important;border-radius:17px!important;
+    background:#17213e!important;border:1px solid rgba(115,139,202,.22)!important;
+    box-shadow:none!important;
+  }
+  #mood-station-container #talk-title {font-size:12px!important;line-height:1.45!important;letter-spacing:0!important;text-shadow:none!important;}
+  #mood-station-container #mood-talk-box p {font-size:11px!important;line-height:1.58!important;}
+  /* Keep one-column mobile layout, replace empty flat cards with art. */
+  #mood-station-container .mood-premium-activities {display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:11px!important;align-items:stretch!important;}
+  #mood-station-container .mood-premium-activities > div:first-child {
+    min-height:173px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+    justify-content:space-between!important;padding:15px!important;border-radius:18px!important;
+    border:1px solid rgba(147,151,253,.25)!important;
+    background:radial-gradient(circle at 91% 100%,rgba(110,80,241,.55),transparent 53%),linear-gradient(125deg,#25346e,#18213f)!important;
+    position:relative!important;overflow:hidden!important;
+  }
+  #mood-station-container .mood-premium-activities > div:first-child::before {
+    content:'Thử thách vui mỗi ngày · Nạp thêm năng lượng';
+    display:block;position:absolute;left:15px;top:62px;max-width:62%;
+    font-size:10px;color:#c6d1f5;line-height:1.55;pointer-events:none;
+  }
+  #mood-station-container .mood-premium-activities > div:first-child::after {
+    content:'\f11b';font-family:'Font Awesome 6 Free';font-weight:900;
+    position:absolute;right:17px;bottom:36px;font-size:77px;line-height:1;color:#b6b4ff;
+    opacity:.86;transform:rotate(-16deg);pointer-events:none;
+  }
+  #mood-station-container #mini-game-name {font-size:16px!important;color:#fff!important;-webkit-text-fill-color:#fff!important;white-space:normal!important;position:relative;z-index:1;}
+  #mood-station-container .mood-premium-activities button[onclick="launchCurrentMoodGame()"] {
+    position:relative;z-index:2;border-radius:20px!important;padding:9px 15px!important;
+    background:linear-gradient(100deg,#7766ff,#5b4be9)!important;color:#fff!important;
+    box-shadow:0 7px 18px rgba(36,32,125,.22)!important;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) {
+    width:100%!important;max-width:100%!important;padding:11px!important;border-radius:18px!important;
+    background:linear-gradient(155deg,#19274a,#111b34)!important;
+    border:1px solid rgba(129,150,225,.2)!important;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid {display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important;}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div {
+    position:relative!important;isolation:isolate!important;overflow:hidden!important;
+    min-height:103px!important;padding:12px!important;border-radius:15px!important;
+    display:flex!important;flex-direction:row!important;align-items:flex-end!important;
+    justify-content:flex-start!important;gap:12px!important;
+    border:1px solid rgba(180,193,255,.19)!important;
+  }
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:nth-child(1) {background:linear-gradient(90deg,rgba(14,14,37,.82),rgba(14,14,37,.14)),url('../assets/music-energetic.svg') center / cover no-repeat!important;}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:nth-child(2) {background:linear-gradient(90deg,rgba(8,38,49,.78),rgba(8,38,49,.12)),url('../assets/music-gentle.svg') center / cover no-repeat!important;}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:nth-child(3) {background:linear-gradient(90deg,rgba(8,26,57,.8),rgba(8,26,57,.14)),url('../assets/music-nature.svg') center / cover no-repeat!important;}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div {position:relative;z-index:1;min-width:0;}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:first-child {width:39px!important;height:39px!important;min-width:39px!important;border-radius:50%!important;flex-shrink:0!important;}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:nth-child(2) > div:first-child {color:#fff!important;font-size:13px!important;text-shadow:0 2px 6px rgba(0,0,0,.7);}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:nth-child(2) > div:last-child {font-size:10px!important;color:#dee7fc!important;text-shadow:0 2px 6px rgba(0,0,0,.7);}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > div:last-child {display:flex!important;flex-wrap:wrap!important;justify-content:flex-end!important;gap:7px!important;}
+  /* Do not target nav.sticky, .mobile-bottom-nav or #ai-chat-widget. */
+}
+@media screen and (min-width:768px) and (max-width:1023px) {
+  #mood-station-container .mood-premium-hero {display:flex!important;min-height:165px;padding:22px;border-radius:20px;background:linear-gradient(90deg,#17284b,rgba(13,22,55,.38)),url('../assets/mood-hero-space.webp') right center / auto 100% no-repeat!important;}
+  #mood-station-container .mood-premium-hero-copy {max-width:60%;}
+  #mood-station-container .mood-premium-hero h2 {font-size:25px;font-weight:800;color:white;}
+  #mood-station-container .mood-premium-hero p {font-size:12px;color:#d0dbf6;}
+  #mood-station-container .mood-premium-label {display:block!important;color:white;font-size:18px;font-weight:800;margin:12px 0;}
+}
+
+
+
+/* LOGO CLASSCYBERPULSE - DESKTOP */
+@media (min-width: 1280px) {
+  .ccp-brand {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 0;
+  }
+
+  .ccp-brand-icon {
+    width: 55px;
+    height: 65px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .ccp-brand-text {
+    width: 210px;
+    height: auto;
+    object-fit: contain;
+    margin-left: -6px;
+    flex-shrink: 0;
+  }
+}
+
+/* GIAO DIEN DIEN THOAI */
+@media (max-width: 1279px) {
+  .ccp-brand {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .ccp-brand-icon {
+    width: 30px;
+    height: 35px;
+    object-fit: contain;
+  }
+
+  .ccp-brand-text {
+    width: 105px;
+    height: auto;
+    object-fit: contain;
+  }
+}

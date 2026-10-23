@@ -1,0 +1,47 @@
+/* ClassCyberPulse Premium: isolated desktop enhancement for Mood Station.
+   Existing responsive layouts (<=1023px) remain exactly as before. */
+@media (min-width: 1024px) {
+  #mood-station-container .mood-premium {
+    background: linear-gradient(156deg,#111c38 0%,#0a1328 65%,#0c1429 100%) !important;
+    border:1px solid #283b68 !important;
+    border-radius:28px !important;
+    box-shadow:0 18px 56px rgba(0,0,0,.28) !important;
+    padding:24px !important;
+  }
+  #mood-station-container .mood-premium-hero {
+    display:flex; align-items:center; min-height:188px; margin-bottom:18px;
+    padding:27px 34px; border-radius:23px; overflow:hidden;
+    background:linear-gradient(90deg,#15274b 0%,rgba(20,31,69,.95) 36%,rgba(14,21,56,.18) 73%),url('../assets/mood-hero-space.webp') right center / auto 100% no-repeat;
+    border:1px solid rgba(111,136,224,.21);
+  }
+  #mood-station-container .mood-premium-hero-copy {position:relative; z-index:1}
+  #mood-station-container .mood-premium-overline { color:#9fb2ff; font-weight:750; font-size:11px; letter-spacing:.13em; margin-bottom:12px; }
+  #mood-station-container .mood-premium-overline i {color:#58debe; margin-right:6px}
+  #mood-station-container .mood-premium-hero h2 {font-size:30px;letter-spacing:-.035em;font-weight:850;color:#fff;line-height:1.2;margin-bottom:9px}
+  #mood-station-container .mood-premium-hero p {color:#b6c5e7;font-size:14px;line-height:1.7}
+  #mood-station-container .mood-premium-label {display:block;font-size:21px;font-weight:800;color:#f8faff;padding:3px 7px 12px;letter-spacing:-.02em}
+  #mood-station-container .mood-premium-options {border:1px solid rgba(126,150,218,.21);background:rgba(27,41,80,.67);padding:15px 18px;border-radius:19px;gap:14px}
+  #mood-station-container .mood-premium-options > div:first-child {display:none}
+  #mood-station-container .mood-premium-options > div:last-child {justify-content:center;width:100%;gap:13px}
+  #mood-station-container .mood-premium-options button {min-height:43px;padding:10px 20px!important;border-radius:28px!important;font-size:13px!important;box-shadow:none!important;transition:transform .2s ease, background .2s ease}
+  #mood-station-container .mood-premium-options button:hover {transform:translateY(-2px)}
+  #mood-station-container #mood-talk-box {background:rgba(21,32,62,.70)!important;border:1px solid rgba(119,142,199,.2)!important;border-radius:19px!important;padding:19px 23px!important;margin:14px 0 21px!important;box-shadow:none!important}
+  #mood-station-container #talk-avatar {background:linear-gradient(135deg,#7a62ff,#4f46e5);display:grid;place-items:center;width:58px;height:58px;border-radius:18px}
+  #mood-station-container #talk-title {font-size:15px!important;line-height:1.55;color:#e8ecff!important;letter-spacing:0}
+  #mood-station-container #welcome-prompt h2 {font-size:16px!important;letter-spacing:0;text-transform:none}
+  #mood-station-container .mood-premium-activities {gap:16px!important;align-items:stretch!important}
+  #mood-station-container .mood-premium-activities > div {background:linear-gradient(135deg,#192550 0%,#121c37 100%)!important;border:1px solid rgba(110,131,207,.24)!important;border-radius:21px!important;box-shadow:none!important;padding:21px!important}
+  #mood-station-container .mood-premium-activities > div:first-child {display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;min-height:207px;background:radial-gradient(circle at 90% 80%,rgba(105,78,224,.42),transparent 51%),linear-gradient(145deg,#202b63,#121a37)!important}
+  #mood-station-container #mini-game-name {font-size:19px!important;line-height:1.4;white-space:normal!important}
+  #mood-station-container .mood-premium-activities button[onclick="launchCurrentMoodGame()"] {background:linear-gradient(100deg,#7464ff,#5946ed)!important;color:white!important;padding:11px 20px!important;font-size:13px!important;border-radius:28px!important;box-shadow:none!important}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div {min-height:124px;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;gap:8px!important;border-radius:15px!important;padding:13px!important;border:1px solid rgba(178,190,255,.15)!important;background:linear-gradient(160deg,#26315e,#101a31)!important}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:nth-child(1){background:linear-gradient(145deg,#7b3e54,#241f44)!important}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:nth-child(2){background:linear-gradient(145deg,#176c65,#152f49)!important}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:nth-child(3){background:linear-gradient(145deg,#15517c,#17284e)!important}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div > div:first-child {border-radius:50%!important}
+  #mood-station-container .mood-premium-activities > div:nth-child(2) > .grid > div:hover {filter:brightness(1.13)}
+}
+@media (max-width: 1023px) {
+  #mood-station-container .mood-premium-hero,
+  #mood-station-container .mood-premium-label {display:none!important}
+}

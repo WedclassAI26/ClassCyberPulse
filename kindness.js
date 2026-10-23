@@ -76,7 +76,7 @@ function saveMessageToCloudOrLocal(newMessage) {
     if (window.db) {
         window.db.collection("kindness_messages").add(newMessage)
             .then(() => {
-                showKindnessStatus("✅ Lời chúc đã được lưu & đồng bộ mây thành công! (+1 CCS)", "text-emerald-400");
+                showKindnessStatus("✔️ Đã lưu lời chúc yêu thương của bạn! (+1 CCS)", "text-emerald-400");
             })
             .catch((err) => {
                 console.error("Lỗi lưu mây:", err);
@@ -401,10 +401,7 @@ function renderZaloFeed() {
                                         <!-- Nút Thả Tim độc lập -->
                                         <span style="display: inline-flex; align-items: center; border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.1); border-radius: 10px; overflow: hidden;" class="transition-all ${heartBtnStyle}">
                                             <button onclick="toggleLikeMessage('${msg.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: ${hasLiked ? '#ffffff' : '#fb7185'}; font-weight: bold;" class="cursor-pointer">
-                                                <i class="fa-solid fa-heart"></i>
-                                            </button>
-                                            <span onclick="showLikeListModal('${msg.id}')" style="padding: 6px 10px; cursor: pointer; font-size: 12px; font-weight: bold; color: #fecdd3;" class="hover:underline">
-                                                ${likeCount}
+<i class="fa-solid fa-heart text-rose-600"></i>                                                ${likeCount}
                                             </span>
                                         </span>
 
@@ -710,9 +707,13 @@ window.handleSendKindnessMessage = function() {
 
     // ĐẨY BÀI NÀY LÊN CLOUD FIRESTORE
     saveMessageToCloudOrLocal(newMessage);
+/// --- Bổ sung cập nhật giao diện ngay lập tức ---
+    setTimeout(() => {
+        if (typeof loadKindnessMessages === 'function') loadKindnessMessages();
+        if (typeof renderZaloFeed === 'function') renderZaloFeed();
+    }, 500);
 
     if (typeof addScore === 'function') addScore(1);
-
     input.value = '';
     if (receiverInput) receiverInput.value = '';
 };

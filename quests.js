@@ -1,33 +1,180 @@
 window.renderQuestsModule = typeof renderScenarioModule === 'function' ? renderScenarioModule : (typeof renderQuestsModule === 'function' ? renderQuestsModule : function(){});
-// ==========================================
-// GIAO DIỆN & LOGIC XỬ LÝ THỬ THÁCH VĂN MINH MẠNG (INSTANT DOM SYNC FIX & RESPONSIVE)
-// ==========================================
-let currentScenario = null;
-let selectedOptionIndex = null; 
-let isExpertOpen = false;
 
+// ==========================================
+// GIAO DIỆN & LOGIC XỬ LÝ THỬ THÁCH
+// ĐÚNG = GÓC CHUYÊN GIA MÀU XANH (type: "tu-te")
+// ==========================================
+
+let currentScenario = null;
+let selectedOptionIndex = null;
+let isExpertOpen = false;
 let shuffledOptionsMap = {};
+
+function getUserKey() {
+    try {
+        const user = JSON.parse(localStorage.getItem("cyberUser")) || {};
+        return user.email || user.id || user.username || user.name || "guest";
+    } catch (e) {
+        return "guest";
+    }
+}
+
+function getCurrentScore() {
+    try {
+        const user = JSON.parse(localStorage.getItem("cyberUser")) || {};
+        let score = Number(user.score);
+        if (!isNaN(score)) return score;
+
+        score = Number(localStorage.getItem("userScore"));
+        if (!isNaN(score)) return score;
+
+        return 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
+function addCCS(points) {
+    if (!points || points <= 0) return;
+
+    let user = {};
+    try {
+        user = JSON.parse(localStorage.getItem("cyberUser")) || {};
+    } catch (e) {}
+
+    const newScore = getCurrentScore() + points;
+
+    user.score = newScore;
+    localStorage.setItem("cyberUser", JSON.stringify(user));
+    localStorage.setItem("userScore", newScore);
+
+    if (user.email) {
+        localStorage.setItem("cyberScore_" + user.email, newScore);
+    }
+
+    if (typeof addScoreToUserClass === 'function') {
+        try { addScoreToUserClass(points); } catch (e) {}
+    }
+
+    document.querySelectorAll('*').forEach(el => {
+        if (el.children.length === 0 && el.textContent) {
+            const txt = el.textContent.trim();
+            if (/^\d+\s*CCS$/i.test(txt) || (txt.toUpperCase().endsWith("CCS") && txt.length <= 12)) {
+                el.textContent = newScore + " CCS";
+            }
+        }
+    });
+
+    if (typeof updateHeaderScore === 'function') {
+        try { updateHeaderScore(); } catch (e) {}
+    }
+
+    if (typeof updateUserInterface === 'function') {
+        try { updateUserInterface(); } catch (e) {}
+    }
+
+    if (typeof loadUserData === 'function') {
+        try { loadUserData(); } catch (e) {}
+    }
+}
+
+function dailyAttendance() {
+    const now = new Date();
+    const today = now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0");
+
+    const key = "cyberDaily_" + encodeURIComponent(getUserKey()) + "_" + today;
+
+    if (localStorage.getItem(key) === "1") return;
+
+    localStorage.setItem(key, "1");
+    addCCS(1);
+}
+
+function isCorrectOption(opt) {
+    return !!(
+        opt &&
+        opt.expertAdvice &&
+        opt.expertAdvice.type === "tu-te"
+    );
+}
+
+function getAnsweredKey() {
+    return "cyberAnswered_" + encodeURIComponent(getUserKey());
+}
+
+function getAnsweredQuestions() {
+    try {
+        return JSON.parse(localStorage.getItem(getAnsweredKey())) || {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveAnsweredQuestion(scenarioId, originalIndex) {
+    const answered = getAnsweredQuestions();
+    answered[String(scenarioId)] = originalIndex;
+    localStorage.setItem(getAnsweredKey(), JSON.stringify(answered));
+}
+
 function getShuffledOptions(scenario) {
     if (!shuffledOptionsMap[scenario.id]) {
         let optionsCopy = scenario.options.map((opt, originalIndex) => ({ ...opt, originalIndex }));
+
         for (let i = optionsCopy.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [optionsCopy[i], optionsCopy[j]] = [optionsCopy[j], optionsCopy[i]];
         }
+
         shuffledOptionsMap[scenario.id] = optionsCopy;
     }
+
     return shuffledOptionsMap[scenario.id];
 }
 
+function restoreAnsweredState() {
+    selectedOptionIndex = null;
+
+    if (!currentScenario) return;
+
+    const answered = getAnsweredQuestions();
+    const savedOriginalIndex = answered[String(currentScenario.id)];
+
+    if (savedOriginalIndex === undefined) return;
+
+    const currentOptions = getShuffledOptions(currentScenario);
+
+    const foundIndex = currentOptions.findIndex(opt => opt.originalIndex === savedOriginalIndex);
+
+    if (foundIndex !== -1) {
+        selectedOptionIndex = foundIndex;
+    }
+}
+
 function initScenario() {
+    dailyAttendance();
+
     if (typeof scenarioBank !== 'undefined' && scenarioBank.length > 0) {
-        const randomIndex = Math.floor(Math.random() * scenarioBank.length);
-        currentScenario = scenarioBank[randomIndex];
+        const answered = getAnsweredQuestions();
+
+        const unanswered = scenarioBank.filter(item =>
+            answered[String(item.id)] === undefined
+        );
+
+        const source = unanswered.length > 0 ? unanswered : scenarioBank;
+
+        const randomIndex = Math.floor(Math.random() * source.length);
+
+        currentScenario = source[randomIndex];
     } else {
         currentScenario = null;
     }
+
     selectedOptionIndex = null;
     isExpertOpen = false;
+
+    restoreAnsweredState();
     renderScenario();
 }
 
@@ -39,7 +186,7 @@ function renderScenario() {
         const randomIndex = Math.floor(Math.random() * scenarioBank.length);
         currentScenario = scenarioBank[randomIndex];
     }
-    
+
     if (!currentScenario || typeof scenarioBank === 'undefined') {
         container.innerHTML = `<div class="p-4 text-center text-rose-400">Không tìm thấy ngân hàng câu hỏi! Kiểm tra lại file questionBank.js</div>`;
         return;
@@ -48,16 +195,27 @@ function renderScenario() {
     const currentOptions = getShuffledOptions(currentScenario);
 
     let optionsHtml = '';
+
     currentOptions.forEach((opt, displayIdx) => {
         let extraClass = "bg-slate-950 border-slate-800 text-slate-300 hover:bg-indigo-950/50 hover:border-indigo-500/50";
-        if (selectedOptionIndex === displayIdx) {
-            extraClass = "bg-indigo-950 border-indigo-500 text-indigo-200 ring-1 ring-indigo-500/50";
+        let iconClass = "fa-circle text-slate-700 text-xs";
+        let buttonAttrs = "";
+
+        if (selectedOptionIndex !== null) {
+            buttonAttrs = "disabled style='pointer-events: none; opacity: 0.85; width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; text-align: left; word-break: break-word; overflow-wrap: break-word;'";
+
+            if (selectedOptionIndex === displayIdx) {
+                extraClass = "bg-indigo-950 border-indigo-500 text-indigo-200 ring-1 ring-indigo-500/50";
+                iconClass = "fa-circle-check text-cyan-400 text-base";
+            } else {
+                extraClass = "bg-slate-950/50 border-slate-900 text-slate-500 opacity-60";
+            }
+        } else {
+            buttonAttrs = `onclick="selectOption(${displayIdx}, event)" style="width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; text-align: left; word-break: break-word; overflow-wrap: break-word;"`;
         }
-        let iconClass = (selectedOptionIndex === displayIdx) ? "fa-circle-check text-cyan-400 text-base" : "fa-circle text-slate-700 text-xs";
-        
-        // Sửa: Thêm style bọc dòng tuyệt đối cho nội dung câu trả lời, không bị tràn
+
         optionsHtml += `
-            <button onclick="selectOption(${displayIdx}, event)" style="width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; text-align: left; word-break: break-word; overflow-wrap: break-word;" class="p-3 rounded-xl border ${extraClass} transition-all text-xs md:text-sm mb-2.5 cursor-pointer gap-3">
+            <button ${buttonAttrs} class="p-3 rounded-xl border ${extraClass} transition-all text-xs md:text-sm mb-2.5 cursor-pointer gap-3">
                 <span style="flex: 1; word-break: break-word; overflow-wrap: break-word; white-space: normal;">${opt.text}</span>
                 <i class="fa-solid ${iconClass} shrink-0"></i>
             </button>
@@ -66,15 +224,15 @@ function renderScenario() {
 
     container.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start w-full overflow-hidden">
-            
-            <!-- CỘT TRÁI: BẢNG THỬ THÁCH -->
-            <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl space-y-3 w-full overflow-hidden box-sizing">
+
+            <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl space-y-3 w-full overflow-hidden">
+
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-black text-cyan-400 tracking-wider uppercase flex items-center gap-1.5">
                         🔥 THỬ THÁCH
                     </span>
                 </div>
-                
+
                 <p style="word-break: break-word; overflow-wrap: break-word;" class="text-xs font-bold text-slate-200 leading-relaxed bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
                     ${currentScenario.title}: ${currentScenario.question}
                 </p>
@@ -83,16 +241,21 @@ function renderScenario() {
                     ${optionsHtml}
                 </div>
 
-                <<!-- HÀNG NÚT ĐIỀU KHIỂN: Chia đều chuẩn tuyệt đối, không bao giờ rớt dòng -->
                 <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%; box-sizing: border-box;" class="pt-2">
+
                     ${selectedOptionIndex !== null ? `
                         <button onclick="toggleExpertAdvice()" style="width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" class="py-2.5 px-3 rounded-xl font-black text-xs transition-all duration-300 flex items-center justify-center gap-1.5 shadow-lg cursor-pointer ${
-                            isExpertOpen 
-                                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' 
+                            isExpertOpen
+                                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                                 : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 animate-pulse'
                         }" title="Ẩn/Hiện góc chuyên gia">
+
                             <i class="fa-solid ${isExpertOpen ? 'fa-eye-slash' : 'fa-user-ninja'} text-sm shrink-0"></i>
-                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${isExpertOpen ? 'ẨN CHUYÊN GIA' : 'GÓC CHUYÊN GIA'}</span>
+
+                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${isExpertOpen ? 'ẨN CHUYÊN GIA' : 'GÓC CHUYÊN GIA'}
+                            </span>
+
                         </button>
                     ` : `
                         <div style="width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center;" class="text-center py-2 px-2 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-[10px] sm:text-[11px] text-slate-500 font-medium italic">
@@ -104,23 +267,27 @@ function renderScenario() {
                         <i class="fa-solid fa-rotate shrink-0"></i>
                         <span>Đổi câu</span>
                     </button>
+
                 </div>
             </div>
 
-            <!-- CỘT PHẢI: BẢNG GÓC CHUYÊN GIA -->
             <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-slate-800 shadow-2xl min-h-[250px] sm:min-h-[300px] w-full overflow-hidden">
+
                 <div class="text-xs font-black text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-800/80 pb-2">
                     <i class="fa-solid fa-user-ninja text-sm"></i>
                     <span>GÓC CHUYÊN GIA TƯ VẤN</span>
                 </div>
 
                 <div id="expert-container" class="w-full overflow-hidden"></div>
+
             </div>
 
         </div>
     `;
+
     updateExpertContainer();
 }
+
 function updateExpertContainer() {
     const expertDiv = document.getElementById('expert-container');
     if (!expertDiv) return;
@@ -128,9 +295,9 @@ function updateExpertContainer() {
     if (selectedOptionIndex !== null && isExpertOpen) {
         const currentOptions = getShuffledOptions(currentScenario);
         const selectedOpt = currentOptions[selectedOptionIndex];
-        
+
         const advice = selectedOpt.expertAdvice || {
-            type: "tu-te",
+            type: "chua-tu-te",
             title: "Góc Chuyên Gia",
             analysis: "Cảm ơn bạn đã hoàn thành thử thách văn minh mạng hôm nay!"
         };
@@ -151,10 +318,11 @@ function updateExpertContainer() {
 
         expertDiv.innerHTML = `
             <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 10px; overflow: hidden;" class="mt-2.5 p-3 rounded-xl bg-gradient-to-b ${bgGradient} border ${borderColor} shadow-2xl animate-fadeIn text-xs relative">
+
                 <button onclick="toggleExpertAdvice()" style="position: absolute; top: 10px; right: 10px;" class="w-5 h-5 rounded-full bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white flex items-center justify-center transition-colors shadow-md text-[11px] font-bold cursor-pointer" title="Đóng bảng lời khuyên">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                
+
                 <div style="display: flex; align-items: center; gap: 8px; width: 100%; padding-right: 25px; box-sizing: border-box;" class="font-black text-sm ${headerColor} border-b border-slate-800/80 pb-1.5 uppercase tracking-wide">
                     <i class="fa-solid fa-lightbulb text-base animate-bounce shrink-0"></i>
                     <span style="word-break: break-word; overflow-wrap: break-word; width: 100%;">${advice.title}</span>
@@ -181,6 +349,7 @@ function updateExpertContainer() {
                         ${advice.kindness}
                     </div>
                 ` : ''}
+
             </div>
         `;
     } else {
@@ -189,89 +358,64 @@ function updateExpertContainer() {
 }
 
 function selectOption(displayIndex, event) {
-    if (selectedOptionIndex !== null) return; 
+    if (selectedOptionIndex !== null) return;
 
-    selectedOptionIndex = displayIndex;
+    const answered = getAnsweredQuestions();
+
+    if (answered[String(currentScenario.id)] !== undefined) {
+        restoreAnsweredState();
+        renderScenario();
+        return;
+    }
 
     const currentOptions = getShuffledOptions(currentScenario);
     const selectedOpt = currentOptions[displayIndex];
 
-    // Kiểm tra xem đáp án có phải là đáp án đúng/tử tế hay không (dựa vào advice.type hoặc cấu trúc tùy chọn)
-    // Nếu advice.type là 'vi-pham' thì không cộng điểm (hoặc bạn có thể check theo logic đúng sai của câu hỏi)
-    const isCorrect = selectedOpt && selectedOpt.expertAdvice && selectedOpt.expertAdvice.type !== 'vi-pham';
+    if (!selectedOpt) return;
 
-    let pointsToAdd = 0;
+    selectedOptionIndex = displayIndex;
+
+    saveAnsweredQuestion(currentScenario.id, selectedOpt.originalIndex);
+
+    const isActuallyCorrect = isCorrectOption(selectedOpt);
+
     let notificationText = "";
 
-    if (isCorrect) {
-        pointsToAdd = 1; // Trả lời đúng được cộng 1 điểm
+    if (isActuallyCorrect) {
+        addCCS(1);
         notificationText = "+ 1 CCS (Trả lời đúng Thử Thách) 🔥";
     } else {
         notificationText = "Đáp án chưa chính xác, không được cộng điểm!";
     }
 
-    // Hiệu ứng bay chữ thông báo kết quả điểm số
     if (event) {
         const floatEl = document.createElement("div");
-        floatEl.className = `fixed z-[9999] font-extrabold text-sm sm:text-base pointer-events-none transition-all duration-700 ease-out animate-pulse bg-slate-950/90 px-3 py-1.5 rounded-xl border shadow-xl ${isCorrect ? 'text-emerald-400 border-emerald-500/40' : 'text-rose-400 border-rose-500/40'}`;
+
+        floatEl.className = `fixed z-[9999] font-extrabold text-sm sm:text-base pointer-events-none transition-all duration-700 ease-out animate-pulse bg-slate-950/90 px-3 py-1.5 rounded-xl border shadow-xl ${
+            isActuallyCorrect
+                ? 'text-emerald-400 border-emerald-500/40'
+                : 'text-rose-400 border-rose-500/40'
+        }`;
+
         floatEl.innerText = notificationText;
-        floatEl.style.left = `${Math.min(event.clientX - 40, window.innerWidth - 220)}px`;
+
+        floatEl.style.left = `${Math.max(10, Math.min(event.clientX - 40, window.innerWidth - 250))}px`;
         floatEl.style.top = `${Math.max(event.clientY - 40, 50)}px`;
+
         document.body.appendChild(floatEl);
+
         setTimeout(() => {
             floatEl.style.transform = "translateY(-50px) scale(1.1)";
             floatEl.style.opacity = "0";
         }, 600);
+
         setTimeout(() => floatEl.remove(), 1200);
     }
 
-    // Nếu trả lời đúng thì tiến hành cộng điểm vào tài khoản
-    if (pointsToAdd > 0) {
-        let storedUser = JSON.parse(localStorage.getItem("cyberUser")) || {};
-        let currentScore = Number(storedUser.score);
-        if (isNaN(currentScore)) {
-            currentScore = 84;
-            for (let i = 0; i < localStorage.length; i++) {
-                let k = localStorage.key(i);
-                if (k.startsWith("cyberScore_") || k === "userScore") {
-                    let v = parseInt(localStorage.getItem(k));
-                    if (!isNaN(v)) { currentScore = v; break; }
-                }
-            }
-        }
-        
-        let newScore = currentScore + pointsToAdd;
-
-        storedUser.score = newScore;
-        localStorage.setItem("cyberUser", JSON.stringify(storedUser));
-        if (storedUser.email) {
-            localStorage.setItem("cyberScore_" + storedUser.email, newScore);
-        }
-        localStorage.setItem("userScore", newScore);
-
-        if (typeof addScoreToUserClass === 'function') {
-            try { addScoreToUserClass(pointsToAdd); } catch (e) {}
-        }
-
-        // Cập nhật điểm số trên toàn bộ giao diện trang web ngay lập tức
-        const allElements = document.querySelectorAll('*');
-        allElements.forEach(el => {
-            if (el.children.length === 0 && el.textContent) {
-                let txt = el.textContent.trim();
-                if (/^\d+\s*CCS$/.test(txt) || (txt.endsWith("CCS") && txt.length <= 10)) {
-                    el.textContent = newScore + " CCS";
-                }
-            }
-        });
-
-        if (typeof updateHeaderScore === 'function') updateHeaderScore();
-        if (typeof updateUserInterface === 'function') updateUserInterface();
-        if (typeof loadUserData === 'function') loadUserData();
-    }
-
-    isExpertOpen = true; 
-    renderScenario(); 
+    isExpertOpen = true;
+    renderScenario();
 }
+
 function toggleExpertAdvice() {
     isExpertOpen = !isExpertOpen;
     updateExpertContainer();
@@ -279,20 +423,29 @@ function toggleExpertAdvice() {
 
 function nextScenario() {
     if (typeof scenarioBank === 'undefined' || scenarioBank.length === 0) return;
-    
-    if (scenarioBank.length === 1) {
-        currentScenario = scenarioBank[0];
-    } else {
-        let nextRandIndex;
-        do {
-            nextRandIndex = Math.floor(Math.random() * scenarioBank.length);
-        } while (scenarioBank[nextRandIndex].id === currentScenario.id);
 
-        currentScenario = scenarioBank[nextRandIndex];
+    const answered = getAnsweredQuestions();
+
+    let available = scenarioBank.filter(item =>
+        item.id !== currentScenario.id &&
+        answered[String(item.id)] === undefined
+    );
+
+    if (available.length === 0) {
+        available = scenarioBank.filter(item => item.id !== currentScenario.id);
     }
 
-    selectedOptionIndex = null; 
+    if (available.length === 0) {
+        available = scenarioBank;
+    }
+
+    const randomIndex = Math.floor(Math.random() * available.length);
+
+    currentScenario = available[randomIndex];
+    selectedOptionIndex = null;
     isExpertOpen = false;
+
+    restoreAnsweredState();
     renderScenario();
 }
 

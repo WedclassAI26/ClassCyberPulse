@@ -69,7 +69,7 @@ window.renderEthicsLogModule = function(containerId) {
                                 🚩 Báo Cáo (${countTotalEthicsReports()})
                             </button>
                         ` : ''}
-                        <button onclick="window.submitEthicsLog()" class="py-2 px-5 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-950 font-bold rounded-xl transition-all shadow-md text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+  <button type="button" onclick="window.submitEthicsLog(event)" class="py-2 px-5 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-950 font-bold rounded-xl transition-all shadow-md text-xs flex items-center justify-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-paper-plane text-xs"></i>
                             <span>Gửi Nhật Ký (+1 CCS)</span>
                         </button>
@@ -83,7 +83,7 @@ window.renderEthicsLogModule = function(containerId) {
                             <label class="block text-xs font-semibold text-slate-300">Nội dung việc tốt / bài học <span class="text-rose-400">* (+1 CCS)</span>:</label>
                             <div class="flex flex-wrap gap-1">
                                 <span class="text-[9px] bg-slate-950/80 border border-slate-800 text-slate-400 px-1.5 py-0.5 rounded-md">🤝 Giúp bạn</span>
-                                <span class="text-[9px] bg-slate-950/80 border border-slate-800 text-slate-400 px-1.5 py-0.5 rounded-md">🛡️ An toàn mạng</span>
+                                <span class="text-[9px] bg-slate-950/80 border border-slate-800 text-slate-400 px-1.5 py-0.5 rounded-md">🛡️️ An toàn mạng</span>
                                 <span class="text-[9px] bg-slate-950/80 border border-slate-800 text-slate-400 px-1.5 py-0.5 rounded-md">💬 Năng lượng tích cực</span>
                             </div>
                         </div>
@@ -165,7 +165,6 @@ function renderEthicsFeed() {
     const feedContainer = document.getElementById('ethics-feed-container');
     if (!feedContainer) return;
 
-    // Lưu lại danh sách các ngày đang mở trước khi render lại
     const openDates = [];
     feedContainer.querySelectorAll('details[open]').forEach(det => {
         const dateSummary = det.querySelector('summary span span');
@@ -195,7 +194,6 @@ function renderEthicsFeed() {
             const count = groupedByDate[dateStr].length;
             const isToday = (dateStr === todayStr);
 
-            // Giữ nguyên trạng thái mở nếu ngày này trước đó đang mở hoặc là hôm nay
             const isOpen = isToday || openDates.some(d => d.includes(formattedDate) || formattedDate.includes(d));
 
             html += `
@@ -230,49 +228,55 @@ function renderEthicsFeed() {
                                 : "bg-amber-500/10 text-amber-400/60 border-amber-500/20 opacity-70 hover:opacity-100 hover:bg-amber-500/20";
 
                             return `
-                                <div class="bg-slate-950/90 border border-slate-800 hover:border-amber-500/40 p-3 rounded-xl space-y-3 text-xs transition-all shadow-sm">
-                                    <!-- Phần nội dung và nút bấm: Trên điện thoại xếp dọc (flex-col), máy tính nằm ngang (sm:flex-row) -->
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                        <div class="flex items-start sm:items-center gap-2 flex-1 min-w-0">
-                                            <span class="text-[11px] text-slate-500 font-mono shrink-0 mt-0.5 sm:mt-0">${log.time || '12:00'}</span>
-                                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0 flex-1">
-                                                <span class="font-extrabold text-amber-400 shrink-0 text-xs">
-                                                    ${escapeHTML(log.author)}:
-                                                </span>
-                                                <span class="text-slate-100 font-medium text-xs break-words">
-                                                    "${escapeHTML(log.content)}"
-                                                </span>
-                                            </div>
-                                            <button onclick="showAIFeedbackModal('${log.id}')" class="text-[9px] text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-1.5 py-0.5 rounded shrink-0 font-bold transition cursor-pointer self-start sm:self-center" title="Bấm để xem nhận xét từ AI">
-                                                <span>✔ AI Verified</span>
+                                <div class="bg-slate-950/90 border border-slate-800 hover:border-amber-500/40 p-3 rounded-xl space-y-3 text-xs transition-all shadow-sm w-full">
+                                    <!-- Phần thông tin thời gian và nhãn AI -->
+                                    <div class="flex flex-col gap-2 w-full">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[11px] text-slate-500 font-mono">
+                                                ${escapeHTML(log.time || '')}
+                                            </span>
+                                            <button onclick="showAIFeedbackModal('${log.id}')" class="inline-flex items-center gap-1 text-[9px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 shrink-0">
+                                                <span>✓ AI Verified</span>
                                             </button>
                                         </div>
 
-                                        <!-- Cụm nút Thả Tim & Cờ: Co giãn linh hoạt, không bị cố định chết kích thước pixel trên điện thoại -->
-                                        <div class="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
-                                            <span style="display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.1);" class="transition-all ${heartBtnStyle}">
-                                                <button onclick="toggleLikeEthicsLog('${log.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fb7185;" title="Thả tim">
-                                                    <i class="fa-solid fa-heart text-xs"></i>
-                                                </button>
-                                                <span onclick="showEthicsLikeListModal('${log.id}')" style="padding: 6px 10px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #fecdd3;" class="hover:underline">
-                                                    ${likeCount}
+                                        <!-- Nội dung bài viết và cụm nút tương tác -->
+                                        <div class="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
+                                            <div class="flex flex-col gap-1 flex-1 min-w-0">
+                                                <span class="font-extrabold text-amber-400 text-xs">
+                                                    ${escapeHTML(log.author)}:
                                                 </span>
-                                            </span>
-
-                                            <span style="display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; border: 1px solid rgba(251,191,36,0.3); background: rgba(251,191,36,0.1);" class="transition-all ${reportBtnStyle}">
-                                                <button onclick="openEthicsReportSelectModal('${log.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fbbf24;" title="Báo cáo vi phạm">
-                                                    <i class="fa-solid fa-flag text-xs"></i>
-                                                </button>
-                                                <span onclick="showEthicsReportDetailModal('${log.id}')" style="padding: 6px 10px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #fde68a;" class="hover:underline">
-                                                    ${isAdmin ? reportCount : (hasReported ? 1 : 0)}
+                                                <span class="text-slate-100 font-medium text-xs break-words w-full">
+                                                    "${escapeHTML(log.content)}"
                                                 </span>
-                                            </span>
+                                            </div>
 
-                                            ${isAdmin ? `
-                                                <button onclick="handleDeleteEthicsLogByAdmin('${log.id}')" style="padding: 6px 10px;" class="text-rose-400 hover:text-white bg-rose-500/20 hover:bg-rose-600 rounded-lg border border-rose-500/40 transition-all text-xs font-bold flex items-center justify-center cursor-pointer shrink-0" title="Xóa bài viết">
-                                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                                </button>
-                                            ` : ''}
+                                            <!-- Cụm nút Thả Tim & Báo Cáo: Tách dòng trên PC để không bị đè chữ -->
+                                            <div class="flex items-center justify-end gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800/80">
+                                                <span style="display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.1);" class="transition-all ${heartBtnStyle}">
+                                                    <button onclick="toggleLikeEthicsLog('${log.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fb7185;" title="Thả tim">
+                                                        <i class="fa-solid fa-heart text-xs"></i>
+                                                    </button>
+                                                    <span onclick="showEthicsLikeListModal('${log.id}')" style="padding: 6px 10px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #fecdd3;" class="hover:underline">
+                                                        ${likeCount}
+                                                    </span>
+                                                </span>
+
+                                                <span style="display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; border: 1px solid rgba(251,191,36,0.3); background: rgba(251,191,36,0.1);" class="transition-all ${reportBtnStyle}">
+                                                    <button onclick="openEthicsReportSelectModal('${log.id}')" style="padding: 6px 10px; background: transparent; border: none; cursor: pointer; color: #fbbf24;" title="Báo cáo vi phạm">
+                                                        <i class="fa-solid fa-flag text-xs"></i>
+                                                    </button>
+                                                    <span onclick="showEthicsReportDetailModal('${log.id}')" style="padding: 6px 10px; text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; color: #fde68a;" class="hover:underline">
+                                                        ${isAdmin ? reportCount : (hasReported ? 1 : 0)}
+                                                    </span>
+                                                </span>
+
+                                                ${isAdmin ? `
+                                                    <button onclick="handleDeleteEthicsLogByAdmin('${log.id}')" style="padding: 6px 10px;" class="text-rose-400 hover:text-white bg-rose-500/20 hover:bg-rose-600 rounded-lg border border-rose-500/40 transition-all text-xs font-bold flex items-center justify-center cursor-pointer shrink-0" title="Xóa bài viết">
+                                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                                    </button>
+                                                ` : ''}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -301,7 +305,11 @@ function renderEthicsFeed() {
 }
 
 // 4. KIỂM DUYỆT AI & CHẶN NỘI DUNG VÔ NGHĨA / TIÊU CỰC DỨT KHOÁT KHI GỬI BÀI
-window.submitEthicsLog = async function() {
+window.submitEthicsLog = async function(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     const input = document.getElementById('ethics-input');
     const resultBox = document.getElementById('ethics-result');
     const fileInput = document.getElementById('ethics-file-input');
@@ -472,9 +480,9 @@ Trả về duy nhất JSON chuẩn:`;
         try {
             const jsonString = response.match(/\{[\s\S]*\}/)[0];
             data = JSON.parse(jsonString);
-        } catch (e) {
-            data = { status: "approved", textApproved: true, fileApproved: !!file, valueTag: "Trách Nhiệm Số", message: "Mình rất ấn tượng với nhận thức của bạn!", impact: "Góp phần xây dựng lớp học văn minh." };
-        }
+       } catch (e) {
+    data = { status: "approved", textApproved: true, fileApproved: !!file, valueTag: "Trách Nhiệm Số", message: "..." };
+}
 
         if (data.status === 'approved' || data.textApproved === true) {
             let earnedScore = 1;
@@ -487,19 +495,18 @@ Trả về duy nhất JSON chuẩn:`;
             if (window.triggerEthicsConfetti) window.triggerEthicsConfetti();
 
             if (resultBox) {
-                resultBox.className = "p-3 pr-8 rounded-xl border-2 border-emerald-400 bg-emerald-950/85 text-emerald-100 relative shadow-lg backdrop-blur-xl space-y-2";
+                resultBox.className = "p-3 pr-8 rounded-xl border-2 border-emerald-400 bg-emerald-950/85 text-emerald-100 relative shadow-lg backdrop-blur-xl space-y-2 w-full overflow-hidden";
                 resultBox.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-emerald-500/30 pb-1.5">
-                        <div class="flex items-center gap-1.5">
-                            <span class="bg-amber-400 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                    <div class="flex items-center justify-between border-b border-emerald-500/30 pb-1.5 w-full">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-amber-400 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-full uppercase shrink-0">
                                 🏆 ${data.valueTag || "Việc Tử Tế"}
                             </span>
                             <span class="text-xs font-bold text-amber-300">✨ +${earnedScore} Điểm CCS${bonusNote}</span>
                         </div>
-                        <span class="text-[9px] text-emerald-300/80 font-bold uppercase"><i class="fa-solid fa-circle-check text-emerald-400"></i> AI Verified</span>
                     </div>
-                    <div class="text-xs leading-relaxed space-y-1">
-                        <p class="font-bold text-white text-xs flex items-start gap-1">
+                    <div class="text-xs leading-relaxed space-y-1 w-full overflow-hidden">
+                        <p class="font-bold text-white text-xs break-words w-full">
                             <span>👏 <b>Cảm nhận từ mình:</b> "${data.message}"</span>
                         </p>
                     </div>
@@ -571,13 +578,6 @@ window.showAIFeedbackModal = function(id) {
 
     body.innerHTML = `
         <div class="space-y-3">
-            <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
-                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    🤖 AI VERIFIED EVALUATION
-                </span>
-                <span class="text-[10px] font-bold text-amber-400">🏆 ${escapeHTML(log.aiTag || "LÒNG TRẮC ẨN")}</span>
-            </div>
-
             <div class="text-xs text-slate-300 italic bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                 "${escapeHTML(log.content)}"
             </div>
@@ -790,12 +790,27 @@ window.handleEthicsFileSelect = function(event) {
 };
 
 window.removeEthicsFile = function(event) {
-    if (event) event.stopPropagation();
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     const fileInput = document.getElementById('ethics-file-input');
+    const imgThumb = document.getElementById('ethics-img-thumb');
+    const fileIcon = document.getElementById('ethics-file-icon');
+    const uploadPrompt = document.getElementById('ethics-upload-prompt');
+    const filePreview = document.getElementById('ethics-file-preview');
+
     if (fileInput) fileInput.value = '';
-    document.getElementById('ethics-upload-prompt').classList.remove('hidden');
-    document.getElementById('ethics-file-preview').classList.add('hidden');
-    document.getElementById('ethics-file-preview').classList.remove('flex');
+    if (imgThumb) {
+        imgThumb.src = '';
+        imgThumb.classList.add('hidden');
+    }
+    if (fileIcon) fileIcon.classList.add('hidden');
+    if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+    if (filePreview) {
+        filePreview.classList.add('hidden');
+        filePreview.classList.remove('flex');
+    }
 };
 
 function countTotalEthicsReports() {
@@ -835,10 +850,15 @@ function escapeHTML(value) {
     return String(value || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
+let isEthicsInitialized = false;
+
 document.addEventListener("DOMContentLoaded", () => {
+    if (isEthicsInitialized) return;
+    isEthicsInitialized = true;
+
     setTimeout(() => {
         initEthicsRealtimeListener();
-        if (typeof window.renderEthicsLogModule === 'function') {
+        if (typeof window.renderEthicsLogModule === 'function' && !document.getElementById('ethics-input')) {
             window.renderEthicsLogModule();
         }
     }, 300);
