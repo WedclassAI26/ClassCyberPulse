@@ -3,6 +3,96 @@
 // ==========================================
 
 window.renderPersonalLeaderboard = function(users) {
+    // Fix xung đột CSS cũ: panel danh sách phải luôn là một cột đầy đủ chiều rộng.
+    if (!document.getElementById('ccp-leaderboard-layout-fix')) {
+        const fixStyle = document.createElement('style');
+        fixStyle.id = 'ccp-leaderboard-layout-fix';
+        fixStyle.textContent = `
+           
+#race-universe-container .ccp-students-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+            #race-universe-container .ccp-students-panel > h4 {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
+                margin-bottom: 12px !important;
+            }
+            #race-universe-container .ccp-students-list {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+            }
+            #race-universe-container .ccp-students-list .ccp-student-row {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+                flex: 0 0 auto !important;
+                position: relative !important;
+            }
+            #race-universe-container .ccp-students-panel .ccp-toggle-students {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                min-height: 48px !important;
+                max-height: none !important;
+                margin-top: 12px !important;
+                box-sizing: border-box !important;
+                white-space: normal !important;
+                grid-column: 1 / -1 !important;
+            }
+               #race-universe-container .ccp-students-panel.ccp-students-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#race-universe-container .ccp-students-panel.ccp-students-panel > .ccp-students-list {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 auto !important;
+}
+
+#race-universe-container .ccp-students-panel.ccp-students-panel > .ccp-toggle-students {
+  display: block !important;
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 auto !important;
+  margin-top: 12px !important;
+} 
+        `;
+        document.head.appendChild(fixStyle);
+    }
     const container = document.getElementById('race-universe-container');
     if (!container || !users) return;
 
@@ -16,7 +106,9 @@ window.renderPersonalLeaderboard = function(users) {
 
     // 3. CỐ ĐỊNH TOP 3 CAO ĐIỂM NHẤT HỆ THỐNG CHO TẤT CẢ MỌI NGƯỜI CÙNG XEM
     const top3 = validUsers.slice(0, 3);
-    const restUsers = validUsers.slice(3);
+    
+const restUsers = validUsers.slice(3);
+
 
     const savedUser = localStorage.getItem("cyberUser");
     let currentUser = null;
@@ -91,7 +183,7 @@ window.renderPersonalLeaderboard = function(users) {
         const initial = (user.name || 'U').charAt(0).toUpperCase();
 
         return `
-            <div class="relative group pt-2">
+         <div class="ccp-rank-card ccp-rank-${idx + 1} relative group pt-2">
                 <div class="absolute inset-0 ${r.glow} rounded-2xl blur-2xl opacity-75 group-hover:opacity-100 transition duration-500"></div>
                 
                 <div class="relative bg-slate-900/95 border-2 ${r.border} ${r.bg} p-5 rounded-2xl shadow-xl flex flex-col items-center justify-between text-center overflow-hidden transform hover:-translate-y-2 transition-all duration-300">
@@ -129,7 +221,7 @@ window.renderPersonalLeaderboard = function(users) {
         const initial = (user.name || 'U').charAt(0).toUpperCase();
 
         return `
-            <div class="flex items-center justify-between p-3.5 sm:p-4 ${isMe ? 'bg-indigo-950/80 border-indigo-500/80 shadow-[0_0_20px_rgba(99,102,241,0.3)]' : 'bg-slate-900/80 border-slate-800/80'} rounded-2xl border hover:border-cyan-400/60 hover:bg-slate-900 transition-all duration-300 group">
+            <div class="ccp-student-row flex items-center justify-between p-3.5 sm:p-4 ${idx >= 5 ? 'ccp-extra-student hidden' : ''} ${isMe ? 'bg-indigo-950/80 border-indigo-500/80 shadow-[0_0_20px_rgba(99,102,241,0.3)]' : 'bg-slate-900/80 border-slate-800/80'} rounded-2xl border hover:border-cyan-400/60 hover:bg-slate-900 transition-all duration-300 group">
                 <div class="flex items-center gap-3 sm:gap-4 min-w-0">
                     <!-- Huy hiệu số thứ hạng -->
                     <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-950 border border-slate-700 text-cyan-400 font-black text-xs flex items-center justify-center shadow-inner group-hover:border-cyan-400 transition-colors shrink-0">
@@ -178,19 +270,34 @@ window.renderPersonalLeaderboard = function(users) {
             </div>
 
             <!-- Top 3: Tự động xếp dọc 1 cột trên điện thoại, ngang 3 cột trên máy tính -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="ccp-top3-list grid grid-cols-1 md:grid-cols-3 gap-4">
                 ${top3HTML}
             </div>
 
             <!-- Danh sách từ hạng 4 trở xuống -->
-            ${restUsers.length > 0 ? `
-                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
-                    <h4 class="text-[11px] sm:text-xs font-black text-slate-400 uppercase tracking-wider mb-3">DANH SÁCH THI ĐUA CÁ NHÂN (${restUsers.length} Học Sinh)</h4>
-                    <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                        ${restHTML}
-                    </div>
-                </div>
-            ` : ''}
+            
+${restUsers.length > 0 ? `
+    <div class="ccp-students-panel bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl w-full min-w-0 box-border">
+        <h4 class="text-[11px] sm:text-xs font-black text-slate-400 uppercase tracking-wider mb-3">
+            DANH SÁCH THI ĐUA CÁ NHÂN (${Math.min(restUsers.length, 5)} HỌC SINH)
+        </h4>
+
+        <div class="ccp-students-list space-y-2 w-full min-w-0 max-h-[380px] overflow-y-auto overflow-x-hidden">
+            ${restHTML}
+        </div>
+
+        ${restUsers.length > 5 ? `
+            <button
+                type="button"
+                onclick="toggleLeaderboardStudents(this)"
+                aria-expanded="false"
+                class="ccp-toggle-students mt-3 w-full py-3 px-4 rounded-xl bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 font-bold text-center box-border">
+                Xem thêm ${Math.max(restUsers.length - 5, 0)} học sinh
+            </button>
+        ` : ''}
+    </div>
+` : ''}
+
 
             <!-- Thanh tổng kết cá nhân ở đáy (tối ưu chống tràn chữ trên điện thoại) -->
             <div class="bg-amber-500/10 border border-amber-500/30 p-3.5 sm:p-4 rounded-2xl flex items-center justify-between gap-2">
@@ -271,3 +378,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, 200);
 });
+
+// Mở rộng / thu gọn danh sách học sinh từ hạng 4 trở xuống.
+
+window.toggleLeaderboardStudents = function(button) {
+    const panel = button?.closest(
+        '#race-universe-container .ccp-students-panel'
+    );
+
+    if (!panel) return;
+
+    const list = panel.querySelector('.ccp-students-list');
+    if (!list) return;
+
+    const extraStudents = list.querySelectorAll('.ccp-extra-student');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+    extraStudents.forEach(function(student) {
+        if (isExpanded) {
+            student.classList.add('hidden');
+            student.style.setProperty('display', 'none', 'important');
+        } else {
+            student.classList.remove('hidden');
+            student.style.setProperty('display', 'flex', 'important');
+        }
+    });
+
+    list.style.setProperty('max-height', 'none', 'important');
+    list.style.setProperty('overflow-y', 'visible', 'important');
+    list.style.setProperty('overflow-x', 'visible', 'important');
+
+    button.setAttribute('aria-expanded', String(!isExpanded));
+
+    button.textContent = isExpanded
+        ? 'Xem thêm ' + extraStudents.length + ' học sinh'
+        : 'Thu gọn danh sách';
+};
+

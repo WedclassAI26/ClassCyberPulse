@@ -33,6 +33,7 @@
     <!-- Thư viện Face-API -->
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <link rel="stylesheet" href="css/styles.css?v=20260928">
+    <link rel="stylesheet" href="css/mood-premium-desktop.css">
     <style>
 /* --- ÉP KHUNG CHỨA CAMERA CỐ ĐỊNH TUYỆT ĐỐI --- */
 #video-container {
@@ -93,31 +94,54 @@
    <!-- HEADER NAVIGATION -->
     <nav class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-indigo-500/30 shadow-2xl shadow-indigo-950/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
-            <!-- Logo -->
-            <div class="flex items-center space-x-3 cursor-pointer shrink-0" onclick="switchTab('dashboard')">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-xl sm:text-2xl font-bold shadow-lg shadow-indigo-500/50 animate-pulse">⚡</div>
-                <span class="text-base sm:text-2xl font-black tracking-tight text-white">ClassCyber<span class="text-indigo-400">Pulse</span></span>
-            </div>
-            
-            <!-- MENU TRÊN DÀNH CHO MÁY TÍNH (Tăng kích thước to rõ, ấn tượng, có hiệu ứng bắt mắt) -->
-            <div class="hidden sm:flex items-center space-x-3 bg-slate-950/80 p-2.5 rounded-3xl border border-slate-800 shadow-inner">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-5 py-2.5 rounded-2xl text-sm font-black transition-all text-white bg-indigo-600 shadow-lg shadow-indigo-600/40 flex items-center gap-2.5 cursor-pointer hover:scale-105">
-                    <i class="fas fa-globe text-base text-cyan-300"></i> Hành Tinh
-                </button>
-                <button onclick="switchTab('planner')" id="nav-planner" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all text-slate-300 hover:text-white hover:bg-slate-800/80 flex items-center gap-2.5 cursor-pointer hover:scale-105">
-                    <i class="fas fa-calendar-check text-base text-amber-400"></i> Kế Hoạch
-                </button>
-                <button onclick="switchTab('quests')" id="nav-quests" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all text-slate-300 hover:text-white hover:bg-slate-800/80 flex items-center gap-2.5 cursor-pointer hover:scale-105">
-                    <i class="fas fa-bolt text-base text-yellow-400"></i> Chuyên Gia
-                </button>
-                <button onclick="switchTab('wall')" id="nav-wall" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all text-slate-300 hover:text-white hover:bg-slate-800/80 flex items-center gap-2.5 cursor-pointer hover:scale-105">
-                    <i class="fas fa-heart text-base text-pink-400"></i> Tử Tế
-                </button>
-                <button onclick="switchTab('ethics')" id="nav-ethics" class="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all text-slate-300 hover:text-white hover:bg-slate-800/80 flex items-center gap-2.5 cursor-pointer hover:scale-105">
-                    <i class="fas fa-book-open text-base text-emerald-400"></i> Đạo Đức
-                </button>
-            </div>
+           
 
+
+<!-- LOGO CLASSCYBERPULSE -->
+<div class="ccp-brand cursor-pointer shrink-0"
+     onclick="switchTab('dashboard')">
+    <img src="assets/logo-icon.png"
+         alt="Biểu tượng"
+         class="ccp-brand-icon">
+    <img src="assets/logo-text.png"
+         alt="ClassCyberPulse"
+         class="ccp-brand-text">
+</div>
+
+
+
+            
+            <!-- MENU TRÊN DÀNH CHO MÁY TÍNH (Mới: To rõ, màu sắc gradient sang trọng, chia đều cân đối) -->
+        <!-- MENU TRÊN DÀNH CHO MÁY TÍNH (Gọn gàng, đủ biểu tượng, màu sắc nổi bật) -->
+        <!-- MENU TRÊN DÀNH CHO MÁY TÍNH (Sáng rõ, đủ biểu tượng, cực kỳ nổi bật) -->
+        <div class="hidden sm:flex items-center justify-center gap-3 bg-slate-900/95 p-3 rounded-2xl border border-indigo-500/30 shadow-[0_0_25px_rgba(99,102,241,0.2)] mx-auto">
+            
+            <!-- Hành Tinh -->
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/30 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 border border-blue-400/30">
+                <i class="fas fa-globe text-base text-cyan-300"></i> Hành Tinh
+            </button>
+
+            <!-- Kế Hoạch -->
+            <button onclick="switchTab('planner')" id="nav-planner" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 shadow-lg shadow-amber-500/30 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 border border-amber-400/30">
+                <i class="fas fa-calendar-check text-base text-amber-200"></i> Kế Hoạch
+            </button>
+
+            <!-- Chuyên Gia (Đã sửa chữ trắng nổi bật, có icon sấm sét vàng rực) -->
+            <button onclick="switchTab('quests')" id="nav-quests" class="px-5 py-2.5 rounded-xl text-sm font-black transition-all text-white bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 shadow-lg shadow-yellow-500/40 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 border border-yellow-300/40">
+                <i class="fas fa-bolt text-base text-yellow-200 animate-pulse"></i> Chuyên Gia
+            </button>
+
+            <!-- Tử Tế -->
+            <button onclick="switchTab('wall')" id="nav-wall" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 shadow-lg shadow-pink-500/30 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 border border-pink-400/30">
+                <i class="fas fa-heart text-base text-pink-200"></i> Tử Tế
+            </button>
+
+            <!-- Đạo Đức -->
+            <button onclick="switchTab('ethics')" id="nav-ethics" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-500/30 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 border border-emerald-400/30">
+                <i class="fas fa-book-open text-base text-emerald-200"></i> Đạo Đức
+            </button>
+
+        </div>
             <!-- Khu vực tài khoản (Được thiết kế cân đối, gọn gàng sát mép phải) -->
             <div class="flex items-center shrink-0">
                 <div id="auth-container"></div>
