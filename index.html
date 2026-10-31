@@ -32,8 +32,11 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- Thư viện Face-API -->
     <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
-    <link rel="stylesheet" href="css/styles.css?v=20260928">
+   <link rel="stylesheet" href="css/styles.css?v=20261026">
     <link rel="stylesheet" href="css/mood-premium-desktop.css">
+    
+<link rel="stylesheet" href="css/ai-chat-neon.css?v=4">
+
     <style>
 /* --- ÉP KHUNG CHỨA CAMERA CỐ ĐỊNH TUYỆT ĐỐI --- */
 #video-container {
@@ -253,28 +256,55 @@
         </div>
     </div>
 
-    <!-- TRỢ LÝ AI CHAT -->
-    <div id="ai-chat-widget" class="fixed bottom-6 right-6 z-[9999]">
-        <button type="button" id="ai-chat-toggle" onclick="toggleAIChat()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 p-4 rounded-full shadow-[0_0_25px_rgba(245,158,11,0.7)] transition duration-300 flex items-center justify-center font-bold cursor-pointer touch-manipulation">
-            <i class="fa-solid fa-robot text-2xl pointer-events-none"></i>
-        </button>
+    
+<!-- TRỢ LÝ AI CHAT - NEON -->
+<div id="ai-chat-widget" class="fixed bottom-6 right-6 z-[9999]">
 
-        <div id="ai-chat-box" class="hidden fixed bottom-20 right-4 left-4 sm:left-auto sm:absolute sm:bottom-16 sm:right-0 sm:w-80 h-[400px] max-h-[70vh] bg-[#090d16] border-2 border-amber-500/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden z-[10000]">
-            <div class="bg-slate-900 p-3 border-b border-amber-500/40 flex justify-between items-center">
-                <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-robot"></i> Trợ lý AI ClassCyberPulse</span>
-                <button type="button" onclick="toggleAIChat()" class="text-slate-400 hover:text-amber-300 text-sm font-bold px-2 cursor-pointer">✕</button>
+    <button type="button" id="ai-chat-toggle"
+        onclick="toggleAIChat()" aria-label="Mở trợ lý AI">
+        <span class="ccp-face">
+            <span class="ccp-eye"></span>
+            <span class="ccp-eye"></span>
+        </span>
+    </button>
+
+    <div id="ai-chat-box"
+        class="hidden fixed bottom-20 right-4 left-4 sm:left-auto sm:absolute sm:bottom-16 sm:right-0 flex flex-col z-[10000]">
+
+        <div class="ccp-chat-head">
+            <div class="ccp-chat-identity">
+                <span class="ccp-chat-avatar">
+                    <span class="ccp-small-face">
+                        <b></b><b></b>
+                    </span>
+                </span>
+                <div>
+                    <div class="ccp-chat-name">ClassCyberPulse AI</div>
+                    <div class="ccp-chat-state">
+                        <span class="ccp-online-dot"></span>
+                        Trợ lý AI <span>•</span>
+                        <b>Sẵn sàng hỗ trợ</b>
+                    </div>
+                </div>
             </div>
-            
-            <div id="ai-chat-messages" class="p-3 flex-1 overflow-y-auto space-y-2 text-xs text-slate-200">
-                <div class="bg-amber-500/10 border border-amber-500/30 p-2 rounded-xl text-slate-200">Chào bạn! Mình là trợ lý AI. Bạn cần mình tư vấn hay giải đáp điều gì không?</div>
-            </div>
-            
-            <div class="p-2 bg-slate-900 border-t border-amber-500/40 flex gap-2">
-                <input type="text" id="ai-chat-input" placeholder="Nhắn gì đó cho AI..." class="flex-1 bg-slate-950 border border-amber-500/40 text-slate-100 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-amber-400">
-                <button type="button" onclick="sendMsgToAI()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs cursor-pointer">Gửi</button>
-            </div>
+            <button type="button" onclick="toggleAIChat()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="ai-chat-messages"></div>
+
+        <div class="ccp-chat-footer">
+            <input type="text" id="ai-chat-input"
+                placeholder="Hỏi ClassCyberPulse AI...">
+            <button type="button" id="ccp-ai-send"
+                onclick="sendMsgToAI()">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
         </div>
     </div>
+</div>
+
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -306,23 +336,93 @@
             }
         });
 
-        async function sendMsgToAI() {
-            const input = document.getElementById("ai-chat-input");
-            const container = document.getElementById("ai-chat-messages");
-            if (!input || !container) return;
-            
-            const text = input.value.trim();
-            if (!text) return;
+        
+async function sendMsgToAI() {
+    const input = document.getElementById("ai-chat-input");
+    const container = document.getElementById("ai-chat-messages");
 
-            container.innerHTML += `<div class="bg-indigo-900/60 p-2 rounded-xl text-white text-right ml-6">${text}</div>`;
-            input.value = "";
-            container.scrollTop = container.scrollHeight;
+    if (!input || !container) return;
 
-            const reply = typeof askClassAI === 'function' ? await askClassAI(text) : "Trạm AI đang ngoại tuyến!";
+    const text = input.value.trim();
+    if (!text) return;
 
-            container.innerHTML += `<div class="bg-slate-800 p-2 rounded-xl text-slate-200 mr-6">${reply}</div>`;
-            container.scrollTop = container.scrollHeight;
+    function addMessage(content, type, typing = false) {
+        const row = document.createElement("div");
+        row.className = "ccp-msg-row ccp-msg-" + type;
+
+        if (type === "ai") {
+            const avatar = document.createElement("span");
+            avatar.className = "ccp-msg-avatar";
+            avatar.setAttribute("aria-hidden", "true");
+            row.appendChild(avatar);
         }
+
+        const bubble = document.createElement("div");
+        bubble.className = "ccp-msg-bubble";
+
+        if (typing) {
+            bubble.innerHTML = `
+                <div class="ccp-typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            row.setAttribute("aria-label", "AI đang suy nghĩ");
+        } else {
+            bubble.textContent = String(content ?? "");
+        }
+
+        row.appendChild(bubble);
+        container.appendChild(row);
+        container.scrollTop = container.scrollHeight;
+
+        return row;
+    }
+
+    // Hiện tin nhắn người dùng
+    addMessage(text, "user");
+    input.value = "";
+
+    // Hiện robot AI cùng hiệu ứng suy nghĩ
+    const loading = addMessage("", "ai", true);
+
+    try {
+        // Giữ kết nối AIService.js hiện tại
+        if (typeof window.askClassAI !== "function") {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = "./js/AIService.js?v=" + Date.now();
+                script.onload = resolve;
+                script.onerror = () => reject(
+                    new Error("Không tải được AIService.js")
+                );
+                document.head.appendChild(script);
+            });
+        }
+
+        if (typeof window.askClassAI !== "function") {
+            throw new Error("AI chưa sẵn sàng");
+        }
+
+        const reply = await window.askClassAI(text);
+
+        loading.remove();
+
+        // Robot xuất hiện cùng câu trả lời
+        addMessage(reply, "ai");
+
+    } catch (error) {
+        console.error("Lỗi AI:", error);
+        loading.remove();
+
+        addMessage(
+            "Không thể kết nối Trạm AI lúc này. Bạn thử lại nhé.",
+            "ai"
+        );
+    }
+
+    container.scrollTop = container.scrollHeight;
+}
+
     </script>
 
     <script src="./js/adminConfig.js"></script>
@@ -333,11 +433,15 @@
     <script src="./js/checkin.js"></script>
     <script src="./js/quests.js"></script>
     <script src="./js/wall.js"></script>
+    <script src="js/contentRules.js"></script>
     <script src="./js/ethicsLog.js"></script>
     <script src="./js/raceUniverse.js"></script>
     <script src="./js/kindness.js"></script>
     <script src="./js/app.js"></script>
     <script src="./js/aiChatWidget.js?v=20260817"></script>
+    
+
+
     <!-- THANH MENU 5 MỤC CỐ ĐỊNH Ở ĐÁY CHO ĐIỆN THOẠI -->
 <!-- THANH MENU 5 MỤC CỐ ĐỊNH Ở ĐÁY CHO ĐIỆN THOẠI -->
 <style>

@@ -96,10 +96,7 @@ window.renderEthicsLogModule = function(containerId) {
 
                     <div class="md:col-span-5 space-y-1.5">
                         <label class="block text-xs font-semibold text-slate-300">Hình ảnh / Tệp minh họa <span class="text-slate-500 font-normal">(Không bắt buộc)</span>:</label>
-                        <div class="text-[9px] text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <i class="fa-solid fa-circle-plus text-[10px]"></i>
-                            <span>Tải tệp minh họa hợp lệ được AI duyệt sẽ được <b>+1 CCS</b> nữa!</span>
-                        </div>
+                        
                         <div class="relative border border-dashed border-slate-800 hover:border-amber-500/50 bg-slate-950/60 hover:bg-slate-950/90 rounded-xl p-2 text-center transition-all cursor-pointer group h-[107px] flex flex-col justify-center items-center" id="ethics-upload-zone" onclick="document.getElementById('ethics-file-input').click()">
                             <input type="file" id="ethics-file-input" accept="image/*,.pdf,.doc,.docx" class="hidden" onchange="handleEthicsFileSelect(event)">
                             <div id="ethics-upload-prompt" class="flex flex-col items-center justify-center">
@@ -178,10 +175,18 @@ function renderEthicsFeed() {
     const todayStr = new Date().toISOString().split('T')[0];
 
     const groupedByDate = {};
-    ethicsLogsList.forEach(log => {
-        if (!groupedByDate[log.date]) groupedByDate[log.date] = [];
-        groupedByDate[log.date].push(log);
-    });
+
+ethicsLogsList.forEach(log => {
+    const monthKey = String(log.date || "").slice(0, 7);
+
+    if (!/^\d{4}-\d{2}$/.test(monthKey)) return;
+
+    if (!groupedByDate[monthKey]) {
+        groupedByDate[monthKey] = [];
+    }
+
+    groupedByDate[monthKey].push(log);
+});
 
     let html = '';
     const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
@@ -190,12 +195,19 @@ function renderEthicsFeed() {
         html = `<div class="text-center text-xs text-slate-500 py-8">Chưa có bài viết nhật ký nào được chia sẻ.</div>`;
     } else {
         sortedDates.forEach(dateStr => {
-            const formattedDate = formatDateDisplay(dateStr);
-            const count = groupedByDate[dateStr].length;
-            const isToday = (dateStr === todayStr);
+            const [year, month] = dateStr.split("-");
+const formattedDate = `Tháng ${month}/${year}`;
 
-            const isOpen = isToday || openDates.some(d => d.includes(formattedDate) || formattedDate.includes(d));
+const count = groupedByDate[dateStr].length;
+const isToday = false;
+const isOpen = true;
 
+groupedByDate[dateStr].sort((a, b) => {
+    const dateCompare = String(b.date || "").localeCompare(String(a.date || ""));
+    if (dateCompare !== 0) return dateCompare;
+
+    return String(b.time || "").localeCompare(String(a.time || ""));
+});
             html += `
                 <details class="group bg-slate-950/80 border border-slate-800 rounded-xl overflow-hidden transition-all" ${isOpen ? 'open' : ''}>
                     <summary class="px-3.5 py-2.5 bg-slate-950/90 border-b border-slate-800/50 cursor-pointer flex items-center justify-between hover:bg-slate-800/40 transition-all select-none">
@@ -312,14 +324,23 @@ window.submitEthicsLog = async function(event) {
     }
     const input = document.getElementById('ethics-input');
     const resultBox = document.getElementById('ethics-result');
+    if (resultBox) {
+    resultBox.style.display = "";
+}
     const fileInput = document.getElementById('ethics-file-input');
     const text = input ? input.value.trim() : "";
     const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
     const closeBtnHtml = `
-        <button onclick="window.closeEthicsResult()" class="absolute top-2 right-2 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg p-1 w-5 h-5 flex items-center justify-center transition-all cursor-pointer" title="Đóng">
-            <i class="fa-solid fa-xmark text-xs"></i>
-        </button>
+       
+<button type="button"
+    onclick="window.closeEthicsResult(event)"
+    style="position:absolute; top:8px; right:8px; z-index:9999; pointer-events:auto; cursor:pointer;"
+    class="w-9 h-9 flex items-center justify-center rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-lg"
+    title="Đóng thông báo">
+    <i class="fa-solid fa-xmark text-lg"></i>
+</button>
+
     `;
 
     if (text.length < 50) {
@@ -399,28 +420,27 @@ window.submitEthicsLog = async function(event) {
     const absoluteToxicWords = ["ăn trộm", "trộm cắp", "móc túi", "trấn lột", "đánh nhau", "bắt nạt", "hút thuốc", "pod", "vape", "ma túy", "đánh bạc"];
     const lowerTextCheck = text.toLowerCase();
     
-    let isExplicitlyBad = false;
-    for (let w of absoluteToxicWords) {
-        if (lowerTextCheck.includes(w)) {
-            const hasTrueApology = lowerTextCheck.includes("hối hận") || 
-                                   lowerTextCheck.includes("hối lỗi") || 
-                                   lowerTextCheck.includes("ân hận") || 
-                                   lowerTextCheck.includes("xin lỗi") || 
-                                   lowerTextCheck.includes("nhận lỗi") || 
-                                   lowerTextCheck.includes("nhận ra") || 
-                                   lowerTextCheck.includes("sửa sai") || 
-                                   lowerTextCheck.includes("sửa đổi") || 
-                                   lowerTextCheck.includes("rút kinh nghiệm") || 
-                                   lowerTextCheck.includes("khắc phục") || 
-                                   lowerTextCheck.includes("tự trách") || 
-                                   lowerTextCheck.includes("suy ngẫm") || 
-                                   lowerTextCheck.includes("cải thiện");
-            if (!hasTrueApology) {
-                isExplicitlyBad = true;
-                break;
-            }
+   
+let isExplicitlyBad = false;
+
+for (const w of absoluteToxicWords) {
+    if (lowerTextCheck.includes(w)) {
+        const hasNegativeRemorse =
+            /(?:không|chẳng|chả|chưa)\s*(?:hề\s*)?(?:cảm thấy\s*)?(?:hối hận|ăn năn|xin lỗi|nhận lỗi)/u.test(lowerTextCheck) ||
+            /(?:không|chẳng|chả|chưa)\s+muốn\s+(?:xin lỗi|sửa sai|sửa đổi|khắc phục)/u.test(lowerTextCheck) ||
+            /(?:không|chẳng|chả|chưa)\s+(?:có ý định|có ý muốn)\s+(?:xin lỗi|sửa sai|khắc phục)/u.test(lowerTextCheck);
+
+        const hasTrueApology =
+            !hasNegativeRemorse &&
+            /(?:hối hận|ăn năn|xin lỗi|nhận lỗi|nhận ra lỗi sai|sửa sai|sửa đổi|rút kinh nghiệm|khắc phục|cải thiện)/u.test(lowerTextCheck);
+
+        if (!hasTrueApology) {
+            isExplicitlyBad = true;
+            break;
         }
     }
+}
+
 
     if (isExplicitlyBad) {
         if (window.triggerEthicsShake) window.triggerEthicsShake();
@@ -435,9 +455,11 @@ window.submitEthicsLog = async function(event) {
                     <span class="text-xs font-bold text-rose-300">0 Điểm CCS</span>
                 </div>
                 <div class="text-xs leading-relaxed space-y-1.5">
-                    <p class="text-rose-100 font-semibold flex items-start gap-1">
-                        <span>❌ <b>Đánh giá:</b> Nội dung phản ánh hành vi sai trái nhưng chưa thể hiện thái độ hối lỗi nghiêm túc.</span>
-                    </p>
+                   
+<p class="text-rose-100 font-semibold" style="display:block !important; width:100% !important; max-width:100% !important; min-width:0 !important; white-space:normal !important; overflow-wrap:anywhere !important; word-break:break-word !important;">
+    <span style="display:block !important; width:100% !important; max-width:100% !important; min-width:0 !important; flex-shrink:1 !important; white-space:normal !important; overflow-wrap:anywhere !important; word-break:break-word !important;">❌ <b>Đánh giá:</b> Nội dung có dấu hiệu hành vi hoặc thái độ chưa phù hợp. Hãy điều chỉnh và chia sẻ bài học tích cực hơn.</span>
+</p>
+
                     <div class="text-[11px] text-rose-100 bg-rose-900/50 p-2 rounded-lg border border-rose-500/30 space-y-1">
                         <p class="font-semibold text-rose-200"><b>Hậu quả:</b> Gây ảnh hưởng xấu tới kỷ luật và đạo đức học đường.</p>
                         <p class="font-semibold text-rose-300 pt-1 border-t border-rose-500/20"><b>Lời nhắc từ mình:</b> Hãy chia sẻ bài học hoặc việc làm tích cực bạn nhé!</p>
@@ -451,43 +473,41 @@ window.submitEthicsLog = async function(event) {
     }
 
     try {
-        const promptText = `[KIỂM DUYỆT ĐẠO ĐỨC HỌC SINH] 
-Bài viết của học sinh: "${text}" ${file ? `(Có tệp: ${file.name})` : ''}.
+        
+    // KIỂM DUYỆT TỰ ĐỘNG - KHÔNG GỌI GROQ
 
-YÊU CẦU KIỂM DUYỆT NGHIÊM NGẶT:
-- Phân tích xem bài viết có nội dung vi phạm pháp luật, trộm cắp, tệ nạn xã hội, bạo lực, vô lễ hoặc có thái độ tiêu cực, khoe khoang lỗi lầm, bất mãn, không ăn năn hay không.
-- Nếu học sinh kể về việc phạm lỗi nhưng KHÔNG có thái độ thành khẩn hối hận, xin lỗi, rút kinh nghiệm sâu sắc -> PHẢI TỪ CHỐI (status: "rejected").
-- Chỉ CHẤP NHẬN (status: "approved") khi đó là việc làm tử tế, bài học ý nghĩa, hoặc câu chuyện nhận lỗi và sửa sai thực sự chân thành.
+    if (typeof window.checkSchoolContent !== "function") {
+        throw new Error("Bộ kiểm duyệt chưa được tải.");
+    }
 
-XƯNG HÔ: "mình" (AI) và "bạn" (học sinh).
+    const moderation = window.checkSchoolContent(text, "ethics");
+    const approved = moderation.status === "approved";
 
-NẾU TỪ CHỐI (VI PHẠM / THÁI ĐỘ KÉM):
-{"status": "rejected", "errorTitle": "Hành Vi Hoặc Thái Độ Chưa Chuẩn Mực", "errorDetail": "Nội dung phản ánh hành vi sai trái hoặc chưa thể hiện sự hối hận, nghiêm túc.", "consequence": "Gây ảnh hưởng lệch lạc về đạo đức và kỷ luật tập thể.", "advice": "Bạn cần nhìn nhận lại lỗi lầm một cách thành khẩn và chia sẻ bài học tích cực hơn!"}
+    const data = {
+        status: approved ? "approved" : "rejected",
+        textApproved: approved,
+        fileApproved: false,
 
-NẾU ĐƯỢC DUYỆT (TÍCH CỰC & TỬ TẾ):
-{"status": "approved", "textApproved": true, "fileApproved": true, "valueTag": "Tên_Giá_Trị", "message": "Lời_Khen", "impact": "Tác_Động"}
+        valueTag: "VIỆC TỐT",
+        message: "Cảm ơn bạn đã chia sẻ câu chuyện và bài học của mình.",
+        impact: "Lan tỏa những hành động tích cực trong trường học.",
 
-Trả về duy nhất JSON chuẩn:`;
+        errorTitle: moderation.status === "review"
+            ? "NỘI DUNG CẦN LÀM RÕ"
+            : "NỘI DUNG CHƯA PHÙ HỢP",
 
-        const response = typeof askClassAI === 'function' 
-            ? await askClassAI(promptText)
-            : JSON.stringify({ 
-                status: "approved", textApproved: true, fileApproved: !!file, 
-                valueTag: "Lòng Trắc Ẩn", message: "Mình rất ấn tượng với câu chuyện tử tế này của bạn!", impact: "Lan tỏa năng lượng tích cực tới tập thể lớp." 
-            });
+        errorDetail: moderation.message,
+        consequence: "Nội dung chưa đáp ứng quy tắc đăng bài.",
+        advice: "Hãy điều chỉnh nội dung rõ ràng và phù hợp hơn."
+    };
 
-        let data;
-        try {
-            const jsonString = response.match(/\{[\s\S]*\}/)[0];
-            data = JSON.parse(jsonString);
-       } catch (e) {
-    data = { status: "approved", textApproved: true, fileApproved: !!file, valueTag: "Trách Nhiệm Số", message: "..." };
-}
 
-        if (data.status === 'approved' || data.textApproved === true) {
+
+
+        if (data.status === "approved" && data.textApproved === true) {
             let earnedScore = 1;
             let bonusNote = "";
-            if (file && data.fileApproved !== false) {
+            if (file && data.fileApproved === true && false) {
                 earnedScore += 1;
                 bonusNote = " (+1 CCS từ tệp minh họa)";
             }
@@ -529,11 +549,15 @@ Trả về duy nhất JSON chuẩn:`;
                 createdAt: Date.now()
             };
 
-            if (window.db) {
-                window.db.collection("ethics_logs").add(newLog);
-            }
+            if (!window.db) {
+    throw new Error("Firebase chưa kết nối");
+}
 
-            if (typeof addScore === 'function') addScore(earnedScore);
+await window.db.collection("ethics_logs").add(newLog);
+
+if (typeof addScore === "function") {
+    addScore(earnedScore);
+}
 
             if (input) input.value = "";
             if (window.updateEthicsCharCount) window.updateEthicsCharCount();
@@ -743,10 +767,21 @@ window.updateEthicsCharCount = function() {
     }
 };
 
-window.closeEthicsResult = function() {
-    const resultBox = document.getElementById('ethics-result');
-    if (resultBox) resultBox.classList.add('hidden');
+
+window.closeEthicsResult = function(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const resultBox = document.getElementById("ethics-result");
+
+    if (resultBox) {
+        resultBox.classList.add("hidden");
+        resultBox.style.display = "none";
+    }
 };
+
 
 window.triggerEthicsShake = function() {
     const card = document.getElementById('ethics-main-card');
