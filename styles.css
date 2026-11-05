@@ -1858,3 +1858,835 @@ div:has(> #scenario-container), div:has(> #expert-container) {
     }
 }
 
+/* CLASSCYBERPULSE - TOI UU GIAO DIEN TRO LY AI */
+
+/* Khung chat desktop */
+#ai-chat-box {
+    width: 380px !important;
+    max-width: calc(100vw - 24px) !important;
+    height: 500px !important;
+    max-height: calc(100vh - 130px) !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    flex-direction: column !important;
+}
+
+/* An toan khi dong khung chat */
+#ai-chat-box.hidden {
+    display: none !important;
+}
+
+/* Phan noi dung hoi thoai */
+#ai-chat-messages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    padding: 14px !important;
+    gap: 12px !important;
+    line-height: 1.55 !important;
+}
+
+/* Khong de tin nhan lam tran khung */
+#ai-chat-messages > div {
+    max-width: 88%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+/* Dau vao va nut gui */
+#ai-chat-box input#ai-chat-input {
+    min-width: 0 !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    font-size: 14px !important;
+}
+
+#ai-chat-box button {
+    flex-shrink: 0;
+    border-radius: 12px !important;
+    transition: filter 0.2s ease;
+}
+
+#ai-chat-box button:hover {
+    filter: brightness(1.08);
+}
+
+/* Dien thoai */
+@media (max-width: 640px) {
+    #ai-chat-box {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 88px !important;
+        width: auto !important;
+        max-width: none !important;
+        height: min(58dvh, 460px) !important;
+        max-height: calc(100dvh - 150px) !important;
+        border-radius: 18px !important;
+    }
+
+    #ai-chat-messages {
+        padding: 12px !important;
+        font-size: 13px !important;
+    }
+}
+
+
+/* ===== CLASSCYBERPULSE AI CHAT - REDESIGN ===== */
+
+/* Khung chat chính */
+#ai-chat-box {
+    box-sizing: border-box !important;
+   width: 350px !important;
+    max-width: calc(100vw - 24px) !important;
+    height: 320px !important;
+    max-height: calc(100vh - 120px) !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 220, 255, .65) !important;
+    border-radius: 20px !important;
+    background: #080e1d !important;
+    box-shadow: 0 0 28px rgba(0, 210, 255, .13),
+                0 16px 50px rgba(0, 0, 0, .45) !important;
+}
+
+/* Chỉ hiển thị flex khi khung chat được mở */
+#ai-chat-box:not(.hidden) {
+    display: flex !important;
+}
+
+/* Thanh tiêu đề */
+#ai-chat-box > div:first-child {
+    flex: 0 0 auto !important;
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+    background: linear-gradient(110deg, #101b35, #0b1224) !important;
+    border-bottom: 1px solid rgba(0, 220, 255, .35) !important;
+    gap: 8px !important;
+}
+
+/* Tiêu đề gọn và rõ */
+#ai-chat-box > div:first-child h3,
+#ai-chat-box > div:first-child h4 {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+/* Vùng hội thoại */
+#ai-chat-messages {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    background: radial-gradient(
+        ellipse at top right,
+        rgba(0, 180, 255, .07),
+        transparent 65%
+    ), #080e1d !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+}
+
+/* Bong bóng tin nhắn */
+#ai-chat-messages > div {
+    box-sizing: border-box !important;
+    width: fit-content;
+    max-width: 88% !important;
+    padding: 11px 13px !important;
+    border-radius: 15px !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+    line-height: 1.55 !important;
+}
+
+/* Tin nhắn người dùng: bên phải */
+#ai-chat-messages > div[class*="ml-6"] {
+    align-self: flex-end !important;
+    margin-left: 28px !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    color: #f2f8ff !important;
+    background: linear-gradient(135deg, #293b91, #4338a5) !important;
+    border: 1px solid rgba(129, 140, 248, .35) !important;
+    border-bottom-right-radius: 5px !important;
+}
+
+/* Tin nhắn AI: bên trái */
+#ai-chat-messages > div[class*="mr-6"] {
+    align-self: flex-start !important;
+    margin-right: 28px !important;
+    margin-left: 0 !important;
+    color: #e2eaf7 !important;
+    background: #172337 !important;
+    border: 1px solid rgba(0, 220, 255, .18) !important;
+    border-bottom-left-radius: 5px !important;
+}
+
+/* Thanh nhập tin nhắn */
+#ai-chat-box > div:last-child {
+    flex: 0 0 auto !important;
+    padding: 10px !important;
+    gap: 8px !important;
+    background: #0d1729 !important;
+    border-top: 1px solid rgba(0, 220, 255, .3) !important;
+}
+
+/* Ô nhập */
+#ai-chat-input {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 11px 12px !important;
+    color: #f1f5f9 !important;
+    background: #050a17 !important;
+    border: 1px solid #263b59 !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    font-size: 13px !important;
+}
+
+#ai-chat-input:focus {
+    border-color: #00d9ff !important;
+    box-shadow: 0 0 0 2px rgba(0, 217, 255, .1) !important;
+}
+
+/* Nút gửi */
+#ai-chat-box > div:last-child button {
+    flex: 0 0 auto !important;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+}
+
+/* Tối ưu điện thoại */
+@media (max-width: 640px) {
+    #ai-chat-box {
+        position: fixed !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 82px !important;
+        width: auto !important;
+        max-width: none !important;
+        height: min(55dvh, 430px) !important;
+        max-height: calc(100dvh - 125px) !important;
+        border-radius: 18px !important;
+    }
+
+    #ai-chat-box > div:first-child {
+        min-height: 46px !important;
+        padding: 9px 12px !important;
+    }
+
+    #ai-chat-messages {
+        padding: 11px !important;
+        gap: 10px !important;
+        font-size: 13px !important;
+    }
+
+    #ai-chat-messages > div {
+        max-width: 90% !important;
+        padding: 10px 12px !important;
+    }
+}
+
+
+/* ===== CLASSCYBERPULSE AI CHAT - FINAL FIX ===== */
+
+/* Khung hội thoại */
+#ai-chat-box {
+    box-sizing: border-box !important;
+    width: 380px !important;
+    max-width: calc(100vw - 24px) !important;
+    height: 480px !important;
+    max-height: calc(100dvh - 115px) !important;
+    min-height: 300px !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-radius: 20px !important;
+    background: #080e1d !important;
+    border: 1px solid rgba(0, 220, 255, 0.55) !important;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45),
+                0 0 22px rgba(0, 200, 255, 0.10) !important;
+}
+
+/* Thanh tiêu đề */
+#ai-chat-box > div:first-child {
+    flex: 0 0 auto !important;
+    min-height: 52px !important;
+    padding: 12px 16px !important;
+    background: #101a30 !important;
+    border-bottom: 1px solid rgba(0, 220, 255, 0.22) !important;
+}
+
+/* Khu vực tin nhắn: không che mất câu hỏi */
+#ai-chat-messages {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex: 1 1 0 !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 16px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    scroll-behavior: auto !important;
+    background: #080e1d !important;
+}
+
+/* Bong bóng hội thoại */
+#ai-chat-messages > div {
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+    width: fit-content !important;
+    max-width: 88% !important;
+    padding: 12px 15px !important;
+    border-radius: 15px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+}
+
+/* Câu hỏi của người dùng */
+#ai-chat-messages > div.text-right {
+    align-self: flex-end !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #3730a3, #4338ca) !important;
+    border: 1px solid rgba(129, 140, 248, 0.35) !important;
+    border-bottom-right-radius: 5px !important;
+}
+
+/* Câu trả lời của AI */
+#ai-chat-messages > div:not(.text-right) {
+    align-self: flex-start !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    color: #e2e8f0 !important;
+    background: #172338 !important;
+    border: 1px solid rgba(0, 220, 255, 0.16) !important;
+    border-bottom-left-radius: 5px !important;
+}
+
+/* Ô nhập và nút gửi luôn nằm dưới */
+#ai-chat-box > div:last-child {
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    background: #101a30 !important;
+    border-top: 1px solid rgba(0, 220, 255, 0.25) !important;
+}
+
+#ai-chat-input {
+    box-sizing: border-box !important;
+    flex: 1 1 auto !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    padding: 0 13px !important;
+    border-radius: 12px !important;
+    background: #050a17 !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+    font-size: 14px !important;
+}
+
+#ai-chat-box button {
+    flex: 0 0 auto !important;
+    min-height: 44px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+}
+
+/* Điện thoại */
+@media (max-width: 640px) {
+    #ai-chat-box {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 88px !important;
+        width: auto !important;
+        max-width: none !important;
+        height: 68dvh !important;
+        max-height: calc(100dvh - 125px) !important;
+        min-height: 280px !important;
+        border-radius: 18px !important;
+    }
+
+    #ai-chat-messages {
+        padding: 12px !important;
+        gap: 10px !important;
+    }
+
+    #ai-chat-messages > div {
+        max-width: 90% !important;
+        font-size: 14px !important;
+    }
+
+    #ai-chat-box > div:last-child {
+        padding: 9px !important;
+        gap: 7px !important;
+    }
+}
+
+
+/* ===== CHAT UI: CLEAN, BALANCED REDESIGN ===== */
+
+#ai-chat-box {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 400px !important;
+    max-width: calc(100vw - 24px) !important;
+    height: 500px !important;
+    max-height: calc(100dvh - 120px) !important;
+    min-height: 280px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #164e63 !important;
+    border-radius: 18px !important;
+    background: #080e1d !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,.38) !important;
+}
+
+/* Header luôn phủ kín chiều ngang */
+#ai-chat-box > div:first-child {
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 58px !important;
+    flex: 0 0 auto !important;
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: #111c31 !important;
+    border-bottom: 1px solid #164e63 !important;
+}
+
+/* Khu vực hội thoại */
+#ai-chat-messages {
+    display: flex !important;
+    flex: 1 1 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    padding: 16px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    background: #080e1d !important;
+    text-align: left !important;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+}
+
+/* Bong bóng tin nhắn */
+#ai-chat-messages > div {
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+    width: fit-content !important;
+    max-width: 86% !important;
+    padding: 11px 14px !important;
+    margin: 0 !important;
+    border-radius: 15px !important;
+    font-size: 14px !important;
+    line-height: 1.65 !important;
+    text-align: left !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Tin nhắn người dùng */
+#ai-chat-messages > div.text-right {
+    align-self: flex-end !important;
+    margin-left: auto !important;
+    color: #ffffff !important;
+    background: #3730a3 !important;
+    border: 1px solid #5145cd !important;
+    border-bottom-right-radius: 5px !important;
+    text-align: left !important;
+}
+
+/* Tin nhắn AI */
+#ai-chat-messages > div:not(.text-right) {
+    align-self: flex-start !important;
+    margin-right: auto !important;
+    color: #e2e8f0 !important;
+    background: #172338 !important;
+    border: 1px solid #263b55 !important;
+    border-bottom-left-radius: 5px !important;
+    text-align: left !important;
+}
+
+/* Thanh nhập tin nhắn */
+#ai-chat-box > div:last-child {
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    align-self: stretch !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    gap: 9px !important;
+    padding: 11px 12px !important;
+    margin: 0 !important;
+    background: #111c31 !important;
+    border-top: 1px solid #164e63 !important;
+}
+
+#ai-chat-input {
+    box-sizing: border-box !important;
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    padding: 0 13px !important;
+    border: 1px solid #334155 !important;
+    border-radius: 11px !important;
+    background: #080e1d !important;
+    color: #f8fafc !important;
+    font-size: 14px !important;
+}
+
+#ai-chat-box > div:last-child button {
+    min-width: 58px !important;
+    height: 44px !important;
+    border-radius: 11px !important;
+    flex: 0 0 auto !important;
+}
+
+/* Tối ưu điện thoại */
+@media (max-width: 640px) {
+    #ai-chat-box {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 88px !important;
+        width: auto !important;
+        max-width: none !important;
+        height: 68dvh !important;
+        max-height: calc(100dvh - 115px) !important;
+        border-radius: 17px !important;
+    }
+
+    #ai-chat-messages {
+        padding: 12px !important;
+        gap: 10px !important;
+    }
+
+    #ai-chat-messages > div {
+        max-width: 90% !important;
+        font-size: 14px !important;
+    }
+}
+/* ===== THANH TIÊU ĐỀ TRỢ LÝ AI ===== */
+#ai-chat-box > div:first-child {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Tăng kích thước nút đóng */
+#ai-chat-box button {
+    cursor: pointer !important;
+}
+
+#ai-chat-box button[onclick*="toggleAIChat"] {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 28px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+
+/* CLASSCYBERPULSE AI CHAT - FIX HEADER */
+#ai-chat-box {
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+#ai-chat-box > div:first-child {
+    width: 100% !important;
+    min-height: 64px !important;
+    box-sizing: border-box !important;
+    padding: 14px 18px !important;
+    margin: 0 !important;
+    border-radius: 17px 17px 0 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+#ai-chat-box > div:first-child > span {
+    flex: 1 !important;
+    min-width: 0 !important;
+    font-size: 15px !important;
+}
+
+#ai-chat-box > div:first-child > button {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    padding: 0 !important;
+    margin-left: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 32px !important;
+    line-height: 1 !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+}
+
+#ai-chat-messages {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* =====================================
+   CLASSCYBERPULSE AI CHAT - PREMIUM
+   ===================================== */
+
+#ai-chat-toggle {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    border-radius: 50% !important;
+
+    background: linear-gradient(
+        135deg,
+        #06b6d4 0%,
+        #4f46e5 55%,
+        #7c3aed 100%
+    ) !important;
+
+    color: white !important;
+
+    border: 1px solid rgba(165,243,252,0.7) !important;
+
+    box-shadow:
+        0 0 20px rgba(6,182,212,0.35),
+        0 8px 25px rgba(79,70,229,0.4) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+#ai-chat-toggle:hover {
+    transform: translateY(-3px) scale(1.06);
+
+    box-shadow:
+        0 0 30px rgba(6,182,212,0.6),
+        0 12px 30px rgba(79,70,229,0.5) !important;
+}
+
+#ai-chat-toggle svg {
+    width: 29px;
+    height: 29px;
+    color: white;
+}
+
+@media (max-width: 640px) {
+    #ai-chat-toggle {
+        width: 52px !important;
+        height: 52px !important;
+        min-width: 52px !important;
+    }
+
+    #ai-chat-toggle svg {
+        width: 25px;
+        height: 25px;
+    }
+}
+/* GIỮ MÀU VÀNG CHO CHATBOT */
+
+#ai-chat-box .ccp-ai-heading strong {
+    color: #FFD54F !important;
+    text-shadow: 0 0 10px rgba(255, 213, 79, 0.25);
+}
+
+/* Nút gửi vàng cam */
+#ai-chat-box > div:last-child > button {
+    background: linear-gradient(
+        135deg,
+        #FBBF24,
+        #F59E0B
+    ) !important;
+
+    color: #111827 !important;
+    border: 1px solid #FCD34D !important;
+
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* =========================================
+   CLASSCYBERPULSE - MOBILE NEON NAV V3
+   Chỉ áp dụng trên điện thoại
+========================================= */
+
+@media (max-width: 640px) {
+
+    .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 74px !important;
+        padding: 6px 4px env(safe-area-inset-bottom) !important;
+        background: linear-gradient(
+            180deg, #14213b 0%, #080e20 100%
+        ) !important;
+        border-top: 1px solid #22d3ee90 !important;
+        box-shadow: 0 -6px 24px #00eaff25 !important;
+        backdrop-filter: blur(18px) !important;
+        z-index: 9998 !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-bottom-nav .nav-item {
+        display: flex !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        padding: 5px 2px !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 14px !important;
+        color: #cbd5e1 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        transition: all .25s ease !important;
+    }
+
+    /* Biểu tượng */
+    .mobile-bottom-nav .nav-item i {
+        display: inline-block !important;
+        font-size: 22px !important;
+        margin: 0 !important;
+        filter: drop-shadow(0 0 5px currentColor);
+    }
+
+    /* Màu riêng từng mục */
+    .mobile-bottom-nav .nav-item:nth-child(1) i {
+        color: #38e8ff !important;
+    }
+
+    .mobile-bottom-nav .nav-item:nth-child(2) i {
+        color: #ffd166 !important;
+    }
+
+    .mobile-bottom-nav .nav-item:nth-child(3) i {
+        color: #ffb347 !important;
+    }
+
+    .mobile-bottom-nav .nav-item:nth-child(4) i {
+        color: #ff78b6 !important;
+    }
+
+    .mobile-bottom-nav .nav-item:nth-child(5) i {
+        color: #65f5b5 !important;
+    }
+
+    /* Mục đang chọn */
+    .mobile-bottom-nav .nav-item.active {
+        background: rgba(0, 234, 255, .12) !important;
+        border-color: rgba(0, 234, 255, .45) !important;
+        box-shadow: inset 0 0 12px #00eaff20,
+                    0 0 12px #00eaff25 !important;
+        color: white !important;
+    }
+
+    .mobile-bottom-nav .nav-item.active i {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 0 9px currentColor);
+    }
+
+    /* Giữ nội dung không bị thanh menu che */
+    body {
+        padding-bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+
+/* SỬA KHUNG THÔNG BÁO VÀ NÚT X ĐẠO ĐỨC */
+#ethics-result {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#ethics-result.hidden {
+    display: none !important;
+}
+
+#ethics-result:not(.hidden) {
+    display: block !important;
+}
+
+#ethics-result button[onclick*="closeEthicsResult"] {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 99999 !important;
+    width: 34px !important;
+    height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+
+/* CHỈ SỬA DÒNG ĐÁNH GIÁ BỊ TRÀN - MOBILE */
+@media (max-width: 640px) {
+    #ethics-result p,
+    #ethics-result p * {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    #ethics-result .flex {
+        min-width: 0 !important;
+    }
+}
