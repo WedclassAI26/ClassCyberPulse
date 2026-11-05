@@ -19,26 +19,12 @@ const ADMIN_CONFIG = {
 };
 
 // Hàm kiểm tra quyền Admin dùng chung cho TOÀN BỘ TRANG WEB
-window.checkIsAdmin = function() {
-    const savedUser = localStorage.getItem("cyberUser");
-    if (!savedUser) return false;
-    
-    try {
-        const user = JSON.parse(savedUser);
-        
-        // Kiểm tra Email
-        if (user.email && ADMIN_CONFIG.adminEmails.map(e => e.toLowerCase()).includes(user.email.toLowerCase())) {
-            return true;
-        }
-        
-        // Kiểm tra Tên tài khoản / Username
-        if (user.username && ADMIN_CONFIG.adminUsernames.map(u => u.toLowerCase()).includes(user.username.toLowerCase())) {
-            return true;
-        }
 
-        // Kiểm tra cờ role
-        return user.role === 'admin' || user.isAdmin === true;
-    } catch (e) {
-        return false;
-    }
+window.checkIsAdmin = function() {
+    const currentUser = firebase.auth().currentUser;
+
+    return Boolean(
+        currentUser &&
+        currentUser.uid === "Y3aOnWlJaYdCnVwhtOagPj1016B3"
+    );
 };

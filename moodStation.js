@@ -126,9 +126,25 @@ const MUSIC_PLAYLISTS = {
 
         { title: "Where the Morning Breaks", src: "NHACNHE/Where_the_Morning_Breaks.mp3" }
 
-    ]
+ 
+    ],
 
+    ambient: [
+        { title: "Tiếng chim hót", src: "NHẠC ÂM THANH XANH/chim.mp3" },
+        { title: "Tiếng chó sủa", src: "NHẠC ÂM THANH XANH/cho.mp3" },
+        { title: "Tiếng chim cu gáy", src: "NHẠC ÂM THANH XANH/cugay.mp3" },
+        { title: "Tiếng cú mèo", src: "NHẠC ÂM THANH XANH/cumeo.mp3" },
+        { title: "Âm thanh đêm quê", src: "NHẠC ÂM THANH XANH/dem.mp3" },
+        { title: "Tiếng gà gáy", src: "NHẠC ÂM THANH XANH/ga.mp3" },
+        { title: "Tiếng mèo kêu", src: "NHẠC ÂM THANH XANH/meo.mp3" },
+        { title: "Tiếng sấm sét", src: "NHẠC ÂM THANH XANH/samset.mp3" },
+        { title: "Tiếng sóng biển", src: "NHẠC ÂM THANH XANH/songbien.mp3" },
+        { title: "Tiếng suối chảy", src: "NHẠC ÂM THANH XANH/suoichay.mp3" },
+        { title: "Tiếng trâu bò", src: "NHẠC ÂM THANH XANH/traubo.mp3" },
+        { title: "Tiếng vịt kêu", src: "NHẠC ÂM THANH XANH/vit.mp3" }
+    ]
 };
+
 
 let currentPlaylistType = 'energetic';
 
@@ -170,7 +186,12 @@ window.playMusicType = function(type) {
 
             if (status) status.innerText = "▶ " + song.title;
 
-        }
+       
+} else if (type === 'ambient') {
+    const status = document.getElementById('ambient-status');
+    if (status) status.innerText = "▶ " + song.title;
+}
+
 
     }).catch((error) => { console.log("Lỗi:", error); });
 
@@ -2448,7 +2469,12 @@ window.togglePlayPause = function(type) {
 
             if (status) status.innerText = "Đã dừng";
 
-        }
+       
+} else if (type === 'ambient') {
+    const status = document.getElementById('ambient-status');
+    if (status) status.innerText = "Đã dừng";
+}
+
 
     } else {
 

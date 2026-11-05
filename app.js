@@ -126,16 +126,21 @@ function updateAuthDisplay() {
 
 
 
-function handleLogout() {
+async function handleLogout() {
+    try {
+        if (typeof firebase !== "undefined" && firebase.apps.length) {
+            await firebase.auth().signOut();
+        }
 
-    localStorage.removeItem("cyberUser");
+        localStorage.removeItem("cyberUser");
+        sessionStorage.removeItem("guestScore");
 
-    sessionStorage.removeItem("guestScore");
-
-    updateAuthDisplay();
-
-    refreshScoreDisplay(0);
-
+        updateAuthDisplay();
+        refreshScoreDisplay(0);
+    } catch (error) {
+        console.error("Lỗi đăng xuất:", error);
+        alert("Chưa thể đăng xuất. Vui lòng thử lại.");
+    }
 }
 
 
@@ -600,87 +605,94 @@ window.getGlobalScore = function() {
 
 
 
-window.addScore = function(pointsToAdd) {
+// Đồng bộ điểm theo email (ID tài liệu đang dùng trên bảng xếp hạng).
+// Đợi Firebase Auth xác nhận đăng nhập, tránh bỏ qua tài khoản cũ.
+let ccsSyncQueue = Promise.resolve();
 
-    const points = Number(pointsToAdd) || 0;
+window.syncCCSToFirebase = function() {
+    ccsSyncQueue = ccsSyncQueue.catch(() => {}).then(async () => {
+        if (!window.db || typeof firebase === "undefined" || !firebase.apps.length) return;
+        const authUser = firebase.auth().currentUser;
+        let user;
+        try { user = JSON.parse(localStorage.getItem("cyberUser") || "null"); }
+        catch (_) { return; }
+        if (!user || !user.loggedIn || user.loginMethod !== "google" ||
+            !user.uid || !user.email || !authUser ||
+            authUser.uid !== user.uid ||
+            authUser.email?.toLowerCase() !== user.email.toLowerCase()) return;
 
-    if (points <= 0) return;
+        const email = user.email.toLowerCase();
+        const docId = email.replace(/[^a-zA-Z0-9]/g, "_");
+        const docRef = window.db.collection("users").doc(docId);
+        const name = user.name || authUser.displayName || "Thành viên";
+        const className = user.classRoom || "Chưa cập nhật";
 
+        // Giữ số điểm lớn hơn khi khôi phục dữ liệu tài khoản cũ.
+        const syncedScore = await window.db.runTransaction(async transaction => {
+            const doc = await transaction.get(docRef);
+            const remoteScore = doc.exists ? Number(doc.data().ccs || 0) : 0;
+            const latest = JSON.parse(localStorage.getItem("cyberUser") || "null");
+            if (!latest || latest.uid !== authUser.uid ||
+                latest.email?.toLowerCase() !== email) return null;
+            const score = Math.max(0, remoteScore, Number(latest.score || 0));
+            transaction.set(docRef, {
+                uid: authUser.uid,
+                name,
+                className,
+                ccs: score,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            return score;
+        });
 
-
-    const savedUser = localStorage.getItem("cyberUser");
-
-    let user = null;
-
-    if (savedUser) { try { user = JSON.parse(savedUser); } catch (e) {} }
-
-
-
-    // 1. Cập nhật điểm Local tùy theo trạng thái
-
-    if (user && user.loggedIn) {
-
-        user.score = (Number(user.score) || 0) + points;
-
-        localStorage.setItem("cyberUser", JSON.stringify(user));
-
-    } else {
-
-        let guestScore = Number(sessionStorage.getItem("guestScore") || 0);
-
-        guestScore += points;
-
-        sessionStorage.setItem("guestScore", String(guestScore));
-
-    }
-
-
-
-    const currentScore = window.getGlobalScore();
-
-    updateAuthDisplay();
-
-    refreshScoreDisplay(currentScore);
-
-
-
-    // 2. CHỈ ĐỒNG BỘ LÊN FIREBASE (XẾP HẠNG) NẾU LÀ THÀNH VIÊN ĐÃ ĐĂNG NHẬP
-
-    if (user && user.loggedIn && window.db) {
-
-        const userId = user.email ? user.email.replace(/[^a-zA-Z0-9]/g, "_") : "user_member";
-
-        const userName = user.name || user.email || "Thành viên";
-
-        const userClass = user.classRoom || "Học sinh";
-
-
-
-        window.db.collection("users").doc(userId).set({
-
-            name: userName,
-
-            className: userClass,
-
-            ccs: currentScore,
-
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-
-        }, { merge: true }).then(() => {
-
-            if (typeof window.initPersonalLeaderboardListener === 'function') {
-
-                window.initPersonalLeaderboardListener();
-
-            }
-
-        }).catch(err => console.log("Lỗi đồng bộ users:", err));
-
-    }
-
+        if (syncedScore === null) return;
+        const latest = JSON.parse(localStorage.getItem("cyberUser") || "null");
+        if (latest && latest.uid === authUser.uid &&
+            latest.email?.toLowerCase() === email) {
+            latest.score = Math.max(Number(latest.score || 0), syncedScore);
+            localStorage.setItem("cyberUser", JSON.stringify(latest));
+            updateAuthDisplay();
+            refreshScoreDisplay(latest.score);
+        }
+        if (typeof window.initPersonalLeaderboardListener === "function") {
+            window.initPersonalLeaderboardListener();
+        } else if (typeof renderLeaderboard === "function") {
+            renderLeaderboard();
+        }
+    }).catch(err => console.error("Lỗi đồng bộ điểm CCS:", err));
+    return ccsSyncQueue;
 };
 
+window.addScore = function(pointsToAdd) {
+    const points = Number(pointsToAdd) || 0;
+    if (!Number.isFinite(points) || points <= 0) return;
 
+    let user;
+    try { user = JSON.parse(localStorage.getItem("cyberUser") || "null"); }
+    catch (_) { user = null; }
+
+    if (user && user.loggedIn) {
+        user.score = (Number(user.score) || 0) + points;
+        localStorage.setItem("cyberUser", JSON.stringify(user));
+    } else {
+        const guestScore = Number(sessionStorage.getItem("guestScore") || 0);
+        sessionStorage.setItem("guestScore", String(guestScore + points));
+    }
+
+    const score = window.getGlobalScore();
+    updateAuthDisplay();
+    refreshScoreDisplay(score);
+    if (user && user.loggedIn) window.syncCCSToFirebase();
+};
+
+// Đồng bộ điểm cũ ngay khi Firebase xác nhận phiên đăng nhập Google.
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof firebase !== "undefined" && firebase.apps.length) {
+        firebase.auth().onAuthStateChanged(authUser => {
+            if (authUser) window.syncCCSToFirebase();
+        });
+    }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -834,4 +846,29 @@ window.resetAllPagesAndSystem = async function() {
 
     }
 
+};
+// Tự làm mới bảng xếp hạng khi dữ liệu Firebase thay đổi
+document.addEventListener("DOMContentLoaded", function () {
+    if (!window.db) {
+        console.error("Chưa kết nối Firestore để theo dõi điểm CCS");
+        return;
+    }
+
+    window.db.collection("users")
+        .orderBy("ccs", "desc")
+        .limit(5)
+        .onSnapshot(
+            function () {
+                if (typeof renderLeaderboard === "function") {
+                    renderLeaderboard();
+                }
+            },
+            function (error) {
+                console.error("Lỗi cập nhật bảng xếp hạng:", error);
+            }
+        );
+});
+// Tạm vô hiệu hóa chức năng reset toàn bộ hệ thống
+window.resetAllPagesAndSystem = function () {
+    alert("Chức năng đặt lại toàn bộ hệ thống đã bị vô hiệu hóa.");
 };

@@ -4,6 +4,7 @@ async function sendMsgToAI() {
 
     if (!input || !container) return;
 
+    
     const text = input.value.trim();
     if (!text) return;
 

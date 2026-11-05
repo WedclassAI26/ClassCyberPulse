@@ -325,15 +325,7 @@ window.initPersonalLeaderboardListener = function() {
     const activeScore = typeof window.getGlobalScore === 'function' ? window.getGlobalScore() : 0;
 
     if (window.db) {
-        if (isLogged) {
-            const userId = (currentUser.email || 'user').replace(/[^a-zA-Z0-9]/g, "_");
-            window.db.collection("users").doc(userId).set({
-                name: currentUser.name || currentUser.email || 'Thành viên',
-                className: currentUser.classRoom || 'Học sinh',
-                ccs: activeScore,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).catch(() => {});
-        }
+      
 
         // LẮNG NGHE TOÀN BỘ DỮ LIỆU CHUNG TRÊN FIREBASE ĐỂ TẤT CẢ CÁC TRÌNH DUYỆT ĐỀU THẤY GIỐNG HỆT NHAU
         window.db.collection("users")

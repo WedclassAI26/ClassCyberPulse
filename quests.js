@@ -35,46 +35,21 @@ function getCurrentScore() {
 }
 
 function addCCS(points) {
-    if (!points || points <= 0) return;
+    const score = Number(points) || 0;
+    if (score <= 0) return;
 
-    let user = {};
-    try {
-        user = JSON.parse(localStorage.getItem("cyberUser")) || {};
-    } catch (e) {}
-
-    const newScore = getCurrentScore() + points;
-
-    user.score = newScore;
-    localStorage.setItem("cyberUser", JSON.stringify(user));
-    localStorage.setItem("userScore", newScore);
-
-    if (user.email) {
-        localStorage.setItem("cyberScore_" + user.email, newScore);
+    if (typeof window.addScore === "function") {
+        window.addScore(score);
+    } else {
+        console.error("Không tìm thấy hàm cộng điểm toàn hệ thống");
     }
 
-    if (typeof addScoreToUserClass === 'function') {
-        try { addScoreToUserClass(points); } catch (e) {}
-    }
-
-    document.querySelectorAll('*').forEach(el => {
-        if (el.children.length === 0 && el.textContent) {
-            const txt = el.textContent.trim();
-            if (/^\d+\s*CCS$/i.test(txt) || (txt.toUpperCase().endsWith("CCS") && txt.length <= 12)) {
-                el.textContent = newScore + " CCS";
-            }
+    if (typeof addScoreToUserClass === "function") {
+        try {
+            addScoreToUserClass(score);
+        } catch (error) {
+            console.error("Lỗi cộng điểm lớp:", error);
         }
-    });
-
-    if (typeof updateHeaderScore === 'function') {
-        try { updateHeaderScore(); } catch (e) {}
-    }
-
-    if (typeof updateUserInterface === 'function') {
-        try { updateUserInterface(); } catch (e) {}
-    }
-
-    if (typeof loadUserData === 'function') {
-        try { loadUserData(); } catch (e) {}
     }
 }
 
