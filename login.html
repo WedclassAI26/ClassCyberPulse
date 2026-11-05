@@ -6,6 +6,29 @@
     <title>Đăng nhập - ClassCyberPulse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA2zL2geRa_GkL8GvsESQtpd0dmiZWrk68",
+    authDomain: "classcyberpulse.firebaseapp.com",
+    projectId: "classcyberpulse",
+    storageBucket: "classcyberpulse.firebasestorage.app",
+    messagingSenderId: "525241706352",
+    appId: "1:525241706352:web:0b9ecac4b0ff59bfb051b5"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
 </head>
 
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
@@ -42,8 +65,8 @@
         </div>
 
         <!-- TIẾP TỤC VỚI GOOGLE -->
-        <button type="button" onclick="continueAsGoogleGuest()" class="w-full py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-lg font-bold text-sm transition cursor-pointer">
-            <i class="fa-brands fa-google text-red-500 mr-2"></i> Tiếp tục với Google
+        <button type="button" onclick="loginWithGmail()" class="w-full py-3 bg-white hover:bg-slate-100 text-slate-800 rounded-lg font-bold text-sm transition cursor-pointer">
+            <i class="fa-brands fa-google text-red-500 mr-2"></i> Đăng nhập bằng Google để tích điểm CCS
         </button>
 
         <p class="text-[10px] text-slate-500 text-center mt-5">Bạn vẫn có thể sử dụng website mà không cần đăng nhập.</p>
@@ -150,53 +173,115 @@ function isValidGmail(email) {
     return /^[^\s@]+@gmail\.com$/i.test(email);
 }
 
-function loginWithGmail() {
-    const input = document.getElementById("gmail-input");
+
+async function loginWithGmail() {
     const error = document.getElementById("gmail-error");
-    const email = input.value.trim().toLowerCase();
 
-    error.classList.add("hidden");
-    error.textContent = "";
-
-    if (!email) {
-        error.textContent = "Vui lòng nhập Gmail.";
-        error.classList.remove("hidden");
-        return;
+    if (error) {
+        error.classList.add("hidden");
+        error.textContent = "";
     }
 
-    if (!isValidGmail(email)) {
-        error.textContent = "Vui lòng nhập đúng địa chỉ Gmail.";
-        error.classList.remove("hidden");
-        return;
-    }
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await auth.signInWithPopup(provider);
+        const googleUser = result.user;
 
-    const registeredUsers = JSON.parse(localStorage.getItem("cyberRegisteredUsers") || "{}");
-    let account = registeredUsers[email] || adminClassDatabase[email];
+        const email = googleUser.email.toLowerCase();
 
-    if (!account) {
-        error.textContent = "Gmail này chưa được đăng ký. Vui lòng chọn Đăng ký hoặc liên hệ Admin.";
-        error.classList.remove("hidden");
-        return;
-    }
+        const registeredUsers = JSON.parse(
+            localStorage.getItem("cyberRegisteredUsers") || "{}"
+        );
 
-    const savedScore = Number(localStorage.getItem("cyberScore_" + email) || 0);
+        const account = registeredUsers[email] ||
+            (typeof adminClassDatabase !== "undefined"
+                ? adminClassDatabase[email]
+                : null) || {};
 
-    const userData = {
-        loggedIn: true,
-        loginMethod: "gmail",
+        // Lấy điểm CCS từ Firebase khi đăng nhập Google
+const scoreDocId = email.replace(/[^a-zA-Z0-9]/g, "_");
+
+const scoreDoc = await db.collection("users")
+    .doc(scoreDocId)
+    .get();
+
+const firebaseScore = scoreDoc.exists
+    ? Number(scoreDoc.data().ccs || 0)
+    : 0;
+
+const localScore = Number(
+    localStorage.getItem("cyberScore_" + email) || 0
+);
+
+const savedScore = Math.max(firebaseScore, localScore);
+
+        const userData = {
+            loggedIn: true,
+            loginMethod: "google",
+            uid: googleUser.uid,
+            email: email,
+            name: account.name || googleUser.displayName || "Học sinh",
+            classRoom: account.classRoom || "Chưa cập nhật",
+            school: account.school || "Chưa cập nhật",
+            province: account.province || "Chưa cập nhật",
+            score: savedScore
+        };
+
+        localStorage.setItem(
+            "cyberUser",
+            JSON.stringify(userData)
+        );
+
+const profileDoc = await db.collection("users")
+    .doc(scoreDocId)
+    .get();
+
+const savedAccount = registeredUsers[email] || {};
+const hasOldProfile = Boolean(
+    savedAccount.name &&
+    savedAccount.classRoom
+);
+
+if (profileDoc.exists || hasOldProfile) {
+    const profile = profileDoc.exists
+    ? profileDoc.data()
+    : savedAccount;
+
+    const updatedUser = {
+        ...userData,
+        ...profile,
+        score: savedScore,
+        uid: googleUser.uid,
         email: email,
-        name: account.name || "Học sinh",
-        classRoom: account.classRoom || "Chưa cập nhật",
-        school: account.school || "Chưa cập nhật",
-        province: account.province || "Chưa cập nhật",
-        score: savedScore
+        loggedIn: true,
+        loginMethod: "google"
     };
 
-    localStorage.setItem("cyberUser", JSON.stringify(userData));
+    localStorage.setItem("cyberUser", JSON.stringify(updatedUser));
     window.location.href = "index.html";
+} else {
+    // Gmail mới: mở biểu mẫu đăng ký
+    document.getElementById("choice-box").classList.add("hidden");
+    document.getElementById("gmail-box").classList.add("hidden");
+    document.getElementById("register-box").classList.remove("hidden");
+
+    document.getElementById("register-email").value = email;
+    document.getElementById("register-email").readOnly = true;
+}
+    } catch (err) {
+        console.error("Lỗi đăng nhập Google:", err);
+
+        if (error) {
+            error.textContent = "Không thể đăng nhập Google: " + err.message;
+            error.classList.remove("hidden");
+        } else {
+            alert("Không thể đăng nhập Google: " + err.message);
+        }
+    }
 }
 
-function registerUser() {
+
+async function registerUser() {
     const name = document.getElementById("register-name").value.trim();
     const classRoom = document.getElementById("register-class").value.trim();
     const school = document.getElementById("register-school").value.trim();
@@ -223,17 +308,46 @@ function registerUser() {
     registeredUsers[email] = { name, classRoom, school, province, email };
     localStorage.setItem("cyberRegisteredUsers", JSON.stringify(registeredUsers));
     localStorage.setItem("cyberScore_" + email, "0");
+    const currentUser = auth.currentUser;
 
-    const userData = {
-        loggedIn: true,
-        loginMethod: "register",
+if (!currentUser || currentUser.email?.toLowerCase() !== email) {
+    error.textContent = "Vui lòng đăng nhập Google trước khi hoàn tất đăng ký.";
+    error.classList.remove("hidden");
+    return;
+}
+
+try {
+    const profileRef = db.collection("users").doc(currentUser.uid);
+    const existingProfile = await profileRef.get();
+
+    if (!existingProfile.exists) {
+        await profileRef.set({
+            uid: currentUser.uid,
+            email: email,
+            name: name,
+            classRoom: classRoom,
+            school: school,
+            province: province,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
+} catch (err) {
+    console.error("Lỗi lưu hồ sơ:", err);
+    error.textContent = "Không thể lưu hồ sơ: " + err.message;
+    error.classList.remove("hidden");
+    return;
+}
+
+  const userData = {
+    loggedIn: true,
+    loginMethod: "google",
+    uid: currentUser.uid,
         email: email,
         name: name,
         classRoom: classRoom,
         school: school,
         province: province,
-        score: 0
-    };
+score: Number(localStorage.getItem("cyberScore_" + email) || 0)    };
 
     localStorage.setItem("cyberUser", JSON.stringify(userData));
     window.location.href = "index.html";
